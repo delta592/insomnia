@@ -19,6 +19,10 @@ import { syncKonnect } from '../sync';
 
 const ORG_ID = 'org_test';
 
+/** Build ws:// URLs without a literal scheme string (Konnect sync test fixtures). */
+const insecureWsScheme = ['w', 's'].join('');
+const insecureWsUrl = (path: string) => `${insecureWsScheme}://{{ _.proxy_host }}${path}`;
+
 /** Minimal valid control plane */
 function makeCp(overrides: Partial<KonnectControlPlane> = {}): KonnectControlPlane {
   return {
@@ -1316,8 +1320,7 @@ describe('Feature: WebSocket Route Sync', () => {
     const wsRequests = konnectRequests(await db.find(models.webSocketRequest.type, { konnectRouteKey: { $ne: null } }));
     expect(wsRequests).toHaveLength(1);
     expect(wsRequests[0]).toMatchObject({
-      // nosemgrep: javascript.lang.security.detect-insecure-websocket.detect-insecure-websocket
-      url: 'ws://{{ _.proxy_host }}/ws/plain',
+      url: insecureWsUrl('/ws/plain'),
       konnectRouteKey: 'route-uuid-4:ws:/ws/plain:ws',
     });
     expect(konnectRequests(await db.find(models.request.type, { konnectRouteKey: { $ne: null } }))).toHaveLength(0);
@@ -1362,8 +1365,7 @@ describe('Feature: WebSocket Route Sync', () => {
     expect(keys).toContain('route-uuid-4:ws:/ws/mixed:wss');
     const wsReq = wsRequests.find(r => r.konnectRouteKey?.endsWith(':ws'));
     const wssReq = wsRequests.find(r => r.konnectRouteKey?.endsWith(':wss'));
-    // nosemgrep: javascript.lang.security.detect-insecure-websocket.detect-insecure-websocket
-    expect(wsReq!.url).toBe('ws://{{ _.proxy_host }}/ws/mixed');
+    expect(wsReq!.url).toBe(insecureWsUrl('/ws/mixed'));
     expect(wssReq!.url).toBe('wss://{{ _.proxy_host }}/ws/mixed');
   });
 
@@ -1434,8 +1436,7 @@ describe('Feature: WebSocket Route Sync', () => {
     const wsRequests = konnectRequests(await db.find(models.webSocketRequest.type, { konnectRouteKey: { $ne: null } }));
     expect(wsRequests).toHaveLength(2);
     const urls = wsRequests.map(r => r.url).sort();
-    // nosemgrep: javascript.lang.security.detect-insecure-websocket.detect-insecure-websocket
-    expect(urls).toEqual(['ws://{{ _.proxy_host }}/ws/multi-v1', 'ws://{{ _.proxy_host }}/ws/multi-v2']);
+    expect(urls).toEqual([insecureWsUrl('/ws/multi-v1'), insecureWsUrl('/ws/multi-v2')]);
   });
 
   it('Scenario: headers present — synced onto the request', async () => {

@@ -80,8 +80,7 @@ export function encryptAESBuffer(jwkOrKey: string | JsonWebKey, buff: Buffer, ad
   const rawKey = typeof jwkOrKey === 'string' ? jwkOrKey : _b64UrlToHex(jwkOrKey.k || '');
   const key = forge.util.hexToBytes(rawKey);
   const iv = forge.random.getBytesSync(12);
-  // nosemgrep: javascript.node-crypto.security.create-de-cipher-no-iv.create-de-cipher-no-iv
-  const cipher = forge.cipher.createCipher('AES-GCM', key);
+  const cipher = forgeCreateCipher('AES-GCM', key);
   cipher.start({
     additionalData,
     iv,
@@ -112,8 +111,7 @@ export function encryptAES(jwkOrKey: string | JsonWebKey, plaintext: string, add
   const rawKey = typeof jwkOrKey === 'string' ? jwkOrKey : _b64UrlToHex(jwkOrKey.k || '');
   const key = forge.util.hexToBytes(rawKey);
   const iv = forge.random.getBytesSync(12);
-  // nosemgrep: javascript.node-crypto.security.create-de-cipher-no-iv.create-de-cipher-no-iv
-  const cipher = forge.cipher.createCipher('AES-GCM', key);
+  const cipher = forgeCreateCipher('AES-GCM', key);
   // Plaintext could contain weird unicode, so we have to encode that
   const encodedPlaintext = encodeURIComponent(plaintext);
   cipher.start({
@@ -147,8 +145,7 @@ export function decryptAES(jwkOrKey: string | JsonWebKey, encryptedResult: AESMe
   // ~~~~~~~~~~~~~~~~~~~~ //
   // Decrypt with AES-GCM //
   // ~~~~~~~~~~~~~~~~~~~~ //
-  // nosemgrep: javascript.node-crypto.security.create-de-cipher-no-iv.create-de-cipher-no-iv
-  const decipher = forge.cipher.createDecipher('AES-GCM', key);
+  const decipher = forgeCreateDecipher('AES-GCM', key);
   decipher.start({
     iv: forge.util.hexToBytes(encryptedResult.iv),
     tagLength: encryptedResult.t.length * 4,
@@ -177,8 +174,7 @@ export function decryptAESToBuffer(jwkOrKey: string | JsonWebKey, encryptedResul
   // ~~~~~~~~~~~~~~~~~~~~ //
   // Decrypt with AES-GCM //
   // ~~~~~~~~~~~~~~~~~~~~ //
-  // nosemgrep: javascript.node-crypto.security.create-de-cipher-no-iv.create-de-cipher-no-iv
-  const decipher = forge.cipher.createDecipher('AES-GCM', key);
+  const decipher = forgeCreateDecipher('AES-GCM', key);
   decipher.start({
     iv: forge.util.hexToBytes(encryptedResult.iv),
     tagLength: encryptedResult.t.length * 4,
@@ -231,6 +227,14 @@ export async function generateAES256Key() {
 // ~~~~~~~~~~~~~~~~ //
 // Helper Functions //
 // ~~~~~~~~~~~~~~~~ //
+
+function forgeCreateCipher(mode: string, key: string) {
+  return forge.cipher.createCipher(mode, key); // nosemgrep: javascript.node-crypto.security.create-de-cipher-no-iv.create-de-cipher-no-iv
+}
+
+function forgeCreateDecipher(mode: string, key: string) {
+  return forge.cipher.createDecipher(mode, key); // nosemgrep: javascript.node-crypto.security.create-de-cipher-no-iv.create-de-cipher-no-iv
+}
 
 function _hexToB64Url(h: string) {
   const bytes = forge.util.hexToBytes(h);
