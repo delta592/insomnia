@@ -3,8 +3,8 @@ import { getPlatformKeyCombinations, keyboardKeys } from 'insomnia-data/common';
 import { useEffect } from 'react';
 import {
   createKeybindingsHandler as _createKeybindingsHandler,
-  type KeyBindingHandlerOptions,
-  type KeyBindingMap,
+  type KeybindingHandlerOptions,
+  type KeybindingsMap,
   tinykeys,
 } from 'tinykeys';
 
@@ -33,7 +33,7 @@ export function useKeyboardShortcuts(
     // makes a copy of each listener for each hot key variation for a given behaviour
     // hot key variations are multiple hotkeys that can trigger the same behaviour
     // eg. Control+Space, Control+Shift+Space both could trigger SHOW_AUTOCOMPLETE
-    const keyBindingMap: KeyBindingMap = Object.fromEntries(
+    const keyBindingMap: KeybindingsMap = Object.fromEntries(
       keyboardShortcuts
         .flatMap(([keyboardShortcut, action]) =>
           getPlatformKeyCombinations(hotKeyRegistry[keyboardShortcut]).map(combo => ({
@@ -58,8 +58,8 @@ export function useDocBodyKeyboardShortcuts(
 }
 
 export function createKeybindingsHandler(
-  keyBindingMap: KeyBindingMap,
-  options: KeyBindingHandlerOptions = {},
+  keyBindingMap: KeybindingsMap,
+  options: KeybindingHandlerOptions = {},
 ): (event: KeyboardEvent | React.KeyboardEvent<Element>) => void {
   const handler = _createKeybindingsHandler(keyBindingMap, options);
 

@@ -1,7 +1,7 @@
 import { URL } from 'node:url';
 
 import type { RequestAuthentication } from 'insomnia-data';
-import { type ControlOperator, parse, type ParseEntry } from 'shell-quote';
+import { parse, type ParseEntry } from 'shell-quote';
 
 import { type Converter, type ImportRequest, type Parameter } from '../entities';
 
@@ -496,7 +496,16 @@ export const convert: Converter = async rawData => {
       continue;
     }
 
-    const { op } = parseEntry as { op: 'glob'; pattern: string } | { op: ControlOperator };
+    if (typeof parseEntry !== 'object' || !('op' in parseEntry)) {
+      continue;
+    }
+
+    if (parseEntry.op === 'glob') {
+      currentCommand.push(parseEntry.pattern);
+      continue;
+    }
+
+    const { op } = parseEntry;
 
     // `;` separates commands
     if (op === ';') {
@@ -505,16 +514,11 @@ export const convert: Converter = async rawData => {
       continue;
     }
 
-    if (op?.startsWith('$')) {
+    if (op.startsWith('$')) {
       // Handle the case where literal like -H $'Header: \'Some Quoted Thing\''
       const str = op.slice(2, -1).replace(/\\'/g, "'");
 
       currentCommand.push(str);
-      continue;
-    }
-
-    if (op === 'glob') {
-      currentCommand.push((parseEntry as { op: 'glob'; pattern: string }).pattern);
       continue;
     }
 

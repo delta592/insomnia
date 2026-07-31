@@ -1,4 +1,6 @@
-type Platform = NodeJS.Platform;
+type Platform = string;
+
+declare const process: { platform: string } | undefined;
 
 interface INodeProcess {
   platform: string;

@@ -1,5 +1,5 @@
 import { PressResponder } from '@react-aria/interactions';
-import type { AriaMenuProps, MenuTriggerProps } from '@react-types/menu';
+import type { MenuTriggerProps } from '@react-types/menu';
 import type { Placement } from '@react-types/overlays';
 import { type CSSProperties, forwardRef, type ReactNode, useImperativeHandle, useRef } from 'react';
 import { mergeProps, useMenuTrigger } from 'react-aria';
@@ -83,7 +83,7 @@ export const Dropdown = forwardRef<DropdownHandle, DropdownProps>((props: Dropdo
       {state.isOpen && (
         <Popover state={state} triggerRef={triggerRef} placement={placement || 'bottom end'}>
           <Menu
-            {...mergeProps(ariaMenuProps, menuProps)}
+            {...(mergeProps(ariaMenuProps, menuProps) as AriaMenuProps<object>)}
             selectionMode={selectionMode}
             closeOnSelect={closeOnSelect}
             autoFocus={state.focusStrategy || true}

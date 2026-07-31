@@ -285,7 +285,7 @@ export interface AppContext {
   ) => Promise<void>;
   prompt: (title: string, options?: AppPromptOptions) => Promise<string>;
   getPath: (name: string) => Promise<string>;
-  getInfo: () => { version: string; platform: NodeJS.Platform };
+  getInfo: () => { version: string; platform: string };
   showSaveDialog: (options?: { defaultPath?: string }) => Promise<string | null>;
   clipboard: { readText(): Promise<string>; writeText(text: string): Promise<void>; clear(): Promise<void> };
 }
@@ -310,7 +310,7 @@ export interface PluginTemplateTagContext {
   util: {
     nodeOS: () => Promise<{
       arch: string;
-      platform: NodeJS.Platform;
+      platform: string;
       release: string;
     }>;
     readFile: (path: string) => Promise<string>;
