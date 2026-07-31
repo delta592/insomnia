@@ -3189,7 +3189,7 @@ async function initSignInToGitProvider({ provider }: { provider: GitRemoteProvid
 
     return {};
   } catch (error) {
-    console.error(`Failed to initiate the ${provider} OAuth flow:`, error);
+    console.error('Failed to initiate the', provider, 'OAuth flow:', error);
     return { errors: [`Failed to initiate the ${provider} OAuth flow. ${getErrorMessage(error)}`] };
   }
 }

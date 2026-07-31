@@ -108,7 +108,9 @@ export function initializeGitRemoteProviders(): void {
 
   const providers = gitRemoteProviderRegistry.getAll();
   console.log(
-    `[Git Providers] Initialized ${providers.length} providers:`,
+    '[Git Providers] Initialized',
+    providers.length,
+    'providers:',
     providers.map(p => p.config.type).join(', '),
   );
 }

@@ -164,7 +164,7 @@ export default async function installPlugin(pluginName: string, allowScopedPacka
     });
   } catch (err) {
     // Log and rethrow any installation errors
-    console.error(`[plugins] Failed to install plugin ${pluginName}:`, err);
+    console.error('[plugins] Failed to install plugin', pluginName, err);
     throw err;
   } finally {
     // Ensure the temporary directory is cleaned up
@@ -172,7 +172,7 @@ export default async function installPlugin(pluginName: string, allowScopedPacka
       try {
         await rm(tmpDir, { recursive: true, force: true });
       } catch (error) {
-        console.warn(`[plugins] Failed to clean tmp dir ${tmpDir}:`, error);
+        console.warn('[plugins] Failed to clean tmp dir', tmpDir, error);
       }
     }
   }

@@ -266,7 +266,7 @@ describe('search()', () => {
       _id: uid('ws'),
       name: 'WsEvent',
       parentId: wsId,
-      url: 'ws://svc',
+      url: 'wss://svc',
     });
 
     const result = await commandSearch({

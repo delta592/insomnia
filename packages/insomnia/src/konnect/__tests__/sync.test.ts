@@ -1316,6 +1316,7 @@ describe('Feature: WebSocket Route Sync', () => {
     const wsRequests = konnectRequests(await db.find(models.webSocketRequest.type, { konnectRouteKey: { $ne: null } }));
     expect(wsRequests).toHaveLength(1);
     expect(wsRequests[0]).toMatchObject({
+      // nosemgrep: javascript.lang.security.detect-insecure-websocket.detect-insecure-websocket
       url: 'ws://{{ _.proxy_host }}/ws/plain',
       konnectRouteKey: 'route-uuid-4:ws:/ws/plain:ws',
     });
@@ -1361,6 +1362,7 @@ describe('Feature: WebSocket Route Sync', () => {
     expect(keys).toContain('route-uuid-4:ws:/ws/mixed:wss');
     const wsReq = wsRequests.find(r => r.konnectRouteKey?.endsWith(':ws'));
     const wssReq = wsRequests.find(r => r.konnectRouteKey?.endsWith(':wss'));
+    // nosemgrep: javascript.lang.security.detect-insecure-websocket.detect-insecure-websocket
     expect(wsReq!.url).toBe('ws://{{ _.proxy_host }}/ws/mixed');
     expect(wssReq!.url).toBe('wss://{{ _.proxy_host }}/ws/mixed');
   });
@@ -1432,6 +1434,7 @@ describe('Feature: WebSocket Route Sync', () => {
     const wsRequests = konnectRequests(await db.find(models.webSocketRequest.type, { konnectRouteKey: { $ne: null } }));
     expect(wsRequests).toHaveLength(2);
     const urls = wsRequests.map(r => r.url).sort();
+    // nosemgrep: javascript.lang.security.detect-insecure-websocket.detect-insecure-websocket
     expect(urls).toEqual(['ws://{{ _.proxy_host }}/ws/multi-v1', 'ws://{{ _.proxy_host }}/ws/multi-v2']);
   });
 

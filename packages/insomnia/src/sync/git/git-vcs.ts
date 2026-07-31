@@ -329,7 +329,7 @@ export class GitVCS {
       // Don't care about returning remote HEAD
       return GitVCS.sortBranches(branches.filter(b => b.ref !== 'HEAD').map(b => b.ref.replace('refs/heads/', '')));
     } catch (e) {
-      console.log(`[git] Failed to list remote branches for ${uri}`, e);
+      console.log('[git] Failed to list remote branches for', uri, e);
       return [];
     }
   }

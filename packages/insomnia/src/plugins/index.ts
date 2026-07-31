@@ -197,7 +197,7 @@ async function traversePluginPath(
           module: module,
         };
       } catch (err) {
-        console.error(`[plugin] Error while loading plugin from ${p}/${filename}:`, err);
+        console.error('[plugin] Error while loading plugin from', p, filename, err);
       }
     }
   }
@@ -276,11 +276,13 @@ function getBundlePluginMap() {
     } catch (err) {
       if (isDevelopment()) {
         console.warn(
-          `[plugin] Failed to load bundled plugin ${pluginName}. You can ignore this warning if you not developing external vault feature.`,
+          '[plugin] Failed to load bundled plugin',
+          pluginName,
+          'You can ignore this warning if you not developing external vault feature.',
           err,
         );
       } else {
-        console.error(`Failed to load bundled plugin ${pluginName}`, err);
+        console.error('Failed to load bundled plugin', pluginName, err);
       }
     }
   });

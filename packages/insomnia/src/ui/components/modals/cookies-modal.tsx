@@ -578,7 +578,7 @@ const CookieModifyModal = ({ cookie, isOpen, setIsOpen, onUpdateCookie }: Cookie
                                     setEditCookie(parsed as Cookie);
                                   }
                                 } catch (err) {
-                                  console.warn(`Failed to parse cookie string "${str}"`, err);
+                                  console.warn('Failed to parse cookie string', str, err);
                                 }
                               }}
                             />

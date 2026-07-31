@@ -197,7 +197,7 @@ export const translateHandlersInScript = (scriptContent: string) => {
     try {
       translated = translated.replaceAll(rule.pattern, rule.replacement);
     } catch (error) {
-      console.warn(`Failed to apply postprocess rule "${rule.pattern}":`, error);
+      console.warn('Failed to apply postprocess rule', rule.pattern, error);
     }
   }
 

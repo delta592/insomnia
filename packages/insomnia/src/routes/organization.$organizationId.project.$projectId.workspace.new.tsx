@@ -489,8 +489,7 @@ async function createMockRoutes(
         });
       }
     } catch (error) {
-      const msg = `Failed to register route ${mockRoute.method} ${mockRoute.name}:`;
-      console.error(msg, error);
+      console.error('Failed to register route', mockRoute.method, mockRoute.name, error);
     }
   }
 }

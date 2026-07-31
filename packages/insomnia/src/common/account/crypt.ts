@@ -80,6 +80,7 @@ export function encryptAESBuffer(jwkOrKey: string | JsonWebKey, buff: Buffer, ad
   const rawKey = typeof jwkOrKey === 'string' ? jwkOrKey : _b64UrlToHex(jwkOrKey.k || '');
   const key = forge.util.hexToBytes(rawKey);
   const iv = forge.random.getBytesSync(12);
+  // nosemgrep: javascript.node-crypto.security.create-de-cipher-no-iv.create-de-cipher-no-iv
   const cipher = forge.cipher.createCipher('AES-GCM', key);
   cipher.start({
     additionalData,
@@ -111,6 +112,7 @@ export function encryptAES(jwkOrKey: string | JsonWebKey, plaintext: string, add
   const rawKey = typeof jwkOrKey === 'string' ? jwkOrKey : _b64UrlToHex(jwkOrKey.k || '');
   const key = forge.util.hexToBytes(rawKey);
   const iv = forge.random.getBytesSync(12);
+  // nosemgrep: javascript.node-crypto.security.create-de-cipher-no-iv.create-de-cipher-no-iv
   const cipher = forge.cipher.createCipher('AES-GCM', key);
   // Plaintext could contain weird unicode, so we have to encode that
   const encodedPlaintext = encodeURIComponent(plaintext);
@@ -145,6 +147,7 @@ export function decryptAES(jwkOrKey: string | JsonWebKey, encryptedResult: AESMe
   // ~~~~~~~~~~~~~~~~~~~~ //
   // Decrypt with AES-GCM //
   // ~~~~~~~~~~~~~~~~~~~~ //
+  // nosemgrep: javascript.node-crypto.security.create-de-cipher-no-iv.create-de-cipher-no-iv
   const decipher = forge.cipher.createDecipher('AES-GCM', key);
   decipher.start({
     iv: forge.util.hexToBytes(encryptedResult.iv),
@@ -174,6 +177,7 @@ export function decryptAESToBuffer(jwkOrKey: string | JsonWebKey, encryptedResul
   // ~~~~~~~~~~~~~~~~~~~~ //
   // Decrypt with AES-GCM //
   // ~~~~~~~~~~~~~~~~~~~~ //
+  // nosemgrep: javascript.node-crypto.security.create-de-cipher-no-iv.create-de-cipher-no-iv
   const decipher = forge.cipher.createDecipher('AES-GCM', key);
   decipher.start({
     iv: forge.util.hexToBytes(encryptedResult.iv),

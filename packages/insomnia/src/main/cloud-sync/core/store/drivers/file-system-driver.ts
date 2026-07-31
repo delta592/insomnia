@@ -46,7 +46,7 @@ export default class FileSystemDriver implements BaseDriver {
       await fs.writeFile(tmpPath, value, 'utf8');
       await gracefulRename(tmpPath, finalPath);
     } catch (err) {
-      console.error(`[FileSystemDriver] Failed to write to ${tmpPath} then rename to ${finalPath}`, err);
+      console.error('[FileSystemDriver] Failed to write to', tmpPath, 'then rename to', finalPath, err);
       throw err;
     }
   }

@@ -164,7 +164,7 @@ const _handleTransportError = (context: ConnectionContext, message: JSONRPCReque
     },
   };
   writeEventLogAndNotify(context, messageEvent);
-  console.error(`Transport error for ${context.requestId}`, error);
+  console.error('Transport error for', context.requestId, error);
 };
 
 const _handleMcpClientError = (context: ConnectionContext, error: Error, prefix?: string) => {
@@ -175,7 +175,7 @@ const _handleMcpClientError = (context: ConnectionContext, error: Error, prefix?
     error: errorMessage,
   };
   writeEventLogAndNotify(context, messageEvent);
-  console.error(`MCP client error for ${context.requestId}`, error);
+  console.error('MCP client error for', context.requestId, error);
 };
 
 const createErrorResponse = async (

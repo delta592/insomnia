@@ -75,7 +75,7 @@ export const resolveDbByKey = async (request: Request) => {
     const result = await handler(body);
     return new Response(JSON.stringify(result), { headers: cors });
   } catch (err) {
-    console.error(`Error resolving db by key ${urlHostLowerCase}:`, err);
+    console.error('Error resolving db by key', urlHostLowerCase, err);
     return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: cors });
   }
 };

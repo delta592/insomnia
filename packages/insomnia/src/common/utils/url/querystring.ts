@@ -187,7 +187,7 @@ export const flexibleEncodeComponent = (str = '', ignore = '') => {
   // it back to %40 at the end.
   const replacements: string[][] = [];
   for (const c of ignore) {
-    const code = encodeURIComponent(c).replace('%', '');
+    const code = encodeURIComponent(c).replace(/%/g, '');
     const raw = `__RAW__${code}`;
     replacements.push([raw, c]);
     const escaped = c.replace(ESCAPE_REGEX_MATCH, '\\$&');

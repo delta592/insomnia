@@ -31,7 +31,7 @@ const gitAdapter: DbAdapter = async (dir, filterTypes) => {
     try {
       contents = await fs.promises.readFile(fileName, 'utf8');
     } catch (error) {
-      console.error(`Failed to read "${fileName}"`, error);
+      console.error('Failed to read', fileName, error);
       return;
     }
     const obj = YAML.parse(contents);
@@ -47,7 +47,7 @@ const gitAdapter: DbAdapter = async (dir, filterTypes) => {
       try {
         files = await fs.promises.readdir(typeDir);
       } catch (error) {
-        console.error(`Failed to read "${typeDir}"`, error);
+        console.error('Failed to read', typeDir, error);
         return;
       }
       return Promise.all(

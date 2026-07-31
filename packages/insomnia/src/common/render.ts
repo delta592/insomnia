@@ -302,7 +302,7 @@ export async function render<T>(
           input = await getRuntime().templating.renderTemplate({ input, context, path, ignoreUndefinedEnvVariable });
         }
       } catch (err) {
-        console.log(`Failed to render element ${path}`, input);
+        console.log('Failed to render element', path, input);
         if (errorMode !== 'keep') {
           if (err?.extraInfo?.subType === 'environmentVariable') {
             undefinedEnvironmentVariables.push(...err.extraInfo.undefinedEnvironmentVariables);

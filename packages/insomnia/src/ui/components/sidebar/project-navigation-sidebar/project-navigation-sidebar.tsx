@@ -376,7 +376,7 @@ const ProjectNavigationSidebarInner = (
         result.set(projectId, files);
       }
     } catch (error) {
-      console.error(`Failed to fetch unsynced files for organization ${organizationId}`, error);
+      console.error('Failed to fetch unsynced files for organization', organizationId, error);
       for (const projectId of cloudSyncProjectIds) {
         result.set(projectId, []);
       }
