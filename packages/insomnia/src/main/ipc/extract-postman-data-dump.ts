@@ -1,13 +1,40 @@
+import fs from 'node:fs/promises';
 import path from 'node:path';
 
-import decompress from 'decompress';
+import { unzip } from 'fflate';
+
+interface ExtractedFile {
+  path: string;
+  data: Buffer;
+}
+
+async function extractZip(
+  filePath: string,
+  filter: (file: { path: string }) => boolean,
+): Promise<ExtractedFile[]> {
+  const buffer = await fs.readFile(filePath);
+  const unzipped = await new Promise<Record<string, Uint8Array>>((resolve, reject) => {
+    unzip(new Uint8Array(buffer), (err, data) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(data);
+    });
+  });
+
+  return Object.entries(unzipped)
+    .filter(([entryPath]) => filter({ path: entryPath }))
+    .map(([entryPath, data]) => ({
+      path: entryPath,
+      data: Buffer.from(data),
+    }));
+}
 
 export default async function extractPostmanDataDumpHandler(_event: unknown, dataDumpFilePath: string) {
-  let files: decompress.File[];
+  let files: ExtractedFile[];
   try {
-    files = await decompress(dataDumpFilePath, undefined, {
-      filter: (file: { path: string }) => path.extname(file.path) === '.json',
-    });
+    files = await extractZip(dataDumpFilePath, file => path.extname(file.path) === '.json');
   } catch (err) {
     return {
       err: `Failed to extract files from the archive, ${err.message}`,
