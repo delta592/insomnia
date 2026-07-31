@@ -1,5 +1,5 @@
 // Left from @marckong here: slightly modified from this PR - https://github.com/Kong/insomnia-website/pull/41
-import React, { forwardRef, memo, useEffect, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
+import { forwardRef, memo, useEffect, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
 
 import { animateTrailPaths, internals, random } from './trail-lines-animation';
 
