@@ -15,7 +15,7 @@ export interface DropdownHandle {
   toggle: (filterVisible?: boolean) => void;
 }
 
-export interface DropdownProps extends AriaMenuProps<any>, MenuTriggerProps {
+export interface DropdownProps extends Omit<AriaMenuProps<any>, 'children'>, MenuTriggerProps {
   children?: ReactNode;
   label?: string;
   triggerButton?: ReactNode;
@@ -40,11 +40,22 @@ export const Dropdown = forwardRef<DropdownHandle, DropdownProps>((props: Dropdo
     isDisabled = false,
     onOpen,
     onClose,
+    closeOnSelect,
+    trigger,
+    defaultOpen,
+    isOpen,
+    onOpenChange,
+    ...ariaMenuProps
   } = props;
 
   const state: MenuTriggerState = useMenuTriggerState({
-    ...props,
-    onOpenChange: isOpen => (isOpen ? onOpen?.() : onClose?.()),
+    trigger,
+    defaultOpen,
+    isOpen,
+    onOpenChange: open => {
+      onOpenChange?.(open);
+      open ? onOpen?.() : onClose?.();
+    },
   });
 
   useImperativeHandle(ref, () => ({
@@ -72,9 +83,9 @@ export const Dropdown = forwardRef<DropdownHandle, DropdownProps>((props: Dropdo
       {state.isOpen && (
         <Popover state={state} triggerRef={triggerRef} placement={placement || 'bottom end'}>
           <Menu
-            {...mergeProps(props, menuProps)}
+            {...mergeProps(ariaMenuProps, menuProps)}
             selectionMode={selectionMode}
-            closeOnSelect={props.closeOnSelect}
+            closeOnSelect={closeOnSelect}
             autoFocus={state.focusStrategy || true}
           />
         </Popover>

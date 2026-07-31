@@ -75,6 +75,8 @@
     "vitest": "^3.2.4"
   },
   "overrides": {
+    "@types/react": "18.3.20",
+    "@types/react-dom": "18.3.6",
     "ajv-draft-04": {
       "ajv": "$ajv"
     },
