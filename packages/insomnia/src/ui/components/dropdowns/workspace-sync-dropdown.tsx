@@ -1,5 +1,5 @@
 import { models } from 'insomnia-data';
-import React, { type FC } from 'react';
+import { type FC } from 'react';
 
 import { useRootLoaderData } from '~/root';
 

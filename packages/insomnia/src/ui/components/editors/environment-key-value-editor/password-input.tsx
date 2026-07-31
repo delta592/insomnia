@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import { OneLineEditor } from '~/ui/components/.client/codemirror/one-line-editor';
 

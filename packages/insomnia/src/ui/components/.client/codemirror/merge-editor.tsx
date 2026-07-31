@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import CodeMirror from 'codemirror';
 import type { MergeView } from 'codemirror/addon/merge/merge';
 import { DiffMatchPatch, DiffOp } from 'diff-match-patch-ts';
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { debounce } from '~/common/misc';
 import { useIsLightTheme } from '~/ui/hooks/theme';

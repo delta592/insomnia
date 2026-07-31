@@ -1,5 +1,5 @@
 import type { SettingsOfType } from 'insomnia-data/common';
-import React, { type PropsWithChildren, type ReactNode } from 'react';
+import { type PropsWithChildren, type ReactNode } from 'react';
 
 import { useRootLoaderData } from '~/root';
 

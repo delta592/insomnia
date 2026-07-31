@@ -1,5 +1,4 @@
 import type { BaseModel } from 'insomnia-data';
-import React from 'react';
 
 import type { NunjucksParsedTag } from '~/common/templating/types';
 import { isBase64String, isValidJSONString } from '~/ui/utils/string-check';

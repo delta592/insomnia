@@ -1,4 +1,4 @@
-import React, { type FC, PureComponent } from 'react';
+import { type FC, PureComponent } from 'react';
 
 import type { HandleRender } from '~/common/templating/types';
 

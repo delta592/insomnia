@@ -1,6 +1,6 @@
 import type { RequestTestResult } from 'insomnia-data';
 import { fuzzyMatch } from 'insomnia-data/common';
-import React, { type FC, useState } from 'react';
+import { type FC, useState } from 'react';
 import { Toolbar } from 'react-aria-components';
 
 type TargetTestType = 'all' | 'passed' | 'failed' | 'skipped';

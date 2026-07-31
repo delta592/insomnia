@@ -1,6 +1,6 @@
 import type { GrpcRequest, GrpcRequestHeader, RequestGroup } from 'insomnia-data';
 import { models, services } from 'insomnia-data';
-import React, { type FunctionComponent, useRef, useState } from 'react';
+import { type FunctionComponent, useRef, useState } from 'react';
 import { Tab, TabList, TabPanel, Tabs } from 'react-aria-components';
 import { useParams } from 'react-router';
 import * as reactUse from 'react-use';

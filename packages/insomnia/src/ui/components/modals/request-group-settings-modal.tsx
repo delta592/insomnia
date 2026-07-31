@@ -1,5 +1,5 @@
 import type { RequestGroup } from 'insomnia-data';
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { OverlayContainer } from 'react-aria';
 import { useNavigate, useParams } from 'react-router';
 
@@ -83,7 +83,8 @@ export const RequestGroupSettingsModal = ({
   };
 
   return (
-    <OverlayContainer onClick={e => e.stopPropagation()}>
+    <OverlayContainer>
+      <div onClick={e => e.stopPropagation()}>
       <Modal ref={modalRef} onHide={onHide}>
         <ModalHeader>
           Folder Settings <span className="txt-sm selectable faint monospace">{requestGroup?._id || ''}</span>
@@ -152,6 +153,7 @@ export const RequestGroupSettingsModal = ({
           </div>
         </ModalBody>
       </Modal>
+      </div>
     </OverlayContainer>
   );
 };

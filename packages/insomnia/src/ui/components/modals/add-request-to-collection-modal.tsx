@@ -1,7 +1,7 @@
 import type { BaseModel } from 'insomnia-data';
 import { models, services } from 'insomnia-data';
 import { strings } from 'insomnia-data/common';
-import React, { type FC, type MouseEventHandler, useEffect, useRef, useState } from 'react';
+import { type FC, type MouseEventHandler, useEffect, useRef, useState } from 'react';
 import { OverlayContainer } from 'react-aria';
 import { useParams } from 'react-router';
 
@@ -83,7 +83,8 @@ export const AddRequestToCollectionModal: FC<AddRequestModalProps> = ({ onHide }
   }, [onHide, requestFetcher.state]);
 
   return (
-    <OverlayContainer onClick={e => e.stopPropagation()}>
+    <OverlayContainer>
+      <div onClick={e => e.stopPropagation()}>
       <Modal onHide={onHide} ref={modalRef}>
         <ModalHeader>Add Request</ModalHeader>
         <ModalBody className="wide">
@@ -155,6 +156,7 @@ export const AddRequestToCollectionModal: FC<AddRequestModalProps> = ({ onHide }
           </div>
         </ModalFooter>
       </Modal>
+      </div>
     </OverlayContainer>
   );
 };

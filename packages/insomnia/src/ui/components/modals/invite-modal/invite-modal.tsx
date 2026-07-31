@@ -12,7 +12,7 @@ import {
   type Role,
   unlinkCollaborator,
 } from 'insomnia-api';
-import React, { type FC, type MutableRefObject, useEffect, useRef, useState } from 'react';
+import { type FC, type MutableRefObject, useEffect, useRef, useState } from 'react';
 import {
   Button,
   Dialog,
@@ -602,7 +602,7 @@ export const InviteModalContainer: FC<{
   const [allRoles, setAllRoles] = useState<Role[]>([]);
   const [currentUserRoleInOrg, setCurrentUserRoleInOrg] = useState<Role | null>(null);
   const [orgFeatures, setOrgFeatures] = useState<FeatureList | null>(null);
-  const permissionRef = useRef<Record<Permission, boolean>>();
+  const permissionRef = useRef<Record<Permission, boolean>>(undefined);
   const [currentUserAccountId, setCurrentUserAccountId] = useState('');
 
   const isCurrentUserOrganizationOwner = Boolean(currentOrg?.is_owner);

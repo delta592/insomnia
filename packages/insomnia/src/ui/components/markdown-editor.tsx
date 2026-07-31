@@ -1,4 +1,4 @@
-import React, { forwardRef, type ReactElement, useCallback, useState } from 'react';
+import { forwardRef, type ReactElement, useCallback, useState } from 'react';
 import { Tab, TabList, TabPanel, Tabs } from 'react-aria-components';
 
 import { CodeEditor, type CodeEditorHandle } from '~/ui/components/.client/codemirror/code-editor';

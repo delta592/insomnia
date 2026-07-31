@@ -1,5 +1,5 @@
 import { fuzzyMatch } from 'insomnia-data/common';
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button, ComboBox, FieldError, Input, Label, ListBox, ListBoxItem, Popover } from 'react-aria-components';
 
 import { useGitProviderRepositoriesLoaderFetcher } from '~/routes/git-provider.repositories';
@@ -21,7 +21,7 @@ export const GitRepositorySelect = ({
   providerType?: GitRemoteProviderType;
 }) => {
   const getGitProviderRepositoriesFetcher = useGitProviderRepositoriesLoaderFetcher();
-  const lastLoadedCredentialsIdRef = useRef<string | undefined>();
+  const lastLoadedCredentialsIdRef = useRef<string | undefined>(undefined);
 
   useEffect(() => {
     const hasData = getGitProviderRepositoriesFetcher.data;

@@ -1,5 +1,5 @@
 import type { BaseRunnerTestResult, RunnerResultPerRequest } from 'insomnia-data';
-import React, { type FC, useState } from 'react';
+import { type FC, useState } from 'react';
 import { Toolbar } from 'react-aria-components';
 
 import { useRootLoaderData } from '~/root';

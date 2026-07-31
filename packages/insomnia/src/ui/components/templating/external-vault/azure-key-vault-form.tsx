@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import type { NunjucksParsedTag } from '~/common/templating/types';
 

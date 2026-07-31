@@ -1,4 +1,4 @@
-import React, { type FC, type ReactNode, useRef } from 'react';
+import { type FC, type ReactNode, useRef } from 'react';
 import { type AriaPopoverProps, DismissButton, Overlay, useOverlayTrigger, usePopover } from 'react-aria';
 import type { OverlayTriggerState } from 'react-stately';
 

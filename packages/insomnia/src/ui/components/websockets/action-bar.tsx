@@ -1,5 +1,5 @@
 import type { SocketIORequest, WebSocketRequest } from 'insomnia-data';
-import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useLayoutEffect, useRef } from 'react';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useLayoutEffect, useRef } from 'react';
 import { useParams } from 'react-router';
 
 import { buildQueryStringFromParams, joinUrlAndQueryString } from '~/common/utils/url/querystring';

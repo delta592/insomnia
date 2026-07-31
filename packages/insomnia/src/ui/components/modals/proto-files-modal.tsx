@@ -1,5 +1,5 @@
 import { models, type ProtoDirectory, type ProtoFile, services } from 'insomnia-data';
-import React, { type FC, useEffect, useRef, useState } from 'react';
+import { type FC, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router';
 
 import { selectFileOrFolder } from '~/ui/utils/select-file-or-folder';

@@ -1,7 +1,7 @@
 import type { IconName, IconProp } from '@fortawesome/fontawesome-svg-core';
 import type { Environment, EnvironmentKvPairData } from 'insomnia-data';
 import { EnvironmentKvPairDataType, EnvironmentType, models } from 'insomnia-data';
-import React, { Fragment, useMemo, useRef, useState } from 'react';
+import { Fragment, useMemo, useRef, useState } from 'react';
 import {
   Button,
   Dialog,

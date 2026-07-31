@@ -383,7 +383,8 @@ export const MCPStdioAccessModal = forwardRef<
   );
 
   return (
-    <OverlayContainer onClick={e => e.stopPropagation()}>
+    <OverlayContainer>
+      <div onClick={e => e.stopPropagation()}>
       <Modal ref={modalRef} onHide={handleHide} keyboardClosable={!isSubmitting} maskClosable={!isSubmitting}>
         <ModalHeader hideCloseButton={isSubmitting}>Grant STDIO access for this MCP Client?</ModalHeader>
         <p>You should be sure you understand and trust this STDIO server before using it.</p>
@@ -434,6 +435,7 @@ export const MCPStdioAccessModal = forwardRef<
           </div>
         </div>
       </Modal>
+      </div>
     </OverlayContainer>
   );
 });

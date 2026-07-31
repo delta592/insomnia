@@ -1,7 +1,7 @@
 import { type SchemaReference } from 'codemirror-graphql/utils/SchemaReference';
 import type { GraphQLSchema } from 'graphql';
 import { GraphQLEnumType, type GraphQLField, type GraphQLNamedType, type GraphQLType, isNamedType } from 'graphql';
-import React, { type FC, useCallback, useEffect, useRef, useState } from 'react';
+import { type FC, useCallback, useEffect, useRef, useState } from 'react';
 
 import { useDocBodyKeyboardShortcuts } from '../keydown-binder';
 import { GraphQLExplorerEnum } from './graph-ql-explorer-enum';

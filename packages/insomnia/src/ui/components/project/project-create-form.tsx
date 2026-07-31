@@ -1,7 +1,7 @@
 import type { StorageRules } from 'insomnia-api';
 import type { GitCredentials } from 'insomnia-data';
 import type { FC } from 'react';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Input, Label, TextField } from 'react-aria-components';
 import { useNavigate, useParams } from 'react-router';
 

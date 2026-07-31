@@ -1,5 +1,5 @@
 import type { RunnerResultPerRequest } from 'insomnia-data';
-import React, { type FC, useState } from 'react';
+import { type FC, useState } from 'react';
 import { Button } from 'react-aria-components';
 
 import { Icon } from '~/ui/components/icon';

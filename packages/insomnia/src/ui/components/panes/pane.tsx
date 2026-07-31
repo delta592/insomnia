@@ -1,5 +1,5 @@
 import classnames from 'classnames';
-import React, { type FC, type PropsWithChildren } from 'react';
+import { type FC, type PropsWithChildren } from 'react';
 
 interface PaneProps {
   className?: string;

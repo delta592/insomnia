@@ -1,4 +1,4 @@
-import React, { type FC } from 'react';
+import { type FC } from 'react';
 
 import { COOKIE, HEADER, QUERY_PARAMS } from '../../../../network/api-key/constants';
 import { AuthInputRow } from './components/auth-input-row';

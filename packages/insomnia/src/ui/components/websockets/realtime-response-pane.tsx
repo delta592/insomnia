@@ -9,7 +9,7 @@ import type {
 } from 'insomnia-data';
 import { models } from 'insomnia-data';
 import { deserializeNDJSON } from 'insomnia-data/common';
-import React, { type FC, useEffect, useMemo, useState } from 'react';
+import { type FC, useEffect, useMemo, useState } from 'react';
 import { Button, Input, SearchField, Tab, TabList, TabPanel, Tabs } from 'react-aria-components';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 

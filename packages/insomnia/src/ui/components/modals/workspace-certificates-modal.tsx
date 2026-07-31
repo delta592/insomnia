@@ -1,5 +1,5 @@
 import type { CaCertificate, ClientCertificate } from 'insomnia-data';
-import React, { Fragment, type ReactNode, useEffect, useId, useState } from 'react';
+import { Fragment, type ReactNode, useEffect, useId, useState } from 'react';
 import {
   Button,
   Dialog,

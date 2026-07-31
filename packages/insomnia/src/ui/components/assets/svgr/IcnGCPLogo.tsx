@@ -1,4 +1,4 @@
-import React, { memo, type SVGProps } from 'react';
+import { memo, type SVGProps } from 'react';
 export const SvgIcnGCPLogo = memo<SVGProps<SVGSVGElement>>(props => (
   <svg viewBox="0 0 256 206" width="1em" height="1em" role="img" {...props}>
     <path

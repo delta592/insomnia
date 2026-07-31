@@ -1,5 +1,5 @@
 import classnames from 'classnames';
-import React, { type FC, memo, type ReactNode } from 'react';
+import { type FC, memo, type ReactNode } from 'react';
 
 import { RESPONSE_CODE_DESCRIPTIONS, RESPONSE_CODE_REASONS } from '../../../common/constants';
 import { Tooltip } from '../tooltip';

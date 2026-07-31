@@ -1,4 +1,4 @@
-import React, { type HTMLAttributes, useCallback } from 'react';
+import { type HTMLAttributes, useCallback } from 'react';
 
 import { selectFileOrFolder } from '~/ui/utils/select-file-or-folder';
 

@@ -1,7 +1,7 @@
 import type { BaseModel, Workspace } from 'insomnia-data';
 import { models, services } from 'insomnia-data';
 import { strings } from 'insomnia-data/common';
-import React, { type FC, type MouseEventHandler, useEffect, useRef, useState } from 'react';
+import { type FC, type MouseEventHandler, useEffect, useRef, useState } from 'react';
 import { OverlayContainer } from 'react-aria';
 import { href, useNavigate, useParams } from 'react-router';
 
@@ -71,7 +71,8 @@ export const WorkspaceDuplicateModal: FC<WorkspaceDuplicateModalProps> = ({ work
   const isBtnDisabled = fetcher.state !== 'idle' || !selectedProjectId || !newWorkspaceName;
 
   return (
-    <OverlayContainer onClick={e => e.stopPropagation()}>
+    <OverlayContainer>
+      <div onClick={e => e.stopPropagation()}>
       <Modal onHide={onHide} ref={modalRef}>
         <ModalHeader>Duplicate file</ModalHeader>
         <ModalBody className="wide">
@@ -165,6 +166,7 @@ export const WorkspaceDuplicateModal: FC<WorkspaceDuplicateModalProps> = ({ work
           </div>
         </ModalFooter>
       </Modal>
+      </div>
     </OverlayContainer>
   );
 };

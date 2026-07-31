@@ -67,8 +67,8 @@ export const SyncMergeModal = forwardRef<SyncMergeModalHandle>((_, ref) => {
 
   const [selectedConflictKey, setSelectedConflictKey] = useState<string | null>(null);
 
-  const onResolveAllRef = useRef<SyncMergeModalOptions['onResolveAll']>();
-  const onCancelUnresolvedRef = useRef<SyncMergeModalOptions['onCancelUnresolved']>();
+  const onResolveAllRef = useRef<SyncMergeModalOptions['onResolveAll']>(undefined);
+  const onCancelUnresolvedRef = useRef<SyncMergeModalOptions['onCancelUnresolved']>(undefined);
 
   const selectedConflict = useMemo(
     () => conflicts.find(c => c.key === selectedConflictKey),

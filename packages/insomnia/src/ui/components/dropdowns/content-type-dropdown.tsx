@@ -1,7 +1,7 @@
 import type { IconName } from '@fortawesome/fontawesome-svg-core';
 import type { Request, RequestBody, RequestHeader, RequestParameter } from 'insomnia-data';
 import { deconstructQueryStringToParams } from 'insomnia-data/common';
-import React, { type FC } from 'react';
+import { type FC } from 'react';
 import {
   Button,
   Collection,

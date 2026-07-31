@@ -1,4 +1,4 @@
-import React, { type FC, useCallback } from 'react';
+import { type FC, useCallback } from 'react';
 
 import { FileInputButton } from '../../base/file-input-button';
 import { PromptButton } from '../../base/prompt-button';

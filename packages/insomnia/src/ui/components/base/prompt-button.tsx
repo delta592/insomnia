@@ -1,4 +1,4 @@
-import React, {
+import {
   type FunctionComponent,
   type MouseEvent,
   type PropsWithChildren,

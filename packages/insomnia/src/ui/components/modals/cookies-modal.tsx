@@ -1,7 +1,7 @@
 import clone from 'clone';
 import { isValid } from 'date-fns';
 import type { Cookie, CookieJar } from 'insomnia-data';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Button,
   Dialog,

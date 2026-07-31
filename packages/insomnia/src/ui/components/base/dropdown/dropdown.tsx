@@ -1,7 +1,7 @@
 import { PressResponder } from '@react-aria/interactions';
 import type { AriaMenuProps, MenuTriggerProps } from '@react-types/menu';
 import type { Placement } from '@react-types/overlays';
-import React, { type CSSProperties, forwardRef, type ReactNode, useImperativeHandle, useRef } from 'react';
+import { type CSSProperties, forwardRef, type ReactNode, useImperativeHandle, useRef } from 'react';
 import { mergeProps, useMenuTrigger } from 'react-aria';
 import { Button } from 'react-aria-components';
 import { type MenuTriggerState, useMenuTriggerState } from 'react-stately';
@@ -16,6 +16,7 @@ export interface DropdownHandle {
 }
 
 export interface DropdownProps extends AriaMenuProps<any>, MenuTriggerProps {
+  children?: ReactNode;
   label?: string;
   triggerButton?: ReactNode;
   placement?: Placement;

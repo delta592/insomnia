@@ -1,6 +1,6 @@
 import type { Request, UnitTest, UnitTestSuite } from 'insomnia-data';
 import { models, services } from 'insomnia-data';
-import React, { Fragment, useRef, useState } from 'react';
+import { Fragment, useRef, useState } from 'react';
 import {
   Button,
   DropIndicator,

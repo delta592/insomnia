@@ -1,5 +1,5 @@
 import type { SettingsOfType } from 'insomnia-data/common';
-import React, { type FC, type InputHTMLAttributes, useCallback, useState } from 'react';
+import { type FC, type InputHTMLAttributes, useCallback, useState } from 'react';
 import { ListBox, ListBoxItem } from 'react-aria-components';
 
 import { invariant } from '~/common/utils/invariant';

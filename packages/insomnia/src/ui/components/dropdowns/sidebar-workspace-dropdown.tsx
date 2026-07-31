@@ -7,7 +7,7 @@ import {
 import type { MockServer, Project, Workspace } from 'insomnia-data';
 import { models, services } from 'insomnia-data';
 import type { PlatformKeyCombinations } from 'insomnia-data/common';
-import React, { Fragment, useState } from 'react';
+import { Fragment, useState } from 'react';
 import {
   Button,
   Collection,

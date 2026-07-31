@@ -1,5 +1,5 @@
 import type { SettingsOfType } from 'insomnia-data/common';
-import React, { type FC, type ReactNode } from 'react';
+import { type FC, type ReactNode } from 'react';
 
 import { useRootLoaderData } from '~/root';
 

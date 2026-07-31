@@ -1,6 +1,6 @@
 import type { CloudProviderCredential, CloudProviderName } from 'insomnia-data';
 import { models } from 'insomnia-data';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Menu, MenuItem, MenuTrigger, Popover } from 'react-aria-components';
 
 import { useRootLoaderData } from '~/root';

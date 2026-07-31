@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { allowUpdatesInDev, isDevelopment, type UpdateStatus } from '../../common/constants';
 import { Icon } from './icon';
@@ -15,7 +15,7 @@ const CHECKING_FALLBACK_MS = 30_000;
 
 export const CheckForUpdatesButton = () => {
   const [status, setStatus] = useState<UpdateStatus>(() => window.main.getUpdateStatus() || 'idle');
-  const fallbackRef = useRef<ReturnType<typeof setTimeout>>();
+  const fallbackRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
     const unsubscribe = window.main.on('update-status-changed', (_, nextStatus: UpdateStatus) => {

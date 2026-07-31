@@ -1,6 +1,6 @@
 import type { IconName } from '@fortawesome/fontawesome-svg-core';
 import type { AuthTypeAPIKey, AuthTypeAwsIam, AuthTypeBasic, AuthTypeNTLM, RequestAuthentication } from 'insomnia-data';
-import React, { type FC, useCallback } from 'react';
+import { type FC, useCallback } from 'react';
 import {
   Button,
   Collection,

@@ -6,7 +6,7 @@ import {
   keyboardShortcutDescriptions,
   newDefaultRegistry,
 } from 'insomnia-data/common';
-import React, { type FC } from 'react';
+import { type FC } from 'react';
 import { Button } from 'react-aria-components';
 
 import { useRootLoaderData } from '~/root';

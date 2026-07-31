@@ -1,4 +1,4 @@
-import React, { type FC, type HTMLAttributes, useEffect, useRef } from 'react';
+import { type FC, type HTMLAttributes, useEffect, useRef } from 'react';
 
 interface Props extends HTMLAttributes<HTMLInputElement> {
   indeterminate: boolean;

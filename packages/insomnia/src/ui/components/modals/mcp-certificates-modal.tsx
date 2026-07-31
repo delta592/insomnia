@@ -1,4 +1,3 @@
-import React from 'react';
 import { Button, Dialog, Heading, Modal, ModalOverlay, ToggleButton } from 'react-aria-components';
 import { useParams } from 'react-router';
 

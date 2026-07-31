@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+import type { JSX as ReactJSX } from 'react';
 import type { HiddenBrowserWindowToMainBridgeAPI } from '../src/hidden-window-preload';
 import type { RendererToMainBridgeAPI } from '../src/main/ipc/main';
 import type { DatabaseBridgeAPI } from '../src/main/ipc/database';
@@ -34,6 +35,17 @@ type RendererEnv = {
 };
 
 declare global {
+  namespace JSX {
+    type Element = ReactJSX.Element;
+    interface ElementClass extends ReactJSX.ElementClass {}
+    interface ElementAttributesProperty extends ReactJSX.ElementAttributesProperty {}
+    interface ElementChildrenAttribute extends ReactJSX.ElementChildrenAttribute {}
+    type LibraryManagedAttributes<C, P> = ReactJSX.LibraryManagedAttributes<C, P>;
+    interface IntrinsicAttributes extends ReactJSX.IntrinsicAttributes {}
+    interface IntrinsicClassAttributes<T> extends ReactJSX.IntrinsicClassAttributes<T> {}
+    interface IntrinsicElements extends ReactJSX.IntrinsicElements {}
+  }
+
   interface Window {
     env: RendererEnv;
     main: RendererToMainBridgeAPI;
