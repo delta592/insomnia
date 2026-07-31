@@ -1,5 +1,5 @@
 import ajv from 'ajv';
-import chai from 'chai';
+import * as chai from 'chai';
 import * as cheerio from 'cheerio';
 import cryptojs from 'crypto-js';
 import * as csvParseSync from 'csv-parse/sync';

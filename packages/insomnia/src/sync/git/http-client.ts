@@ -6,7 +6,7 @@ import type { GitHttpRequest, GitHttpResponse, HttpClient } from 'isomorphic-git
  * In order to do so we need to create our own HTTP Client and use electron's net module which does this.
  * https://isomorphic-git.org/docs/en/http#docsNav:~:text=If%20you%20need%20features%20that%20aren%27t%20supported%20currently%2C%20like%20detecting%20and%20handling%20HTTP_PROXY%20environment%20variables%2C%20you%20can%20wrap%20this%20client%20or%20implement%20your%20own%20HTTP%20client.%20(See%20section%20below.)
  */
-async function collect(iterable: Iterable<Uint8Array>): Promise<Uint8Array> {
+async function collect(iterable: AsyncIterable<Uint8Array>): Promise<Uint8Array> {
   let size = 0;
   const buffers: Uint8Array[] = [];
   // This will be easier once `for await ... of` loops are available.
@@ -25,18 +25,9 @@ async function collect(iterable: Iterable<Uint8Array>): Promise<Uint8Array> {
   return result;
 }
 
-function isAsyncIterable<T>(obj: any): obj is AsyncIterable<T> {
-  return obj && typeof obj[Symbol.asyncIterator] === 'function';
-}
-
 // Convert a web ReadableStream (not Node stream!) to an Async Iterator
 // adapted from https://jakearchibald.com/2017/async-iterators-and-generators/
-function fromStream(stream: ReadableStream<Uint8Array>) {
-  // Use native async iteration if it's available.
-  if (isAsyncIterable(stream)) {
-    return stream;
-  }
-
+function fromStream(stream: ReadableStream<Uint8Array>): AsyncIterableIterator<Uint8Array> {
   const reader = stream.getReader();
   return {
     next() {
@@ -44,7 +35,7 @@ function fromStream(stream: ReadableStream<Uint8Array>) {
     },
     return() {
       reader.releaseLock();
-      return {};
+      return Promise.resolve({ done: true as const, value: undefined });
     },
     [Symbol.asyncIterator]() {
       return this;
@@ -53,14 +44,19 @@ function fromStream(stream: ReadableStream<Uint8Array>) {
 }
 
 async function request({ url, method = 'GET', headers = {}, body }: GitHttpRequest): Promise<GitHttpResponse> {
+  let requestBody: Uint8Array | undefined;
   if (body) {
-    body = await collect(body);
+    requestBody = await collect(body);
   }
 
   const electron = await import('electron');
 
-  const res = await electron.net.fetch(url, { method, headers, body });
-  const iter = res.body ? fromStream(res.body) : [new Uint8Array(await res.arrayBuffer())];
+  const res = await electron.net.fetch(url, { method, headers, body: requestBody as BodyInit | undefined });
+  const responseBody = res.body
+    ? fromStream(res.body)
+    : (async function* () {
+        yield new Uint8Array(await res.arrayBuffer());
+      })();
   // convert Header object to ordinary JSON
   headers = {};
   for (const [key, value] of res.headers.entries()) {
@@ -71,7 +67,7 @@ async function request({ url, method = 'GET', headers = {}, body }: GitHttpReque
     method,
     statusCode: res.status,
     statusMessage: res.statusText,
-    body: iter,
+    body: responseBody,
     headers: headers,
   };
 }

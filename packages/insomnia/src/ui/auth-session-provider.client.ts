@@ -52,7 +52,7 @@ export async function encodeBase64(data: Uint8Array): Promise<string> {
       }
     };
     reader.onerror = reject;
-    reader.readAsDataURL(new Blob([data]));
+    reader.readAsDataURL(new Blob([data as BlobPart]));
   });
 
   const dataAt = dataUri.indexOf(',');

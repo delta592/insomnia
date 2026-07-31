@@ -152,10 +152,10 @@ export class MemClient {
     let newContents = Buffer.alloc(0);
 
     if (flag[0] === 'w') {
-      newContents = typeof data === 'string' ? Buffer.from(data, encoding) : data;
+      newContents = typeof data === 'string' ? Buffer.from(data, encoding) : Buffer.from(data);
     } else if (flag[0] === 'a') {
       const contentsBuff: Buffer = Buffer.from(file.contents, 'base64');
-      newContents = Buffer.concat([contentsBuff, typeof data === 'string' ? Buffer.from(data, encoding) : data]);
+      newContents = Buffer.concat([contentsBuff, typeof data === 'string' ? Buffer.from(data, encoding) : Buffer.from(data)]);
     } else {
       throw new SystemError({
         code: 'EBADF',

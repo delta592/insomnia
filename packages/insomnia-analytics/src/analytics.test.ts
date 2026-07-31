@@ -5,11 +5,11 @@ const mockPage = vi.fn();
 const mockCloseAndFlush = vi.fn().mockResolvedValue(void 0);
 
 vi.mock('@segment/analytics-node', () => ({
-  Analytics: vi.fn(() => ({
-    track: mockTrack,
-    page: mockPage,
-    closeAndFlush: mockCloseAndFlush,
-  })),
+  Analytics: vi.fn(function Analytics(this: { track: typeof mockTrack; page: typeof mockPage; closeAndFlush: typeof mockCloseAndFlush }) {
+    this.track = mockTrack;
+    this.page = mockPage;
+    this.closeAndFlush = mockCloseAndFlush;
+  }),
 }));
 
 describe('InsomniaAnalytics', () => {

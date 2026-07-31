@@ -8,7 +8,7 @@ export const ResponsePDFViewer = ({ body }: Props) => {
   const [url, setUrl] = useState<string>('');
 
   useEffect(() => {
-    const blob = new Blob([body], { type: 'application/pdf' });
+    const blob = new Blob([body as BlobPart], { type: 'application/pdf' });
     const objectUrl = URL.createObjectURL(blob);
     setUrl(objectUrl);
     return () => URL.revokeObjectURL(objectUrl);

@@ -28,7 +28,7 @@ describe('jarFromCookies()', async () => {
     vi.spyOn(console, 'log').mockImplementationOnce(() => {});
     // @ts-expect-error this test is verifying that an invalid input is handled appropriately
     const jar = jarFromCookies('not a jar');
-    expect(jar.constructor.name).toBe('CookieJar');
+    expect(jar).toBeInstanceOf(CookieJar);
   });
 });
 

@@ -358,8 +358,8 @@ const asServiceDefinition = (definition: AnyDefinition): ServiceDefinition | nul
   }
   return definition;
 };
-const isMessageDefinition = (definition: AnyDefinition): definition is MessageTypeDefinition => {
-  return (definition as MessageTypeDefinition).format === 'Protocol Buffer 3 DescriptorProto';
+const isMessageDefinition = (definition: AnyDefinition): definition is MessageTypeDefinition<object, object> => {
+  return (definition as MessageTypeDefinition<object, object>).format === 'Protocol Buffer 3 DescriptorProto';
 };
 const isEnumDefinition = (definition: AnyDefinition): definition is EnumTypeDefinition => {
   return (definition as EnumTypeDefinition).format === 'Protocol Buffer 3 EnumDescriptorProto';
