@@ -1,8 +1,4 @@
-import fuzzysort from 'fuzzysort';
-import { v4 as uuidv4 } from 'uuid';
-
 import { DEBOUNCE_MILLIS } from './constants';
-export { compressObject, decompressObject } from './compression';
 
 const ESCAPE_REGEX_MATCH = /[-[\]/{}()*+?.\\^$|]/g;
 
@@ -81,19 +77,7 @@ export function getContentDispositionHeader<T extends Header>(headers: T[]): T |
   return matches.length ? matches[0] : null;
 }
 
-/**
- * Generate an ID of the format "<MODEL_NAME>_<TIMESTAMP><RANDOM>"
- * @param prefix
- * @returns {string}
- */
-export function generateId(prefix?: string) {
-  const id = uuidv4().replace(/-/g, '');
-
-  if (prefix) {
-    return `${prefix}_${id}`;
-  }
-  return id;
-}
+export { generateId } from 'insomnia-data/common';
 
 export function delay(milliseconds: number = DEBOUNCE_MILLIS) {
   return new Promise<void>(resolve => setTimeout(resolve, milliseconds));
@@ -154,77 +138,6 @@ export function escapeRegex(str: string) {
   return str.replace(ESCAPE_REGEX_MATCH, '\\$&');
 }
 
-export interface FuzzyMatchOptions {
-  splitSpace?: boolean;
-  loose?: boolean;
-}
-
-export function fuzzyMatch(
-  searchString: string,
-  text: string,
-  options: FuzzyMatchOptions = {},
-): null | {
-  score: number;
-  indexes: number[];
-} {
-  return fuzzyMatchAll(searchString, [text], options);
-}
-
-export function fuzzyMatchAll(searchString: string, allText: string[], options: FuzzyMatchOptions = {}) {
-  if (!searchString || !searchString.trim()) {
-    return null;
-  }
-
-  const words = searchString.split(' ').filter(w => w.trim());
-  const terms = options.splitSpace ? [...words, searchString] : [searchString];
-  let maxScore: number | null = null;
-  let indexes: number[] = [];
-  let termsMatched = 0;
-
-  for (const term of terms) {
-    let matchedTerm = false;
-
-    for (const text of allText.filter(t => !t || t.trim())) {
-      const result = fuzzysort.single(term, text);
-
-      if (!result) {
-        continue;
-      }
-
-      // Don't match garbage
-      if (result.score < -8000) {
-        continue;
-      }
-
-      if (maxScore === null || result.score > maxScore) {
-        maxScore = result.score;
-      }
-
-      indexes = [...indexes, ...result.indexes];
-      matchedTerm = true;
-    }
-
-    if (matchedTerm) {
-      termsMatched++;
-    }
-  }
-
-  // Make sure we match all provided terms except the last (full) one
-  if (!options.loose && termsMatched < terms.length - 1) {
-    return null;
-  }
-
-  if (maxScore === null) {
-    return null;
-  }
-
-  return {
-    score: maxScore,
-    indexes,
-    target: allText.join(' '),
-  };
-}
-
 export function isNotNullOrUndefined<ValueType>(value: ValueType | null | undefined): value is ValueType {
   if (value === null || value === undefined) {
     return false;
@@ -250,10 +163,10 @@ export function unescapeForwardSlash(str: string): string {
   });
 }
 
-export const SECURITY_SETTINGS_PATH_LABEL = "Insomnia Preferences → General → Security";
+export const SECURITY_SETTINGS_PATH_LABEL = 'Insomnia Preferences → General → Security';
 
 export function cannotAccessPathError(accessingPath: string): string {
-  return process.type === 'renderer' || process.type === 'browser'
+  return __IS_RENDERER__
     ? `Insomnia cannot access the file "${accessingPath}". You must specify which directories Insomnia can access in ${SECURITY_SETTINGS_PATH_LABEL}`
     : `Insomnia cannot access the file ‘${accessingPath}’. You must specify which directories Insomnia can access with one or more "--dataFolders <directory>".`;
 }

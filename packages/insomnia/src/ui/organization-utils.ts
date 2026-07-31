@@ -2,16 +2,15 @@ import {
   createTeamProject,
   fetchTeamProjects,
   getCurrentPlan,
-  getOrganizations,
   getUserProfile,
   isApiError,
   type Organization,
 } from 'insomnia-api';
+import type { Project } from 'insomnia-data';
+import { models, services } from 'insomnia-data';
 
 import { projectLock } from '~/common/project';
-import type { Project, Workspace } from '~/insomnia-data';
-import { database, models, services } from '~/insomnia-data';
-import { invariant } from '~/utils/invariant';
+import { invariant } from '~/common/utils/invariant';
 
 import {
   initializeLocalBackendProjectAndMarkForSync,
@@ -24,37 +23,6 @@ import {
 } from '../sync/vcs/migrate-projects-into-organization';
 export { DEFAULT_STORAGE_RULES, fetchAndCacheOrganizationStorageRule } from '~/common/organization-storage-rules';
 
-export function sortOrganizations(accountId: string, organizations: Organization[]): Organization[] {
-  const home = organizations.find(
-    organization =>
-      models.organization.isPersonalOrganization(organization) &&
-      models.organization.isOwnerOfOrganization({
-        organization,
-        accountId,
-      }),
-  );
-  const myOrgs = organizations
-    .filter(
-      organization =>
-        !models.organization.isPersonalOrganization(organization) &&
-        models.organization.isOwnerOfOrganization({
-          organization,
-          accountId,
-        }),
-    )
-    .sort((a, b) => a.name.localeCompare(b.name));
-  const notMyOrgs = organizations
-    .filter(
-      organization =>
-        !models.organization.isOwnerOfOrganization({
-          organization,
-          accountId,
-        }),
-    )
-    .sort((a, b) => a.name.localeCompare(b.name));
-  return [...(home ? [home] : []), ...myOrgs, ...notMyOrgs];
-}
-
 export async function syncCurrentPlan(sessionId: string, accountId: string) {
   const [currentPlanResult] = await Promise.allSettled([getCurrentPlan({ sessionId })]);
   if (currentPlanResult.status === 'fulfilled' && currentPlanResult.value) {
@@ -66,21 +34,19 @@ export async function syncCurrentPlan(sessionId: string, accountId: string) {
 
 export async function syncOrganizations(sessionId: string, accountId: string) {
   try {
-    const [organizationsResult, user, currentPlan] = await Promise.all([
-      getOrganizations({ sessionId }),
+    const [organizations, user, currentPlan] = await Promise.all([
+      services.organization.list(),
       getUserProfile({ sessionId }),
       getCurrentPlan({ sessionId }),
     ]);
 
-    invariant(organizationsResult && organizationsResult.organizations, 'Failed to load organizations');
+    invariant(organizations, 'Failed to load organizations');
     invariant(user && user.id, 'Failed to load user');
     invariant(currentPlan && currentPlan.planId, 'Failed to load current plan');
 
-    const { organizations } = organizationsResult;
-
     invariant(accountId, 'Account ID is not defined');
 
-    localStorage.setItem(`${accountId}:organizations`, JSON.stringify(sortOrganizations(accountId, organizations)));
+    localStorage.setItem(`${accountId}:spaces`, JSON.stringify(organizations));
     localStorage.setItem(`${accountId}:user`, JSON.stringify(user));
     localStorage.setItem(`${accountId}:currentPlan`, JSON.stringify(currentPlan));
   } catch (error) {
@@ -111,9 +77,7 @@ export async function updateLocalProjectToRemote({
     });
 
     // For each workspace in the local project
-    const projectWorkspaces = await database.find<Workspace>('Workspace', {
-      parentId: updatedProject._id,
-    });
+    const projectWorkspaces = await services.workspace.listByParentId(updatedProject._id);
 
     for (const workspace of projectWorkspaces) {
       const workspaceMeta = await services.workspaceMeta.getOrCreateByParentId(workspace._id);
@@ -154,6 +118,17 @@ export async function updateLocalProjectToRemote({
   };
 }
 
+/**
+ * Picks the space that orphaned legacy local projects (no parentId / no remoteId) should be
+ * re-parented into: the user's solo space — an owned space with no other members. If none
+ * qualifies (every owned space has collaborators), falls back to the first cached space so the
+ * migration still runs.
+ */
+export function findMigrationTargetSpaceId(organizations: Organization[]): string {
+  const soloSpace = organizations.find(o => o.is_owner && o.total_members === 1);
+  return soloSpace?.id ?? organizations[0].id;
+}
+
 export async function migrateProjectsUnderOrganization(personalOrganizationId: string, sessionId: string) {
   if (await shouldMigrateProjectUnderOrganization()) {
     await migrateProjectsIntoOrganization({
@@ -162,7 +137,7 @@ export async function migrateProjectsUnderOrganization(personalOrganizationId: s
 
     const preferredProjectType = localStorage.getItem('prefers-project-type');
     if (preferredProjectType === 'remote') {
-      const localProjects = await database.find<Project>('Project', {
+      const localProjects = await services.project.list({
         parentId: personalOrganizationId,
         remoteId: null,
       });
@@ -186,7 +161,7 @@ interface TeamProject {
 }
 
 async function getAllTeamProjects(organizationId: string) {
-  const { id: sessionId } = await services.userSession.getOrCreate();
+  const { id: sessionId } = await services.userSession.get();
   if (!sessionId) {
     return [];
   }
@@ -207,7 +182,7 @@ async function syncTeamProjects({
   // assumption: api teamProjects is the source of truth for migrated projects
   // once migrated orgs become the source of truth for projects
   // its important that migration be completed before this code is run
-  const existingRemoteProjects = await database.find<Project>(models.project.type, {
+  const existingRemoteProjects = await services.project.list({
     remoteId: { $in: teamProjects.map(p => p.id) },
   });
 
@@ -225,7 +200,7 @@ async function syncTeamProjects({
     }),
   );
 
-  const remoteProjectsThatNeedToBeUpdated = await database.find<Project>(models.project.type, {
+  const remoteProjectsThatNeedToBeUpdated = await services.project.list({
     // Remote ID is in the list of remote projects
     remoteId: { $in: teamProjects.map(p => p.id) },
   });
@@ -242,7 +217,7 @@ async function syncTeamProjects({
   );
 
   // Turn remote projects from the current organization that are not in the list of remote projects into local projects.
-  const removedRemoteProjects = await database.find<Project>(models.project.type, {
+  const removedRemoteProjects = await services.project.list({
     // filter by this organization so no legacy data can be accidentally removed, because legacy had null parentId
     parentId: organizationId,
     // Remote ID is not in the list of remote projects.
@@ -264,7 +239,7 @@ async function syncTeamProjects({
 }
 
 export const syncProjects = projectLock.wrapWithLock(async (organizationId: string) => {
-  const user = await services.userSession.getOrCreate();
+  const user = await services.userSession.get();
   const teamProjects = await getAllTeamProjects(organizationId);
   // ensure we don't sync projects in the wrong place
   if (Array.isArray(teamProjects) && user.id && !models.organization.isScratchpadOrganizationId(organizationId)) {

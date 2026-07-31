@@ -1,6 +1,4 @@
 import clone from 'clone';
-import orderedJSON from 'json-order';
-
 import type {
   Environment,
   GrpcRequest,
@@ -12,27 +10,29 @@ import type {
   UserUploadEnvironment,
   WebSocketRequest,
   Workspace,
-} from '~/insomnia-data';
-import { models, services } from '~/insomnia-data';
+} from 'insomnia-data';
+import { models, services } from 'insomnia-data';
+import orderedJSON from 'json-order';
 
-import { getOrInheritAuthentication, getOrInheritHeaders } from '../network/network';
-import * as templating from '../templating';
-import { RenderError } from '../templating/render-error';
+import { NUNJUCKS_TEMPLATE_GLOBAL_PROPERTY_NAME } from '~/common/templating/constants';
+import { maskOrDecryptVaultDataIfNecessary } from '~/common/templating/mask-or-decrypt-vault-data';
+import { RenderError } from '~/common/templating/render-error';
 import type {
   BaseRenderContext,
   BaseRenderContextOptions,
   RenderContextAncestor,
   RenderContextOptions,
   RenderedRequest,
-  RenderInputType,
-} from '../templating/types';
-import * as templatingUtils from '../templating/utils';
-import { maskOrDecryptVaultDataIfNecessary } from '../templating/utils';
-import { setDefaultProtocol } from '../utils/url/protocol';
+} from '~/common/templating/types';
+import * as templatingUtils from '~/common/templating/utils';
+import { setDefaultProtocol } from '~/common/utils/url/protocol';
+
+import { getOrInheritAuthentication, getOrInheritHeaders, shouldSuppressUserAgent } from '../network/network';
+import { getRuntime } from '../runtimes';
 import { CONTENT_TYPE_GRAPHQL, JSON_ORDER_SEPARATOR } from './constants';
 import { database as db } from './database';
 
-const { PATH_PARAMETER_REGEX } = models.request;
+const { applyPathParametersToUrl } = models.request;
 const { isRequestGroup } = models.requestGroup;
 
 export async function buildRenderContext({
@@ -59,7 +59,7 @@ export async function buildRenderContext({
   if (rootGlobalEnvironment) {
     const ordered = orderedJSON.order(
       rootGlobalEnvironment.data,
-      rootGlobalEnvironment.dataPropertyOrder,
+      rootGlobalEnvironment.dataPropertyOrder ?? null,
       JSON_ORDER_SEPARATOR,
     );
     envObjects.push(ordered);
@@ -68,7 +68,7 @@ export async function buildRenderContext({
   if (subGlobalEnvironment) {
     const ordered = orderedJSON.order(
       subGlobalEnvironment.data,
-      subGlobalEnvironment.dataPropertyOrder,
+      subGlobalEnvironment.dataPropertyOrder ?? null,
       JSON_ORDER_SEPARATOR,
     );
     envObjects.push(ordered);
@@ -78,12 +78,20 @@ export async function buildRenderContext({
   // Then get sub environment keys in correct order
   // Then get ancestor (folder) environment keys in correct order
   if (rootEnvironment) {
-    const ordered = orderedJSON.order(rootEnvironment.data, rootEnvironment.dataPropertyOrder, JSON_ORDER_SEPARATOR);
+    const ordered = orderedJSON.order(
+      rootEnvironment.data,
+      rootEnvironment.dataPropertyOrder ?? null,
+      JSON_ORDER_SEPARATOR,
+    );
     envObjects.push(ordered);
   }
 
   if (subEnvironment) {
-    const ordered = orderedJSON.order(subEnvironment.data, subEnvironment.dataPropertyOrder, JSON_ORDER_SEPARATOR);
+    const ordered = orderedJSON.order(
+      subEnvironment.data,
+      subEnvironment.dataPropertyOrder ?? null,
+      JSON_ORDER_SEPARATOR,
+    );
     envObjects.push(ordered);
   }
 
@@ -92,7 +100,7 @@ export async function buildRenderContext({
     const { environment, environmentPropertyOrder } = ancestor;
 
     if (typeof environment === 'object' && environment !== null) {
-      const ordered = orderedJSON.order(environment, environmentPropertyOrder, JSON_ORDER_SEPARATOR);
+      const ordered = orderedJSON.order(environment, environmentPropertyOrder ?? null, JSON_ORDER_SEPARATOR);
       envObjects.push(ordered);
     }
   }
@@ -101,7 +109,7 @@ export async function buildRenderContext({
   if (userUploadEnvironment) {
     const ordered = orderedJSON.order(
       userUploadEnvironment.data,
-      userUploadEnvironment.dataPropertyOrder,
+      userUploadEnvironment.dataPropertyOrder ?? null,
       JSON_ORDER_SEPARATOR,
     );
     envObjects.push(ordered);
@@ -111,7 +119,7 @@ export async function buildRenderContext({
   if (transientVariables) {
     const ordered = orderedJSON.order(
       transientVariables.data,
-      transientVariables.dataPropertyOrder,
+      transientVariables.dataPropertyOrder ?? null,
       JSON_ORDER_SEPARATOR,
     );
     envObjects.push(ordered);
@@ -228,13 +236,6 @@ export async function buildRenderContext({
 
   return finalRenderContext;
 }
-const renderInThisProcess = async (input: RenderInputType) => {
-  return templating.render(input.input, {
-    context: input.context,
-    path: input.path,
-    ignoreUndefinedEnvVariable: input.ignoreUndefinedEnvVariable,
-  });
-};
 /**
  * Recursively render any JS object and return a new one
  * @param {*} obj - object to render
@@ -289,21 +290,8 @@ export async function render<T>(
       }
 
       try {
-        // Some plugins may, at the moment, require unique and intrusive access. Templates exposed by these
-        // plugins will not function correctly when rendering in a separate process or thread. The user can
-        // explicitly configure rendering to happen on the same thread/process as the rest of the app, in
-        // which case it's okay to render locally.
-
-        const settings = await services.settings.get();
-        const pluginsAreRestrictedToRunInWorker = settings?.pluginsAllowElevatedAccess === false;
-        const currentProcessIsRendererAndPluginsAreRestricted =
-          process.type === 'renderer' && pluginsAreRestrictedToRunInWorker;
-        const renderFork = currentProcessIsRendererAndPluginsAreRestricted
-          ? (await import('../ui/worker/templating-handler')).renderInWorker
-          : renderInThisProcess;
-
         // @ts-expect-error -- TSCONVERSION
-        input = await renderFork({ input, context, path, ignoreUndefinedEnvVariable });
+        input = await getRuntime().templating.renderTemplate({ input, context, path, ignoreUndefinedEnvVariable });
 
         // If the variable outputs a tag, render it again. This is a common use
         // case for environment variables:
@@ -311,7 +299,7 @@ export async function render<T>(
         // @ts-expect-error -- TSCONVERSION
         if (input.includes('{%')) {
           // @ts-expect-error -- TSCONVERSION
-          input = await renderFork({ input, context, path, ignoreUndefinedEnvVariable });
+          input = await getRuntime().templating.renderTemplate({ input, context, path, ignoreUndefinedEnvVariable });
         }
       } catch (err) {
         console.log(`Failed to render element ${path}`, input);
@@ -441,22 +429,29 @@ export async function getRenderContext({
     }
   }
 
-  const inKey = templating.NUNJUCKS_TEMPLATE_GLOBAL_PROPERTY_NAME;
+  const inKey = NUNJUCKS_TEMPLATE_GLOBAL_PROPERTY_NAME;
 
   if (rootGlobalEnvironment) {
-    getKeySource(rootGlobalEnvironment.data || {}, inKey, 'rootGlobal');
+    getKeySource(rootGlobalEnvironment.data || {}, inKey, rootGlobalEnvironment.name || 'Base Environment (Project)');
   }
 
   if (subGlobalEnvironment) {
-    getKeySource(subGlobalEnvironment.data || {}, inKey, 'subGlobal');
+    getKeySource(
+      subGlobalEnvironment.data || {},
+      inKey,
+      `${subGlobalEnvironment.name || 'Environment'} (Project Sub-Environment)`,
+    );
   }
 
   // Get Keys from root environment
-  getKeySource((rootEnvironment || {}).data, inKey, 'root');
+  getKeySource((rootEnvironment || {}).data, inKey, rootEnvironment?.name || 'Base Environment (Collection)');
 
-  // Get Keys from sub environment
-  if (subEnvironment) {
-    getKeySource(subEnvironment.data || {}, inKey, subEnvironment.name || '');
+  if (subEnvironment && subEnvironment._id !== rootEnvironment?._id) {
+    getKeySource(
+      subEnvironment.data || {},
+      inKey,
+      `${subEnvironment.name || 'Environment'} (Collection Sub-Environment)`,
+    );
   }
 
   // Get Keys from ancestors (e.g. Folders)
@@ -556,6 +551,7 @@ export async function getRenderedRequestAndContext({
 }> {
   const ancestors = await getRenderContextAncestors(request);
   const workspace = ancestors.find(models.workspace.isWorkspace);
+  // requestGroups is of order leaf to root
   const requestGroups = ancestors.filter(isRequestGroup);
 
   const parentId = workspace ? workspace._id : 'n/a';
@@ -585,6 +581,7 @@ export async function getRenderedRequestAndContext({
   const description = request.description;
   request.description = '';
 
+  const suppressUserAgent = shouldSuppressUserAgent({ request, requestGroups });
   request.headers = getOrInheritHeaders({ request, requestGroups });
   request.authentication = getOrInheritAuthentication({ request, requestGroups });
   // Render all request properties
@@ -603,10 +600,6 @@ export async function getRenderedRequestAndContext({
   const renderedRequest = renderResult._request;
   const renderedCookieJar = renderResult._cookieJar;
   renderedRequest.description = await render(description, renderContext, null, 'keep');
-  const userAgentHeaders = request.headers.filter(h => h.name.toLowerCase() === 'user-agent');
-  const noUserAgents = userAgentHeaders.length === 0;
-  const allUserAgentHeadersDisabled = userAgentHeaders.every(h => h.disabled === true);
-  const suppressUserAgent = noUserAgents || allUserAgentHeadersDisabled;
   // Remove disabled params
   renderedRequest.parameters = renderedRequest.parameters.filter(p => !p.disabled);
   // Remove disabled headers
@@ -629,22 +622,7 @@ export async function getRenderedRequestAndContext({
   // Default the proto if it doesn't exist
   renderedRequest.url = setDefaultProtocol(renderedRequest.url);
 
-  // Render path parameters
-  if (renderedRequest.pathParameters) {
-    // Replace path parameters in URL with their rendered values
-    // Path parameters are path segments that start with a colon, e.g. :id
-    renderedRequest.url = renderedRequest.url.replace(PATH_PARAMETER_REGEX, match => {
-      const paramName = match.replace('\/:', '');
-      const param = renderedRequest.pathParameters?.find(p => p.name === paramName);
-
-      if (param && param.value) {
-        // The parameter value needs to be URL encoded
-        return `/${encodeURIComponent(param.value)}`;
-      }
-
-      return match;
-    });
-  }
+  renderedRequest.url = applyPathParametersToUrl(renderedRequest.url, renderedRequest.pathParameters);
 
   return {
     context: renderContext,
@@ -672,6 +650,7 @@ export async function getRenderedRequestAndContext({
       settingStoreCookies: renderedRequest.settingStoreCookies,
       settingRebuildPath: renderedRequest.settingRebuildPath,
       settingFollowRedirects: renderedRequest.settingFollowRedirects,
+      disableUserAgentHeader: renderedRequest.disableUserAgentHeader,
       type: renderedRequest.type,
       url: renderedRequest.url,
       preRequestScript: renderedRequest.preRequestScript,

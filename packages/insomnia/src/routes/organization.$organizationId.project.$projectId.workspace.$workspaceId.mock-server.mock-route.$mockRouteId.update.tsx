@@ -1,10 +1,11 @@
+import type { MockRoute } from 'insomnia-data';
+import { services } from 'insomnia-data';
 import { href } from 'react-router';
 
-import type { MockRoute } from '~/insomnia-data';
-import { services } from '~/insomnia-data';
-import { SegmentEvent } from '~/ui/analytics';
-import { invariant } from '~/utils/invariant';
-import { createFetcherSubmitHook } from '~/utils/router';
+import { invariant } from '~/common/utils/invariant';
+import { AnalyticsEvent } from '~/ui/analytics';
+import { findConflictingMockRoute } from '~/ui/utils/mock-route';
+import { createFetcherSubmitHook } from '~/ui/utils/router';
 
 import type { Route } from './+types/organization.$organizationId.project.$projectId.workspace.$workspaceId.mock-server.mock-route.$mockRouteId.update';
 
@@ -21,34 +22,26 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
       invariant(typeof patch.name === 'string', 'Name is required');
       invariant(patch.name.startsWith('/'), 'Path must begin with a /');
 
-      const mockServer = await services.mockServer.getById(mockRoute.parentId);
       const existingRoutes = await services.mockRoute.findByParentId(mockRoute.parentId);
-
-      if (mockServer?.useInsomniaCloud) {
-        const hasRouteInServer = existingRoutes.filter(m => m._id !== mockRouteId).find(m => m.name === patch.name);
-        if (hasRouteInServer) {
-          invariant(false, `Path "${patch.name}" already exists. Please enter a different path.`);
-        }
-      } else {
-        const hasRouteInServer = existingRoutes
-          .filter(m => m._id !== mockRouteId)
-          .find(
-            m => m.name === patch.name && m.method.toUpperCase() === (patch.method || mockRoute.method).toUpperCase(),
-          );
-
-        if (hasRouteInServer) {
-          invariant(
-            false,
-            `Path "${patch.name}" with ${patch.method || mockRoute.method} method already exists. Please enter a different path or method.`,
-          );
-        }
+      const method = patch.method || mockRoute.method;
+      const hasRouteInServer = findConflictingMockRoute({
+        existingRoutes,
+        name: patch.name,
+        method,
+        excludeId: mockRouteId, // allow edits
+      });
+      if (hasRouteInServer) {
+        invariant(
+          false,
+          `Path "${patch.name}" with ${method} method already exists. Please enter a different path or method.`,
+        );
       }
     }
 
     await services.mockRoute.update(mockRoute, patch);
 
-    window.main.trackSegmentEvent({
-      event: SegmentEvent.mockRouteEdit,
+    window.main.trackAnalyticsEvent({
+      event: AnalyticsEvent.mockRouteEdit,
     });
 
     return null;

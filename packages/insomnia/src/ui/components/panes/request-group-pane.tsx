@@ -1,10 +1,10 @@
+import type { EnvironmentKvPairData } from 'insomnia-data';
+import { EnvironmentType } from 'insomnia-data';
 import React, { type FC, useRef, useState } from 'react';
 import { Heading, Tab, TabList, TabPanel, Tabs, ToggleButton } from 'react-aria-components';
 
-import type { EnvironmentKvPairData, Settings } from '~/insomnia-data';
-import { EnvironmentType } from '~/insomnia-data';
+import { getDataFromKVPair } from '~/common/utils/environment-utils';
 import { useToggleEnvironmentType } from '~/ui/hooks/use-toggle-environment-type';
-import { getDataFromKVPair } from '~/utils/environment-utils';
 
 import { getAuthObjectOrNull } from '../../../network/authentication';
 import { useWorkspaceLoaderData } from '../../../routes/organization.$organizationId.project.$projectId.workspace.$workspaceId';
@@ -21,7 +21,7 @@ import { Icon } from '../icon';
 import { MarkdownEditor } from '../markdown-editor';
 import { RequestGroupSettingsModal } from '../modals/request-group-settings-modal';
 
-export const RequestGroupPane: FC<{ settings: Settings }> = ({ settings }) => {
+export const RequestGroupPane: FC = () => {
   const { activeRequestGroup } = useRequestGroupLoaderData()!;
   const { activeEnvironment, vcsVersion } = useWorkspaceLoaderData()!;
   const [isRequestGroupSettingsModalOpen, setIsRequestGroupSettingsModalOpen] = useState(false);
@@ -174,20 +174,18 @@ export const RequestGroupPane: FC<{ settings: Settings }> = ({ settings }) => {
             <TabPanel className="w-full flex-1" id="pre-request">
               <ErrorBoundary key={uniqueKey} errorClassName="tall wide vertically-align font-error pad text-center">
                 <RequestScriptEditor
-                  uniquenessKey={`${activeRequestGroup._id}:pre-request-script`}
+                  historyKey={`${activeRequestGroup._id}:pre-request-script`}
                   defaultValue={activeRequestGroup.preRequestScript || ''}
                   onChange={preRequestScript => patchRequestGroup(activeRequestGroup._id, { preRequestScript })}
-                  settings={settings}
                 />
               </ErrorBoundary>
             </TabPanel>
             <TabPanel className="w-full flex-1" id="after-response">
               <ErrorBoundary key={uniqueKey} errorClassName="tall wide vertically-align font-error pad text-center">
                 <RequestScriptEditor
-                  uniquenessKey={`${activeRequestGroup._id}:after-response-script`}
+                  historyKey={`${activeRequestGroup._id}:after-response-script`}
                   defaultValue={activeRequestGroup.afterResponseScript || ''}
                   onChange={afterResponseScript => patchRequestGroup(activeRequestGroup._id, { afterResponseScript })}
-                  settings={settings}
                 />
               </ErrorBoundary>
             </TabPanel>
@@ -245,9 +243,10 @@ export const RequestGroupPane: FC<{ settings: Settings }> = ({ settings }) => {
                 <EnvironmentEditor
                   ref={environmentEditorRef}
                   key={activeRequestGroup ? activeRequestGroup._id : 'n/a'}
+                  historyKey={`environment-editor::${activeRequestGroup ? activeRequestGroup._id : 'n/a'}`}
                   environmentInfo={{
                     object: activeRequestGroup ? activeRequestGroup.environment : {},
-                    propertyOrder: activeRequestGroup && activeRequestGroup.environmentPropertyOrder,
+                    propertyOrder: (activeRequestGroup && activeRequestGroup.environmentPropertyOrder) ?? null,
                   }}
                   onBlur={saveChanges}
                 />
@@ -258,6 +257,7 @@ export const RequestGroupPane: FC<{ settings: Settings }> = ({ settings }) => {
         <TabPanel className="w-full flex-1 overflow-y-auto" id="docs">
           <MarkdownEditor
             key={uniqueKey}
+            historyKey={`request-group-description::${activeRequestGroup._id}`}
             className="margin-top"
             placeholder="Write a description"
             defaultValue={activeRequestGroup.description}

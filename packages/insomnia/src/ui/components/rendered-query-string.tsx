@@ -1,7 +1,4 @@
 import classNames from 'classnames';
-import { type FC, useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-aria-components';
-
 import type {
   Request,
   RequestAuthentication,
@@ -9,17 +6,20 @@ import type {
   RequestParameter,
   SocketIORequest,
   WebSocketRequest,
-} from '~/insomnia-data';
-import { models } from '~/insomnia-data';
-import { SegmentEvent } from '~/ui/analytics';
+} from 'insomnia-data';
+import { models } from 'insomnia-data';
+import { type FC, useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-aria-components';
+
+import { RenderError } from '~/common/templating/render-error';
+import { buildQueryStringFromParams, joinUrlAndQueryString, smartEncodeUrl } from '~/common/utils/url/querystring';
+import { AnalyticsEvent } from '~/ui/analytics';
 import { showSettingsModal } from '~/ui/components/modals/settings-modal';
 
 import { database as db } from '../../common/database';
 import { SECURITY_SETTINGS_PATH_LABEL } from '../../common/misc';
 import { getAuthObjectOrNull, isAuthEnabled } from '../../network/authentication';
 import { getOrInheritAuthentication } from '../../network/network';
-import { RenderError } from '../../templating/render-error';
-import { buildQueryStringFromParams, joinUrlAndQueryString, smartEncodeUrl } from '../../utils/url/querystring';
 import { useNunjucks } from '../context/nunjucks/use-nunjucks';
 import { CopyButton } from './base/copy-button';
 
@@ -85,22 +85,7 @@ export const RenderedQueryString: FC<Props> = ({ request }) => {
         }
 
         const { parameters, pathParameters, authQueryParams: renderedAuthQueryParams } = result;
-        let { url } = result;
-
-        if (pathParameters) {
-          // Replace path parameters in URL with their rendered values
-          // Path parameters are path segments that start with a colon, e.g. :id
-          url = url.replace(models.request.PATH_PARAMETER_REGEX, match => {
-            const pathParam = match.replace('/:', '');
-            const param = pathParameters?.find(p => p.name === pathParam);
-
-            if (param && param.value) {
-              return `/${encodeURIComponent(param.value)}`;
-            }
-            // The parameter should also be URL encoded
-            return match;
-          });
-        }
+        const url = models.request.applyPathParametersToUrl(result.url, pathParameters);
 
         const mergedParams = [...parameters, ...renderedAuthQueryParams];
         const qs = buildQueryStringFromParams(mergedParams, false, { encodeParams: request.settingEncodeUrl });
@@ -141,8 +126,8 @@ export const RenderedQueryString: FC<Props> = ({ request }) => {
         message: `Your URL is quite long, so only the first ${MAX_URL_LENGTH} characters were copied.`,
       });
     } else {
-      window.main.trackSegmentEvent({
-        event: SegmentEvent.requestUrlCopied,
+      window.main.trackAnalyticsEvent({
+        event: AnalyticsEvent.requestUrlCopied,
       });
     }
   }, [tooLong]);

@@ -3,6 +3,21 @@ import { type FetchConfig, ResponseFailError } from 'insomnia-api';
 import { getApiBaseURL, getClientString, INSOMNIA_FETCH_TIME_OUT, PLAYWRIGHT_TEST } from './constants';
 import { generateId } from './misc';
 
+type FetchImplementation = (input: string, init?: RequestInit) => Promise<Response>;
+
+// node fetch ignores the system proxy and OS certs — main swaps in net.fetch (entry.main.ts)
+let fetchImpl: FetchImplementation = (input, init) => globalThis.fetch(input, init);
+
+export function setFetchImplementation(impl: FetchImplementation) {
+  fetchImpl = impl;
+}
+
+// Stable, proxy-aware fetch handle for callers that need a raw `fetch` (e.g. the v3 SDK's
+// Configuration.fetchApi). It delegates to the current `fetchImpl` on every call rather than
+// capturing it, so it works regardless of whether setFetchImplementation() has run yet.
+export const proxyAwareFetch: typeof globalThis.fetch = (input, init) =>
+  fetchImpl(input as string, init as RequestInit | undefined);
+
 // Adds headers, retries and opens deep links returned from the api
 export async function insomniaFetch<T = void>({
   method,
@@ -13,9 +28,11 @@ export async function insomniaFetch<T = void>({
   origin,
   headers,
   timeout = INSOMNIA_FETCH_TIME_OUT,
+  onDeepLink,
 }: FetchConfig & {
   // It's not used at all, should be removed?
   retries?: number;
+  onDeepLink?: (uri: string) => void;
 }): Promise<T> {
   const config: RequestInit = {
     method,
@@ -37,10 +54,10 @@ export async function insomniaFetch<T = void>({
   }
 
   try {
-    const response = await fetch((origin || getApiBaseURL()) + path, config);
+    const response = await fetchImpl((origin || getApiBaseURL()) + path, config);
     const uri = response.headers.get('x-insomnia-command');
-    if (uri) {
-      window.main.openDeepLink(uri);
+    if (uri && onDeepLink) {
+      onDeepLink(uri);
     }
     const isJson = response.headers.get('content-type')?.includes('application/json') || path.match(/\.json$/);
     if (!response.ok) {
@@ -61,7 +78,21 @@ export async function insomniaFetch<T = void>({
     }
     return isJson ? response.json() : (response.text() as Promise<T>);
   } catch (err) {
-    const error = err.name === 'AbortError' ? new Error('insomniaFetch timed out') : err;
-    throw error;
+    if (!(err instanceof Error)) {
+      throw err;
+    }
+    // AbortSignal.timeout() gives TimeoutError, not AbortError
+    if (err.name === 'AbortError' || err.name === 'TimeoutError') {
+      throw new Error(`insomniaFetch timed out: ${method} ${path}`, { cause: err });
+    }
+    // the real error (ECONNREFUSED, cert problems) hides in err.cause, sometimes nested in an AggregateError
+    const cause = (err as { cause?: string | { code?: string; message?: string; errors?: { code?: string }[] } })
+      .cause;
+    const detail = typeof cause === 'string' ? cause : cause?.code || cause?.errors?.[0]?.code || cause?.message;
+    if (detail) {
+      // fresh Error (don't mutate err.message) so a re-observed/retried error doesn't append the detail twice
+      throw new Error(`${err.message} (${detail})`, { cause: err });
+    }
+    throw err;
   }
 }

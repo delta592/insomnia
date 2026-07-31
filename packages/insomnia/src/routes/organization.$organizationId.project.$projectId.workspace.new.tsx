@@ -1,16 +1,18 @@
 import { upsertMockbin } from 'insomnia-api';
+import type { MockRoute, MockServer, WorkspaceScope } from 'insomnia-data';
+import { models, services } from 'insomnia-data';
 import { href, redirect } from 'react-router';
 
-import { getAppVersion, getMockServiceURL, METHOD_GET } from '~/common/constants';
+import { getMockServiceURL, METHOD_GET } from '~/common/constants';
 import { database } from '~/common/database';
-import type { MockRoute, MockServer, WorkspaceScope } from '~/insomnia-data';
-import { models, services } from '~/insomnia-data';
-import type { MockRouteData } from '~/plugins/types';
+import type { MockRouteData } from '~/common/plugins/types';
+import { invariant } from '~/common/utils/invariant';
 import { safeToUseInsomniaFileNameWithExt } from '~/sync/git/insomnia-filename';
-import { SegmentEvent } from '~/ui/analytics';
+import { AnalyticsEvent } from '~/ui/analytics';
 import { showToast } from '~/ui/components/toast-notification';
-import { invariant } from '~/utils/invariant';
-import { createFetcherSubmitHook } from '~/utils/router';
+import { trackCioEvent } from '~/ui/hooks/use-cio';
+import { maybeLatchRequestThreshold } from '~/ui/utils/first-request-latch';
+import { createFetcherSubmitHook } from '~/ui/utils/router';
 
 import type { Route } from './+types/organization.$organizationId.project.$projectId.workspace.new';
 import { mockRouteToHar } from './organization.$organizationId.project.$projectId.workspace.$workspaceId.mock-server.mock-route.$mockRouteId';
@@ -18,6 +20,7 @@ import { mockRouteToHar } from './organization.$organizationId.project.$projectI
 interface NewWorkspaceData {
   name: string;
   scope: WorkspaceScope;
+  mcpServerUrl?: string;
   folderPath?: string;
   mockServerType?: 'self-hosted' | 'cloud';
   mockServerUrl?: string;
@@ -31,11 +34,13 @@ interface NewWorkspaceData {
   fileName?: string;
   withRequest?: boolean;
   mockServerDynamicResponses?: boolean;
+  source?: string;
 }
 
 export async function clientAction({ request, params }: Route.ClientActionArgs) {
   const { organizationId, projectId } = params;
   try {
+    const redirectAfterCreate = new URL(request.url).searchParams.get('redirectAfterCreate') !== 'false';
     const workspaceData = (await request.json()) as NewWorkspaceData;
     const project = await services.project.getById(projectId);
 
@@ -116,6 +121,7 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
         organizationId,
         projectId,
         name,
+        workspaceData.source,
       );
 
       if (mockServerError) {
@@ -130,22 +136,18 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
     }
 
     if (workspaceData.scope === 'mcp') {
-      const settings = await services.settings.getOrCreate();
-      const defaultHeaders = settings.disableAppVersionUserAgent
-        ? []
-        : [{ name: 'User-Agent', value: `insomnia/${getAppVersion()}` }];
       // Create mcp request when MCP workspace is created
       await services.mcpRequest.create({
         parentId: workspace._id,
         transportType: 'streamable-http',
-        url: '',
+        url: workspaceData.mcpServerUrl?.trim() || '',
         name: 'MCP Client',
-        headers: defaultHeaders,
+        headers: [],
         description: '',
       });
 
-      window.main.trackSegmentEvent({
-        event: SegmentEvent.mcpClientAdded,
+      window.main.trackAnalyticsEvent({
+        event: AnalyticsEvent.mcpClientAdded,
       });
     }
 
@@ -156,7 +158,7 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
 
     await database.flushChanges(flushId);
 
-    const { id } = await services.userSession.getOrCreate();
+    const { id } = await services.userSession.get();
     if (
       id &&
       !workspaceMeta.gitRepositoryId &&
@@ -168,51 +170,62 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
       });
     }
 
-    let event = SegmentEvent.documentCreate;
+    let event = AnalyticsEvent.documentCreate;
     let environmentType: string | undefined;
 
     if (models.workspace.isCollection(workspace)) {
-      event = SegmentEvent.collectionCreate;
+      event = AnalyticsEvent.collectionCreate;
     } else if (models.workspace.isEnvironment(workspace)) {
-      event = SegmentEvent.environmentCreate;
+      event = AnalyticsEvent.environmentCreate;
       const environment = await services.environment.getById(workspace._id);
       environmentType = environment?.isPrivate ? 'private' : 'global';
     } else if (scope === 'mcp') {
-      event = SegmentEvent.mcpClientWorkspaceCreate;
+      event = AnalyticsEvent.mcpClientWorkspaceCreate;
     }
 
-    window.main.trackSegmentEvent({
+    window.main.trackAnalyticsEvent({
       event: event,
-      ...(environmentType && {
-        properties: {
-          type: environmentType,
-        },
-      }),
+      properties: {
+        ...(environmentType && { type: environmentType }),
+        ...(workspaceData.source && { source: workspaceData.source }),
+      },
     });
 
     if (workspaceData.withRequest) {
-      const settings = await services.settings.getOrCreate();
-      const defaultHeaders = settings.disableAppVersionUserAgent
-        ? []
-        : [
-            {
-              name: 'User-Agent',
-              value: `insomnia/${getAppVersion()}`,
-              description: '',
-              disabled: false,
-            },
-          ];
-
       const activeRequestId = (
         await services.request.create({
           parentId: workspace._id,
           method: METHOD_GET,
           name: 'My first request',
-          headers: defaultHeaders,
+          headers: [],
         })
       )._id;
 
-      window.main.trackSegmentEvent({ event: SegmentEvent.requestCreated, properties: { requestType: 'HTTP' } });
+      services.stats.incrementCreatedRequests();
+      // Keep graduation in sync with requests created via this path too (fire-and-forget,
+      // idempotent — see maybeLatchRequestThreshold).
+      services.stats.get().then(stats => maybeLatchRequestThreshold(stats.createdRequests));
+
+      const requestCreatedProperties = {
+        requestType: 'HTTP',
+        request_url_length: 0,
+        ...(workspaceData.source && { source: workspaceData.source }),
+      };
+      window.main.trackAnalyticsEvent({
+        event: AnalyticsEvent.requestCreated,
+        properties: requestCreatedProperties,
+      });
+
+      // Send to Customer.io directly so the event is tied to the identified
+      // user's email-bearing profile (only fires when logged in). See INS-2678.
+      trackCioEvent(AnalyticsEvent.requestCreated, requestCreatedProperties);
+
+      if (!redirectAfterCreate) {
+        return {
+          workspaceId: workspace._id,
+          requestId: activeRequestId,
+        };
+      }
 
       return redirect(
         href(`/organization/:organizationId/project/:projectId/workspace/:workspaceId/debug/request/:requestId`, {
@@ -222,6 +235,12 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
           requestId: activeRequestId,
         }),
       );
+    }
+
+    if (!redirectAfterCreate) {
+      return {
+        workspaceId: workspace._id,
+      };
     }
 
     return redirect(
@@ -245,14 +264,22 @@ export const useWorkspaceNewActionFetcher = createFetcherSubmitHook(
     ({
       organizationId,
       projectId,
+      redirectAfterCreate,
       ...workspaceData
-    }: NewWorkspaceData & { organizationId: string; projectId: string }) => {
+    }: NewWorkspaceData & { organizationId: string; projectId: string; redirectAfterCreate?: boolean }) => {
+      const action = href('/organization/:organizationId/project/:projectId/workspace/new', {
+        organizationId,
+        projectId,
+      });
+      const query = new URLSearchParams();
+
+      if (redirectAfterCreate !== undefined) {
+        query.set('redirectAfterCreate', String(redirectAfterCreate));
+      }
+
       return submit(JSON.stringify(workspaceData), {
         method: 'POST',
-        action: href('/organization/:organizationId/project/:projectId/workspace/new', {
-          organizationId,
-          projectId,
-        }),
+        action: query.toString() ? `${action}?${query.toString()}` : action,
         encType: 'application/json',
       });
     },
@@ -266,6 +293,7 @@ async function createMockServer(
   organizationId: string,
   projectId: string,
   name: string,
+  source?: string,
 ): Promise<string | undefined> {
   try {
     const mockServerType = workspaceData.mockServerType!;
@@ -336,7 +364,7 @@ async function createMockServer(
         return result.error;
       }
 
-      const { id: sessionId } = await services.userSession.getOrCreate();
+      const { id: sessionId } = await services.userSession.get();
       await createMockRoutes(result.routes, mockServer, sessionId, organizationId);
     }
 
@@ -344,15 +372,15 @@ async function createMockServer(
 
     const generationDurationMs = Date.now() - generationStartTime;
 
-    const { id } = await services.userSession.getOrCreate();
+    const { id } = await services.userSession.get();
     if (id && !workspaceMeta.gitRepositoryId) {
       await window.main.initializeWorkspaceBackendProject({
         workspaceId: workspace._id,
       });
     }
 
-    window.main.trackSegmentEvent({
-      event: SegmentEvent.mockCreate,
+    window.main.trackAnalyticsEvent({
+      event: AnalyticsEvent.mockCreate,
       properties: {
         provider: (modelConfig && modelConfig.backend) || '',
         model: (modelConfig && modelConfig.model) || '',
@@ -361,7 +389,7 @@ async function createMockServer(
         generation_from: workspaceData.apiSpecContents ? 'design_doc' : workspaceData.mockServerSpecSource || '',
         dynamic_responses: workspaceData.mockServerDynamicResponses ? 'yes' : 'no',
         generation_duration_seconds: generationDurationMs / 1000,
-        source: 'menu',
+        ...(source && { source }),
       },
     });
 
@@ -451,7 +479,7 @@ async function createMockRoutes(
           organizationId,
           sessionId,
           method: route.method,
-          data: mockRouteToHar({
+          data: await mockRouteToHar({
             statusCode: mockRoute.statusCode,
             statusText: mockRoute.statusText || '',
             headersArray: mockRoute.headers,

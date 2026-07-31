@@ -1,10 +1,15 @@
 import { getTrialEligibility } from 'insomnia-api';
+import { services } from 'insomnia-data';
 import { href } from 'react-router';
 
-import { services } from '~/insomnia-data';
-import { createFetcherLoadHook } from '~/utils/router';
+import { createFetcherLoadHook } from '~/ui/utils/router';
 
 import type { Route } from './+types/settings.update';
+
+// only revalidate when call load(), not on every render
+export function shouldRevalidate() {
+  return false;
+}
 
 export async function clientLoader(_args: Route.ClientLoaderArgs) {
   const { id: sessionId } = await services.userSession.get();

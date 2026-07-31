@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { createBuilder } from '@develohpanda/fluent-builder';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -8,6 +9,36 @@ import { deterministicStringify } from '../../../../sync/lib/deterministic-strin
 import type { BackendProject } from '../../../../sync/types';
 import MemoryDriver from '../store/drivers/memory-driver';
 import { chunkArray, VCS } from '../vcs';
+
+// Every snapshot id asserted in this file is a sha1 over the backend project id, which comes from
+// generateId('prj'). generateId ultimately calls uuid.v4(), which the shared setup mock
+// (setup-vitest.ts) replaces with a fixed pool. That setup mock is declared *after* a top-level
+// `await` that loads the cross-package insomnia-data graph, so in CI it is applied
+// non-deterministically — when it misses, generateId returns a real random uuid and every asserted
+// hash changes, which is what made this file flake (the same commit passing on one Test run and
+// failing on another).
+//
+// Pin it deterministically here instead: mock generateId at this in-package module boundary (a
+// test-file-local vi.mock of insomnia's own module, which is applied reliably) with a private
+// counter over the same id array. generateId('prj') is the only uuid consumer these tests exercise,
+// so drawing the array in order reproduces the exact sequence the assertions were recorded against,
+// independent of whether the ambient uuid mock happened to apply.
+vi.mock('~/common/misc', async importActual => {
+  const actual = await importActual<Record<string, unknown>>();
+  const { v4UUIDs } = await import('../../../../../../insomnia-data/__mocks__/uuid');
+  let i = 0;
+  return {
+    ...actual,
+    generateId: (prefix?: string) => {
+      const uuid = v4UUIDs[i++];
+      if (!uuid) {
+        throw new Error('Not enough mocked v4 UUIDs to go around in vcs.test.ts');
+      }
+      const id = uuid.replace(/-/g, '');
+      return prefix ? `${prefix}_${id}` : id;
+    },
+  };
+});
 
 const baseModelBuilder = createBuilder(baseModelSchema);
 const workspaceModelBuilder = createBuilder(workspaceModelSchema);
@@ -1000,6 +1031,71 @@ describe('VCS', () => {
       const hasProject = await vcs.hasBackendProjectForRootDocument('some other id');
 
       expect(hasProject).toBe(false);
+    });
+  });
+
+  describe('_storeBackendProject()', () => {
+    let driver: MemoryDriver;
+    let vcs: VCS;
+    let backendProject: BackendProject;
+
+    beforeEach(() => {
+      driver = new MemoryDriver();
+      vcs = new VCS(driver);
+      backendProject = projectBuilder.reset().build();
+    });
+
+    it('writes backend project metadata when missing', async () => {
+      const setItemSpy = vi.spyOn(driver, 'setItem');
+
+      await vcs._storeBackendProject(backendProject);
+
+      expect(setItemSpy).toHaveBeenCalledTimes(1);
+      expect(setItemSpy).toHaveBeenCalledWith(
+        `/projects/${backendProject.id}/meta.json`,
+        expect.any(Buffer),
+      );
+      expect(await vcs._getBackendProjectById(backendProject.id)).toEqual(backendProject);
+    });
+
+    it('skips identical backend project metadata writes', async () => {
+      const setItemSpy = vi.spyOn(driver, 'setItem');
+
+      await vcs._storeBackendProject(backendProject);
+      setItemSpy.mockClear();
+
+      await vcs._storeBackendProject(backendProject);
+
+      expect(setItemSpy).not.toHaveBeenCalled();
+    });
+
+    it('writes changed backend project metadata', async () => {
+      const setItemSpy = vi.spyOn(driver, 'setItem');
+      const updatedProject = {
+        ...backendProject,
+        name: `${backendProject.name} Updated`,
+      };
+
+      await vcs._storeBackendProject(backendProject);
+      setItemSpy.mockClear();
+
+      await vcs._storeBackendProject(updatedProject);
+
+      expect(setItemSpy).toHaveBeenCalledTimes(1);
+      expect(await vcs._getBackendProjectById(backendProject.id)).toEqual(updatedProject);
+    });
+
+    it('writes backend project metadata when existing meta.json is corrupted', async () => {
+      await driver.setItem(`/projects/${backendProject.id}/meta.json`, Buffer.from('{', 'utf8'));
+      const setItemSpy = vi.spyOn(driver, 'setItem');
+
+      await vcs._storeBackendProject(backendProject);
+
+      expect(setItemSpy).toHaveBeenCalledTimes(1);
+      expect(setItemSpy).toHaveBeenCalledWith(
+        `/projects/${backendProject.id}/meta.json`,
+        expect.any(Buffer),
+      );
     });
   });
 

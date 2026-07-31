@@ -1,11 +1,11 @@
+import { services } from 'insomnia-data';
 import { href } from 'react-router';
 
 import { database } from '~/common/database';
-import { services } from '~/insomnia-data';
-import { SegmentEvent } from '~/ui/analytics';
-import { getSyncItems, remoteCompareCache, vcsSegmentEventProperties } from '~/ui/sync-utils';
-import { invariant } from '~/utils/invariant';
-import { createFetcherSubmitHook } from '~/utils/router';
+import { invariant } from '~/common/utils/invariant';
+import { AnalyticsEvent } from '~/ui/analytics';
+import { getSyncItems, remoteCompareCache, reparentSyncDelta, vcsEventProperties } from '~/ui/sync-utils';
+import { createFetcherSubmitHook } from '~/ui/utils/router';
 
 import type { Route } from './+types/organization.$organizationId.project.$projectId.workspace.$workspaceId.insomnia-sync.pull';
 
@@ -24,12 +24,12 @@ export async function clientAction({ params }: Route.ClientActionArgs) {
       projectId: project._id,
     });
 
-    window.main.trackSegmentEvent({
-      event: SegmentEvent.vcsAction,
-      properties: vcsSegmentEventProperties('remote', 'pull'),
+    window.main.trackAnalyticsEvent({
+      event: AnalyticsEvent.vcsAction,
+      properties: vcsEventProperties('remote', 'pull'),
     });
     // This is to synchronize the local database with the branch changes
-    await database.batchModifyDocs(delta);
+    await database.batchModifyDocs(reparentSyncDelta(delta, projectId));
     delete remoteCompareCache[workspaceId];
 
     return {
@@ -38,9 +38,9 @@ export async function clientAction({ params }: Route.ClientActionArgs) {
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : 'Unknown error while pulling from remote.';
 
-    window.main.trackSegmentEvent({
-      event: SegmentEvent.vcsAction,
-      properties: vcsSegmentEventProperties('remote', 'pull', errorMessage),
+    window.main.trackAnalyticsEvent({
+      event: AnalyticsEvent.vcsAction,
+      properties: vcsEventProperties('remote', 'pull', errorMessage),
     });
 
     return {

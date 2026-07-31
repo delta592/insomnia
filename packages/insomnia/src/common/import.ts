@@ -1,6 +1,3 @@
-import orderedJSON from 'json-order';
-import { z, type ZodError } from 'zod/v4';
-
 import type {
   AllTypes,
   ApiSpec,
@@ -17,13 +14,17 @@ import type {
   UnitTestSuite,
   WebSocketRequest,
   Workspace,
-} from '~/insomnia-data';
-import { models, services } from '~/insomnia-data';
+} from 'insomnia-data';
+import { models, services } from 'insomnia-data';
+import orderedJSON from 'json-order';
+import { z, type ZodError } from 'zod/v4';
+
+import { invariant } from '~/common/utils/invariant';
 
 import type { InsomniaImporter } from '../main/importers/convert';
 import type { ImportEntry } from '../main/importers/entities';
 import { id as postmanEnvImporterId } from '../main/importers/importers/postman-env';
-import { invariant } from '../utils/invariant';
+import { getRuntime } from '../runtimes';
 import { parseApiSpec, type ParsedApiSpec } from './api-specs';
 import { JSON_ORDER_PREFIX, JSON_ORDER_SEPARATOR } from './constants';
 import { database as db } from './database';
@@ -92,12 +93,7 @@ export async function fetchImportContentFromURI({ uri }: { uri: string }) {
     return content;
   } else if (uri.match(/^(file):\/\//)) {
     const path = uri.replace(/^(file):\/\//, '');
-    const readFileProcessFork = async (path: string) =>
-      process.type === 'renderer'
-        ? window.main.insecureReadFile({ path })
-        : (await import('../main/secure-read-file')).insecureReadFile(path);
-
-    return readFileProcessFork(path);
+    return getRuntime().importer.insecureReadFile(path);
   }
   // Treat everything else as raw text
   const content = decodeURIComponent(uri);
@@ -113,7 +109,7 @@ export interface PostmanDataDumpRawData {
 export async function getFilesFromPostmanExportedDataDump(filePath: string): Promise<PostmanDataDumpRawData> {
   let res;
   try {
-    res = await window.main.extractJsonFileFromPostmanDataDumpArchive(filePath);
+    res = await getRuntime().importer.extractJsonFileFromPostmanDataDumpArchive(filePath);
   } catch {
     throw new Error('Extract failed');
   }
@@ -139,6 +135,21 @@ export interface ScanResult {
   type?: InsomniaImporter;
   oriFileName?: string;
   errors: string[];
+}
+
+export function isApiSpecScanResult(scanResult: ScanResult) {
+  return (
+    (scanResult.apiSpecs?.length ?? 0) > 0 || scanResult.type?.id === 'openapi3' || scanResult.type?.id === 'swagger2'
+  );
+}
+
+export function requiresNewWorkspace(scanResult: ScanResult) {
+  return (
+    isApiSpecScanResult(scanResult) ||
+    scanResult.type?.id === postmanEnvImporterId ||
+    (scanResult.mcpRequests?.length ?? 0) > 0 ||
+    !!scanResult.workspaces?.some(w => w.scope !== 'collection')
+  );
 }
 
 interface ResourceCacheType {
@@ -195,22 +206,19 @@ export async function scanResources(importEntries: ImportEntry[]): Promise<ScanR
           insomnia5Import = data as ExportedModel[];
           v5Error = error;
         }
-        if (insomnia5Import.length > 0) {
-          result = {
-            type: {
-              id: 'insomnia-5',
-              name: 'Insomnia v5',
-              description: 'Insomnia v5',
-            },
-            data: {
-              resources: insomnia5Import,
-            },
-          };
-        } else {
-          const convertProcessFork =
-            process.type === 'renderer' ? window.main.parseImport : (await import('../main/importers/convert')).convert;
-          result = (await convertProcessFork(importEntry)) as unknown as ConvertResult;
-        }
+        result =
+          insomnia5Import.length > 0
+            ? {
+                type: {
+                  id: 'insomnia-5',
+                  name: 'Insomnia v5',
+                  description: 'Insomnia v5',
+                },
+                data: {
+                  resources: insomnia5Import,
+                },
+              }
+            : ((await getRuntime().importer.convert(importEntry)) as unknown as ConvertResult);
       } catch (err: unknown) {
         if (v5Error) {
           const messages = extractErrorMessages(v5Error);
@@ -599,15 +607,20 @@ export const importResourcesToNewWorkspace = async ({
   const ResourceIdMap = new Map();
   let newWorkspace: Workspace;
   // support import from both insomnia export and api spec yaml
-  if (resources.find(isApiSpec) || isApiSpecImport(resourceCacheItem.importer)) {
+  const apiSpecResource = resources.find(isApiSpec);
+  if (apiSpecResource || isApiSpecImport(resourceCacheItem.importer)) {
     newWorkspace = await services.workspace.create({
       name: workspaceToImport?.name,
       scope: 'design',
       parentId: projectId,
     });
 
+    // For an Insomnia v5 export the parsed spec resource already holds just the
+    // OpenAPI document. Use it directly so the round-trip stays deterministic.
+    // For a raw API spec import (openapi3/swagger2) there is no spec resource,
+    // so fall back to the imported file content, which is the spec itself.
     await services.apiSpec.updateOrCreateForParentId(newWorkspace._id, {
-      contents: resourceCacheItem.content as string | undefined,
+      contents: apiSpecResource ? apiSpecResource.contents : (resourceCacheItem.content as string | undefined),
       contentType: 'yaml',
       fileName: workspaceToImport?.name,
     });
@@ -756,18 +769,10 @@ function getOasTitleAndVersion(content: string): { title: string; version: strin
   }
 }
 
-export async function findExistingImportedSpec(
-  projectId?: string,
-  organizationId?: string,
-): Promise<
-  | {
-      workspace: Workspace;
-      apiSpec: ApiSpec;
-    }
-  | undefined
-> {
-  const allProjects = await services.project.all();
-  const filteredProjects = organizationId ? allProjects.filter(p => p.parentId === organizationId) : allProjects;
+export async function findExistingImportedWorkspace(projectId?: string, organizationId?: string) {
+  const filteredProjects = organizationId
+    ? await services.project.listByOrganizationIds(organizationId)
+    : await services.project.list();
 
   // match active project first, then look in rest
   const projectIds = new Set<string>();
@@ -778,31 +783,46 @@ export async function findExistingImportedSpec(
     projectIds.add(p._id);
   }
 
+  let incomingMcpUrl: string | undefined;
+  let incomingOasTitleAndVersion: { title: string; version: string } | undefined;
   for (const cache of resourceCacheList) {
-    if (!isApiSpecImport(cache.importer)) continue;
+    const mcpRequest = cache.resources.find(models.mcpRequest.isMcpRequest);
+    if (mcpRequest?.url?.trim()) {
+      incomingMcpUrl = mcpRequest?.url?.trim();
+    }
+    if (isApiSpecImport(cache.importer)) {
+      incomingOasTitleAndVersion = getOasTitleAndVersion(cache.content);
+    }
 
-    const incoming = getOasTitleAndVersion(cache.content);
-    if (!incoming) continue;
+    if (!incomingOasTitleAndVersion && !incomingMcpUrl) continue;
 
     for (const pid of projectIds) {
-      const workspaces = await services.workspace.findByParentId(pid);
-      const designWorkspaces = workspaces.filter(w => w.scope === 'design');
+      const workspaces = await services.workspace.listByParentId(pid);
+      for (const ws of workspaces) {
+        // spec/document branch
+        if (incomingOasTitleAndVersion && models.workspace.isDesign(ws)) {
+          const { title, version } = incomingOasTitleAndVersion;
+          const expectedName = `${title} ${version}`;
+          if (ws.name !== expectedName) continue;
 
-      for (const ws of designWorkspaces) {
-        const expectedName = `${incoming.title} ${incoming.version}`;
-        if (ws.name !== expectedName) continue;
+          const apiSpec = await services.apiSpec.getByParentId(ws._id);
+          if (!apiSpec) continue;
 
-        const apiSpec = await services.apiSpec.getByParentId(ws._id);
-        if (!apiSpec) continue;
-
-        const stored = getOasTitleAndVersion(apiSpec.contents);
-        if (!stored || stored.title !== incoming.title || stored.version !== incoming.version) continue;
-
-        return { workspace: ws, apiSpec };
+          const stored = getOasTitleAndVersion(apiSpec.contents);
+          if (!stored || stored.title !== title || stored.version !== version) continue;
+          return { workspace: ws, model: apiSpec };
+        }
+        // mcp branch
+        if (incomingMcpUrl && models.workspace.isMcp(ws)) {
+          const mcpRequest = await services.mcpRequest.getByParentId(ws._id);
+          if (mcpRequest?.url?.trim() === incomingMcpUrl) {
+            return { workspace: ws, model: mcpRequest };
+          }
+        }
       }
     }
   }
-  return undefined;
+  return;
 }
 
 export function pathPatternMatches(pattern: string, concretePath: string): boolean {

@@ -1,34 +1,33 @@
-import { extractUndefinedVariableKey, RenderError } from '../../templating/render-error';
-import type { RenderInputType } from '../../templating/types';
+import { serializeRenderContext } from '~/common/templating/render-context-serialization';
+import { extractUndefinedVariableKey, RenderError } from '~/common/templating/render-error';
+import type { RenderInputType } from '~/common/templating/types';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment -- see below
 // @ts-ignore -- inso transpiles to commonjs so doesn't play nice with this
-const worker = new Worker(new URL('templating-worker.ts', import.meta.url), { type: 'module' });
+const worker = new Worker(new URL('templating.worker.ts', import.meta.url), { type: 'module' });
 
 // Triggered by a mistake in the work initialization code above
 worker.addEventListener('error', event => {
   console.error('Error from worker:', event.message);
 });
 
-export function renderInWorker({ input, context, path, ignoreUndefinedEnvVariable }: RenderInputType): Promise<string> {
-  const newContext = {
-    ...context,
-    serializedFunctions: {
-      requestId: context.getMeta().requestId,
-      workspaceId: context.getMeta().workspaceId,
-      environmentId: context.getEnvironmentId(),
-      extraInfo: context.getExtraInfo(),
-      globalEnvironmentId: context.getGlobalEnvironmentId(),
-      keysContext: context.getKeysContext(),
-      projectId: context.getProjectId(),
-      purpose: context.getPurpose(),
-      settings: context.getSettings(),
-    },
-  };
+// The Worker has no window.main access, so this module fetches the auth token once and forwards
+// it in on every postMessage instead.
+let authTokenPromise: Promise<string> | null = null;
+function getTemplatingDbAuthToken(): Promise<string> {
+  if (!authTokenPromise) {
+    authTokenPromise = window.main.templatingDb.getAuthToken();
+  }
+  return authTokenPromise;
+}
+
+export async function renderInWorker({ input, context, path, ignoreUndefinedEnvVariable }: RenderInputType): Promise<string> {
+  const newContext = serializeRenderContext(context);
+  const authToken = await getTemplatingDbAuthToken();
 
   // Id to avoid race conditions
   const id = window.crypto.randomUUID();
-  const payloadWithHash = JSON.stringify({ id, input, context: newContext, path, ignoreUndefinedEnvVariable });
+  const payloadWithHash = JSON.stringify({ id, input, context: newContext, path, ignoreUndefinedEnvVariable, authToken });
   worker.postMessage(payloadWithHash);
   return new Promise((resolve, reject) => {
     const messageHandler = (event: MessageEvent) => {

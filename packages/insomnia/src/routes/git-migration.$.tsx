@@ -49,6 +49,15 @@ const MigrationView = () => {
   const isUpdateErrored = status === 'error';
   const isUpdateCompletedWithErrors = status === 'partiallyCompleted';
 
+  // After the migration completes, send users straight into the v13 onboarding
+  // if they haven't seen it yet; otherwise go to the organization view.
+  // Guard `window` so this stays safe during SSR (entry.server.tsx) — the value is
+  // only read once the completion links render, which only happens client-side.
+  const postMigrationPath =
+    typeof window !== 'undefined' && window.localStorage.getItem('hasSeenOnboardingV13')
+      ? '/organization'
+      : '/onboarding';
+
   return (
     <div className="flex h-full min-h-[500px] w-[600px] flex-col items-center justify-center">
       <div className="relative flex w-full flex-col items-center justify-center gap-(--padding-sm) rounded-md border border-solid border-(--hl-sm) bg-(--hl-xs) p-8">
@@ -90,7 +99,7 @@ const MigrationView = () => {
               <p className="text-sm">We hit an unexpected error while updating your file system. Please try again.</p>
               <p className="text-sm text-[#828282]">
                 Having trouble and need to contact us, or back up to an old version? See our{' '}
-                <ExternalLink className="underline" href="https://developer.konghq.com/insomnia/git-sync/">
+                <ExternalLink className="underline" href="https://developer.konghq.com/insomnia/upgrade/insomnia-12.6/">
                   docs.
                 </ExternalLink>
               </p>
@@ -103,7 +112,7 @@ const MigrationView = () => {
               </p>
               <p className="text-sm">
                 Note: This change is backwards compatible, but we strongly recommend{' '}
-                <ExternalLink className="underline" href="https://developer.konghq.com/insomnia/git-sync/">
+                <ExternalLink className="underline" href="https://developer.konghq.com/insomnia/upgrade/insomnia-12.6/">
                   following these best practices
                 </ExternalLink>{' '}
                 when returning to an earlier version of Insomnia.
@@ -120,7 +129,7 @@ const MigrationView = () => {
             {isUpdateCompletedSuccessfully ? (
               <Link
                 className="flex h-full items-center justify-center gap-2 rounded-md border border-solid border-(--hl-md) bg-(--color-surprise) px-4 py-2 text-sm font-semibold text-(--color-font-surprise) ring-1 ring-transparent transition-all focus:ring-(--hl-md) focus:ring-inset aria-pressed:opacity-80"
-                to="/organization"
+                to={postMigrationPath}
               >
                 Open Insomnia
               </Link>
@@ -136,7 +145,7 @@ const MigrationView = () => {
                 </CopyButton>
                 <Link
                   className="flex h-full items-center justify-center gap-2 rounded-md border border-solid border-(--hl-md) bg-(--color-surprise) px-4 py-2 text-sm font-semibold text-(--color-font-surprise) ring-1 ring-transparent transition-all focus:ring-(--hl-md) focus:ring-inset aria-pressed:opacity-80"
-                  to="/organization"
+                  to={postMigrationPath}
                 >
                   Open Insomnia
                 </Link>

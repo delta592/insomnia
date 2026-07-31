@@ -1,15 +1,14 @@
 import { createTeamProject, deleteTeamProject, isApiError, updateTeamProject } from 'insomnia-api';
+import { models, services } from 'insomnia-data';
 import { href } from 'react-router';
 
 import { database } from '~/common/database';
 import { projectLock } from '~/common/project';
-import type { WorkspaceMeta } from '~/insomnia-data';
-import { models, services } from '~/insomnia-data';
+import { invariant } from '~/common/utils/invariant';
 import { reportGitProjectCount } from '~/routes/organization.$organizationId.project.new';
-import { SegmentEvent } from '~/ui/analytics';
+import { AnalyticsEvent } from '~/ui/analytics';
 import { showToast } from '~/ui/components/toast-notification';
-import { invariant } from '~/utils/invariant';
-import { createFetcherSubmitHook } from '~/utils/router';
+import { createFetcherSubmitHook } from '~/ui/utils/router';
 
 import type { Route } from './+types/organization.$organizationId.project.$projectId.update';
 
@@ -42,7 +41,7 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
   const effectiveRepoId = models.project.isGitProject(project) ? models.project.getEffectiveRepoId(project) : null;
   const gitRepository = effectiveRepoId ? await services.gitRepository.getById(effectiveRepoId) : null;
 
-  const user = await services.userSession.getOrCreate();
+  const user = await services.userSession.get();
   const sessionId = user.id;
 
   try {
@@ -106,10 +105,11 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
           sessionId,
         });
 
-        window.main.trackSegmentEvent({
-          event: SegmentEvent.projectUpdated,
+        window.main.trackAnalyticsEvent({
+          event: AnalyticsEvent.projectUpdated,
           properties: {
             storage: 'local',
+            project_id: project._id,
           },
         });
       } catch (error: unknown) {
@@ -158,10 +158,11 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
           name,
         });
 
-        window.main.trackSegmentEvent({
-          event: SegmentEvent.projectUpdated,
+        window.main.trackAnalyticsEvent({
+          event: AnalyticsEvent.projectUpdated,
           properties: {
             storage: 'remote',
+            project_id: project._id,
           },
         });
 
@@ -222,10 +223,11 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
             sessionId,
           });
 
-          window.main.trackSegmentEvent({
-            event: SegmentEvent.projectUpdated,
+          window.main.trackAnalyticsEvent({
+            event: AnalyticsEvent.projectUpdated,
             properties: {
               storage: 'git',
+              project_id: project._id,
             },
           });
         } catch (error: unknown) {
@@ -268,9 +270,9 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
           selectedAuthorEmail,
         });
 
-        const projectWorkspaces = await services.workspace.findByParentId(project._id);
+        const projectWorkspaces = await services.workspace.listByParentId(project._id);
         const bufferId = await database.bufferChanges();
-        const workspaceMetas = await database.find<WorkspaceMeta>(models.workspaceMeta.type, {
+        const workspaceMetas = await services.workspaceMeta.list({
           parentId: { $in: projectWorkspaces.map(w => w._id) },
         });
 
@@ -340,7 +342,12 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
       const effectiveId = models.project.isGitProject(project) ? models.project.getEffectiveRepoId(project) : null;
       const gitRepository = effectiveId ? await services.gitRepository.getById(effectiveId) : null;
 
-      gitRepository && (await services.gitRepository.remove(gitRepository));
+      if (gitRepository) {
+        // Stop the watcher and delete the folder only if Insomnia owns it; a
+        // user-chosen folder stays on disk.
+        await window.main.git.cleanupGitRepoStorage({ gitRepositoryId: gitRepository._id });
+        await services.gitRepository.remove(gitRepository);
+      }
       await services.project.update(project, { name, gitRepositoryId: null });
 
       reportGitProjectCount(organizationId, sessionId);
@@ -376,10 +383,11 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
     // local project rename
     await services.project.update(project, { name });
 
-    window.main.trackSegmentEvent({
-      event: SegmentEvent.projectUpdated,
+    window.main.trackAnalyticsEvent({
+      event: AnalyticsEvent.projectUpdated,
       properties: {
         storage: 'local',
+        project_id: project._id,
       },
     });
 

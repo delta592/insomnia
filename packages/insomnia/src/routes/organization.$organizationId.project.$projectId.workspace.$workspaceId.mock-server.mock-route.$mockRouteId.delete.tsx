@@ -1,9 +1,9 @@
+import { services } from 'insomnia-data';
 import { href, redirect } from 'react-router';
 
-import { services } from '~/insomnia-data';
-import { SegmentEvent } from '~/ui/analytics';
-import { invariant } from '~/utils/invariant';
-import { createFetcherSubmitHook } from '~/utils/router';
+import { invariant } from '~/common/utils/invariant';
+import { AnalyticsEvent } from '~/ui/analytics';
+import { createFetcherSubmitHook } from '~/ui/utils/router';
 
 import type { Route } from './+types/organization.$organizationId.project.$projectId.workspace.$workspaceId.mock-server.mock-route.$mockRouteId.delete';
 
@@ -16,8 +16,8 @@ export async function clientAction({ request, params }: Route.ClientActionArgs) 
 
   await services.mockRoute.remove(mockRoute);
 
-  window.main.trackSegmentEvent({
-    event: SegmentEvent.mockRouteDelete,
+  window.main.trackAnalyticsEvent({
+    event: AnalyticsEvent.mockRouteDelete,
   });
 
   if (isSelected) {

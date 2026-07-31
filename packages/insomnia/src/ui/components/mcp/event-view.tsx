@@ -4,19 +4,18 @@ import {
   ElicitRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 import { type RJSFSchema } from '@rjsf/utils';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Button } from 'react-aria-components';
-import { useParams } from 'react-router';
-
-import { services } from '~/insomnia-data';
-
+import { services } from 'insomnia-data';
 import {
   getPreviewModeName,
   PREVIEW_MODE_FRIENDLY,
   PREVIEW_MODE_RAW,
   PREVIEW_MODE_SOURCE,
   PREVIEW_MODES,
-} from '../../../common/constants';
+} from 'insomnia-data/common';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Button } from 'react-aria-components';
+import { useParams } from 'react-router';
+
 import { METHOD_CALL_TOOL } from '../../../common/mcp-utils';
 import type { McpEvent } from '../../../main/mcp/types';
 import {
@@ -216,12 +215,13 @@ export const MessageEventView = ({ event }: Props) => {
             hideLineNumbers
             mode={previewMode === PREVIEW_MODE_RAW ? 'text/plain' : 'text/json'}
             defaultValue={previewMode === PREVIEW_MODE_FRIENDLY ? pretty : raw}
-            uniquenessKey={event._id}
+            historyKey={event._id}
             ref={editorRef}
             filter={filter}
             updateFilter={handleSetFilter}
             filterHistory={filterHistory}
             readOnly
+            truncateLongLines
             autoPrettify
           />
         </div>

@@ -6,14 +6,14 @@ import {
   type OAuthTokens,
 } from '@modelcontextprotocol/sdk/shared/auth.js';
 import { BrowserWindow, ipcMain } from 'electron';
+import type { RequestAuthentication } from 'insomnia-data';
+import { services } from 'insomnia-data';
 
 import { getOauthRedirectUrl } from '~/common/constants';
-import type { RequestAuthentication } from '~/insomnia-data';
-import { services } from '~/insomnia-data';
+import { invariant } from '~/common/utils/invariant';
 import { authorizeUserInDefaultBrowser } from '~/main/authorize-user-in-default-browser';
 import type { ConnectionContext } from '~/main/mcp/common';
 import { encryptOAuthUrl } from '~/main/network/o-auth-2/get-token';
-import { invariant } from '~/utils/invariant';
 
 export class MCPAuthError extends Error {
   constructor(message: string, options?: ErrorOptions) {
@@ -174,8 +174,13 @@ export class McpOAuthClientProvider implements OAuthClientProvider {
     BrowserWindow.getAllWindows().forEach(window => {
       window.webContents.send('show-oauth-authorization-modal', relayUrl);
     });
+    const shouldOpenDefaultBrowser =
+      'grantType' in this.authentication && this.authentication.grantType === 'mcp_auth_flow'
+        ? !this.authentication.launchBrowserManually
+        : true;
     const redirectedResult = await authorizeUserInDefaultBrowser({
       url: relayUrl,
+      openDefaultBrowser: shouldOpenDefaultBrowser,
     });
     const redirectedTo = decryptOAuthResult(redirectedResult);
     const redirectParams = Object.fromEntries(new URL(redirectedTo).searchParams);
