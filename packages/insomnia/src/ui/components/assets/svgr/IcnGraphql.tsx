@@ -1,4 +1,4 @@
-import React, { memo, type SVGProps } from 'react';
+import { memo, type SVGProps } from 'react';
 export const SvgIcnGraphql = memo<SVGProps<SVGSVGElement>>(props => (
   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
     <path d="M2.625 8.75H11.375V9.625H2.625V8.75Z" fill="#EC407A" />

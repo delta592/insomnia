@@ -1,5 +1,5 @@
 import { getPreviewModeName, PREVIEW_MODES, type PreviewMode } from 'insomnia-data/common';
-import React, { type FC } from 'react';
+import { type FC } from 'react';
 import { Button } from 'react-aria-components';
 
 import { Dropdown, DropdownItem, DropdownSection, ItemContent } from '../base/dropdown';

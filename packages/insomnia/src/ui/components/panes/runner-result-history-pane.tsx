@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
 import type { RunnerTestResult } from 'insomnia-data';
-import React, { type FC } from 'react';
+import { type FC } from 'react';
 import {
   Cell,
   Column,

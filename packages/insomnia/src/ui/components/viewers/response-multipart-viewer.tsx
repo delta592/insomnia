@@ -2,7 +2,7 @@ import { format } from 'date-fns';
 import type { SaveDialogOptions } from 'electron';
 import { getContentTypeFromHeaders, PREVIEW_MODE_FRIENDLY } from 'insomnia-data/common';
 import { extension as mimeExtension } from 'mime-types';
-import React, { type FC, useCallback, useEffect, useState } from 'react';
+import { type FC, useCallback, useEffect, useState } from 'react';
 import { Button } from 'react-aria-components';
 
 import { utf8StringFromBytes } from '~/common/utils/utf8-bytes';

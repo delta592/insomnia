@@ -1,4 +1,4 @@
-import React, { type FC, useState } from 'react';
+import { type FC, useState } from 'react';
 
 import { AnalyticsEvent } from '~/ui/analytics';
 import { CookiesModal } from '~/ui/components/modals/cookies-modal';

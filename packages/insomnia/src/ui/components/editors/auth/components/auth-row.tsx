@@ -1,5 +1,5 @@
 import classnames from 'classnames';
-import React, { type FC, type PropsWithChildren, type ReactNode } from 'react';
+import { type FC, type PropsWithChildren, type ReactNode } from 'react';
 
 import {
   type RequestLoaderData,

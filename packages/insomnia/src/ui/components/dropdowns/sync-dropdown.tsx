@@ -1,6 +1,6 @@
 import type { IconProp } from '@fortawesome/fontawesome-svg-core';
 import type { Project, Workspace } from 'insomnia-data';
-import React, { type FC, Fragment, useCallback, useEffect, useState } from 'react';
+import { type FC, Fragment, useCallback, useEffect, useState } from 'react';
 import {
   Button,
   Collection,

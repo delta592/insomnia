@@ -2,7 +2,7 @@ import { fetchMockbinLogs, type MockbinLogOutput } from 'insomnia-api';
 import type { MockRoute, MockServer, Response, ResponseTimelineEntry } from 'insomnia-data';
 import { services } from 'insomnia-data';
 import { getPreviewModeName, PREVIEW_MODE_FRIENDLY, PREVIEW_MODES, type PreviewMode } from 'insomnia-data/common';
-import React, { Fragment, useCallback, useEffect, useState } from 'react';
+import { Fragment, useCallback, useEffect, useState } from 'react';
 import { Button, Tab, TabList, TabPanel, Tabs, Toolbar } from 'react-aria-components';
 import * as reactUse from 'react-use';
 

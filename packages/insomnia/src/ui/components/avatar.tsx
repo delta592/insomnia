@@ -1,4 +1,4 @@
-import React, { type ReactNode, Suspense } from 'react';
+import { type ReactNode, Suspense } from 'react';
 import { Button, Tooltip, TooltipTrigger } from 'react-aria-components';
 
 import { useAvatarImageCache } from '../hooks/image-cache';

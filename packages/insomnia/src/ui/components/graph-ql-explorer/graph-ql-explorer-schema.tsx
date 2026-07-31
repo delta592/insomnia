@@ -1,5 +1,5 @@
 import type { GraphQLSchema, GraphQLType } from 'graphql';
-import React, { Fragment, PureComponent } from 'react';
+import { Fragment, PureComponent } from 'react';
 
 import { GraphQLExplorerTypeLink } from './graph-ql-explorer-type-link';
 

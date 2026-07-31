@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import { Button } from '~/basic-components/button';
 import { Card } from '~/basic-components/card';

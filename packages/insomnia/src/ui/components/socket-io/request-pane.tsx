@@ -1,7 +1,7 @@
 import type { Environment, RequestPathParameter } from 'insomnia-data';
 import { models } from 'insomnia-data';
 import { deconstructQueryStringToParams } from 'insomnia-data/common';
-import React, { type FC, Fragment } from 'react';
+import { type FC, Fragment } from 'react';
 import { Button, Heading, Tab, TabList, TabPanel, Tabs, ToggleButton } from 'react-aria-components';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { useParams } from 'react-router';

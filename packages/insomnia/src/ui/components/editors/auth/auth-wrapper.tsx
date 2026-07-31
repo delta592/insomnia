@@ -1,5 +1,5 @@
 import type { RequestAuthentication } from 'insomnia-data';
-import React, { type FC, type ReactNode } from 'react';
+import { type FC, type ReactNode } from 'react';
 import { Toolbar } from 'react-aria-components';
 
 import type { AuthTypes } from '~/common/constants';

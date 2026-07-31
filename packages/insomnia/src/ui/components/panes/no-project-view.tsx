@@ -1,5 +1,5 @@
 import type { StorageRules } from 'insomnia-api';
-import React, { type FC } from 'react';
+import { type FC } from 'react';
 import { Heading } from 'react-aria-components';
 
 import { useGitCredentials } from '~/ui/hooks/use-git-credentials';

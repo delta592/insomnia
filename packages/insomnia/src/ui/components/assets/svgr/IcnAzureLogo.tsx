@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unknown-property */
-import React, { memo, type SVGProps } from 'react';
+import { memo, type SVGProps } from 'react';
 export const SvgIcnAzureLogo = memo<SVGProps<SVGSVGElement>>(props => (
   <svg
     viewBox="-0.4500000000000005 0.38 800.8891043012813 754.2299999999999"

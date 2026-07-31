@@ -1,5 +1,5 @@
 import type { GraphQLType } from 'graphql';
-import React, { Fragment, PureComponent } from 'react';
+import { Fragment, PureComponent } from 'react';
 
 import { MarkdownPreview } from '../markdown-preview';
 import { GraphQLDefaultValue } from './graph-ql-default-value';

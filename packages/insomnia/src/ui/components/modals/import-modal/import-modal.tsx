@@ -365,7 +365,8 @@ export const ImportModal: FC<ImportModalProps> = ({
   }, [scanResourcesFetcherData]);
 
   return (
-    <OverlayContainer onClick={e => e.stopPropagation()}>
+    <OverlayContainer>
+      <div onClick={e => e.stopPropagation()}>
       <Modal ref={modalRef} onHide={onHide}>
         <ModalHeader>{header}</ModalHeader>
         {autoScan && (hasApiSpecScanResult || hasMcpScanResult) && hasAnyDataToImport && !showForm ? (
@@ -436,6 +437,7 @@ export const ImportModal: FC<ImportModalProps> = ({
           />
         )}
       </Modal>
+      </div>
     </OverlayContainer>
   );
 };

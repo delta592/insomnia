@@ -1,5 +1,4 @@
 import type { OpenDialogOptions } from 'electron';
-import React from 'react';
 import { Button, Input } from 'react-aria-components';
 
 import { Icon } from '../../icon';

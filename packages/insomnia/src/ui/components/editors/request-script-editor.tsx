@@ -1,5 +1,5 @@
 import type { Snippet } from 'codemirror';
-import React, { type FC, useRef } from 'react';
+import { type FC, useRef } from 'react';
 import {
   Button,
   Collection,

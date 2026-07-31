@@ -1,4 +1,4 @@
-import React, { memo, type SVGProps } from 'react';
+import { memo, type SVGProps } from 'react';
 export const SvgIcnWarningCircle = memo<SVGProps<SVGSVGElement>>(props => (
   <svg
     width="1em"

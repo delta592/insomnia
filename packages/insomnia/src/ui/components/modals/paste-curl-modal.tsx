@@ -1,5 +1,5 @@
 import type { Request } from 'insomnia-data';
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { OverlayContainer } from 'react-aria';
 
 import { CodeEditor } from '~/ui/components/.client/codemirror/code-editor';
@@ -45,7 +45,8 @@ export const PasteCurlModal = ({
   }, [defaultValue]);
 
   return (
-    <OverlayContainer onClick={e => e.stopPropagation()}>
+    <OverlayContainer>
+      <div onClick={e => e.stopPropagation()}>
       <Modal ref={modalRef} tall onHide={onHide}>
         <ModalHeader>Paste Curl to import request</ModalHeader>
         <ModalBody className="">
@@ -104,6 +105,7 @@ export const PasteCurlModal = ({
           </div>
         </ModalFooter>
       </Modal>
+      </div>
     </OverlayContainer>
   );
 };

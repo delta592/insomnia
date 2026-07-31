@@ -1,4 +1,4 @@
-import React, { memo, type SVGProps } from 'react';
+import { memo, type SVGProps } from 'react';
 export const SvgIcnSuccess = memo<SVGProps<SVGSVGElement>>(props => (
   <svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" role="img" {...props}>
     <circle cx={6} cy={6} r={6} opacity={0.9} />

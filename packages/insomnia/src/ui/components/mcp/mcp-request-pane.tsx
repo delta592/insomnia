@@ -1,7 +1,7 @@
 import { type RJSFSchema } from '@rjsf/utils';
 import type { EditorChange } from 'codemirror';
 import type { Environment, EnvironmentKvPairData, McpPayload } from 'insomnia-data';
-import React, { type FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { type FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Heading, Tab, TabList, TabPanel, Tabs, Toolbar } from 'react-aria-components';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { useLatest } from 'react-use';

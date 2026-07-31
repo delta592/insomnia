@@ -14,7 +14,7 @@ import type { Organization } from 'insomnia-api';
 import type { BaseModel, Project, Workspace } from 'insomnia-data';
 import { models, services } from 'insomnia-data';
 import { strings } from 'insomnia-data/common';
-import React, { type FC, Fragment, useEffect, useState } from 'react';
+import { type FC, Fragment, useEffect, useState } from 'react';
 import { Button, Heading, ListBox, ListBoxItem, Popover, Select, SelectValue } from 'react-aria-components';
 import { href, useParams } from 'react-router';
 

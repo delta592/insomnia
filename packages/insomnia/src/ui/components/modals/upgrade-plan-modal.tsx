@@ -1,5 +1,5 @@
 import classnames from 'classnames';
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { Button, Dialog, Heading, Modal, ModalOverlay } from 'react-aria-components';
 
 import { getAppWebsiteBaseURL } from '~/common/constants';

@@ -1,5 +1,5 @@
 import type { GraphQLType } from 'graphql';
-import React, { type FC } from 'react';
+import { type FC } from 'react';
 
 import { Tooltip } from '../../components/tooltip';
 import { MarkdownPreview } from '../markdown-preview';

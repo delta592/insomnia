@@ -14,7 +14,7 @@ import deepEqual from 'deep-equal';
 import type { KeyCombination } from 'insomnia-data/common';
 import { isMac } from 'insomnia-data/common';
 import { JSONPath } from 'jsonpath-plus';
-import React, { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { Button, Menu, MenuItem, MenuTrigger, Popover, Toolbar } from 'react-aria-components';
 import { useLatest, useMount, useUnmount } from 'react-use';
 import vkBeautify from 'vkbeautify';

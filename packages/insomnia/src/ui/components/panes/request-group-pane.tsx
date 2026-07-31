@@ -1,6 +1,6 @@
 import type { EnvironmentKvPairData } from 'insomnia-data';
 import { EnvironmentType } from 'insomnia-data';
-import React, { type FC, useRef, useState } from 'react';
+import { type FC, useRef, useState } from 'react';
 import { Heading, Tab, TabList, TabPanel, Tabs, ToggleButton } from 'react-aria-components';
 
 import { getDataFromKVPair } from '~/common/utils/environment-utils';

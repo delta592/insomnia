@@ -1,7 +1,7 @@
 import classnames from 'classnames';
 import type { KeyCombination, PlatformKeyCombinations } from 'insomnia-data/common';
 import { constructKeyCombinationDisplay, getPlatformKeyCombinations, isMac } from 'insomnia-data/common';
-import React, { type FC, memo } from 'react';
+import { type FC, memo } from 'react';
 
 interface Props {
   /** One of these two must be given. If both is given, keyCombination will be used. */

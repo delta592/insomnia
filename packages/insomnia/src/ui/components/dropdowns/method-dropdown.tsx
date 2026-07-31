@@ -1,4 +1,4 @@
-import React, { forwardRef, useCallback, useState } from 'react';
+import { forwardRef, useCallback, useState } from 'react';
 import { Button } from 'react-aria-components';
 
 import { HTTP_METHODS } from '../../../common/constants';

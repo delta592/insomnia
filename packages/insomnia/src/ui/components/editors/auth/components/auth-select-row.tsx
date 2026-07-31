@@ -1,5 +1,5 @@
 import type { RequestAuthentication } from 'insomnia-data';
-import React, { type ChangeEvent, type FC, type ReactNode, useCallback } from 'react';
+import { type ChangeEvent, type FC, type ReactNode, useCallback } from 'react';
 
 import { toKebabCase } from '~/common/misc';
 import { getAuthObjectOrNull } from '~/network/authentication';

@@ -2,7 +2,7 @@ import type { IconName, IconProp } from '@fortawesome/fontawesome-svg-core';
 import type { StorageRules } from 'insomnia-api';
 import type { GitRepository, Project, WorkspaceScope } from 'insomnia-data';
 import { models, services } from 'insomnia-data';
-import React, { type FC, Fragment, useEffect, useState } from 'react';
+import { type FC, Fragment, useEffect, useState } from 'react';
 import {
   Button,
   Collection,

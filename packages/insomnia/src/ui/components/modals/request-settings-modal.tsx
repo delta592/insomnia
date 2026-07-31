@@ -115,7 +115,8 @@ export const RequestSettingsModal = ({ request, onHide }: ModalProps & RequestSe
   };
 
   return (
-    <OverlayContainer onContextMenu={e => e.stopPropagation()}>
+    <OverlayContainer>
+      <div onContextMenu={e => e.stopPropagation()}>
       <Modal ref={modalRef} onHide={onHide}>
         <ModalHeader>
           Request Settings <span className="txt-sm selectable faint monospace">{request ? request._id : ''}</span>
@@ -468,6 +469,7 @@ export const RequestSettingsModal = ({ request, onHide }: ModalProps & RequestSe
           </div>
         </ModalBody>
       </Modal>
+      </div>
     </OverlayContainer>
   );
 };

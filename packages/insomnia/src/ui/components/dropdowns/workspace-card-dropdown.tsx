@@ -5,7 +5,7 @@ import {
 } from 'insomnia/src/ui/components/settings/import-export';
 import type { ApiSpec, MockServer, Project, Workspace } from 'insomnia-data';
 import { models } from 'insomnia-data';
-import React, { type FC, Fragment, useCallback, useState } from 'react';
+import { type FC, Fragment, useCallback, useState } from 'react';
 import { Button, Dialog, Heading, Label, Modal, ModalOverlay, Radio, RadioGroup } from 'react-aria-components';
 import { href, useParams } from 'react-router';
 

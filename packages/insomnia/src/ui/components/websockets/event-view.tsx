@@ -1,5 +1,5 @@
 import { PREVIEW_MODE_FRIENDLY, PREVIEW_MODE_RAW, PREVIEW_MODE_SOURCE } from 'insomnia-data/common';
-import React, { type FC, useCallback, useRef } from 'react';
+import { type FC, useCallback, useRef } from 'react';
 import { useParams } from 'react-router';
 
 import { utf8StringFromBytes } from '~/common/utils/utf8-bytes';

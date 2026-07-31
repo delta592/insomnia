@@ -1,4 +1,4 @@
-import React, { type FC } from 'react';
+import { type FC } from 'react';
 
 import { KeyValueEditor } from '../../key-value-editor/key-value-editor';
 

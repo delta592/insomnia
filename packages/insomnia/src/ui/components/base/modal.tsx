@@ -1,5 +1,5 @@
 import classnames from 'classnames';
-import React, {
+import {
   forwardRef,
   type ReactNode,
   useCallback,

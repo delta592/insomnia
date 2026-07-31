@@ -9,7 +9,7 @@ import type {
   WebSocketResponse,
 } from 'insomnia-data';
 import { models, services } from 'insomnia-data';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from 'react-aria-components';
 import { useParams } from 'react-router';
 

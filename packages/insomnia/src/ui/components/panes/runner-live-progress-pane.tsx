@@ -1,4 +1,4 @@
-import React, { type FC } from 'react';
+import { type FC } from 'react';
 import { Button } from 'react-aria-components';
 
 import { isFinished, type RunnerLiveItem } from '../../../common/runner-feedback';

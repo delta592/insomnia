@@ -1,6 +1,6 @@
 import type { GraphQLSchema } from 'graphql';
 import { GraphQLInterfaceType, GraphQLObjectType, type GraphQLType, GraphQLUnionType } from 'graphql';
-import React, { type FC, Fragment } from 'react';
+import { type FC, Fragment } from 'react';
 
 import { ascendingNameSort } from '../../../common/sorting';
 import { MarkdownPreview } from '../markdown-preview';

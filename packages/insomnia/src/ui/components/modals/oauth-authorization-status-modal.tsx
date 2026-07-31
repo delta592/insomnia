@@ -1,4 +1,4 @@
-import React, { type FC, useEffect, useRef, useState } from 'react';
+import { type FC, useEffect, useRef, useState } from 'react';
 
 import type { OAuth2AuthorizationStatusType } from '~/common/constants';
 import { invariant } from '~/common/utils/invariant';

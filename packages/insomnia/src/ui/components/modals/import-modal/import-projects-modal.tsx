@@ -1,6 +1,6 @@
 import classnames from 'classnames';
 import { services } from 'insomnia-data';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { type DirectoryDropItem, type FileDropItem, OverlayContainer, useDrop } from 'react-aria';
 import { Label, ProgressBar } from 'react-aria-components';
 import { useNavigate, useParams, useRevalidator } from 'react-router';
@@ -694,7 +694,8 @@ export const ImportProjectsModal = ({ organizationId, onHide }: { organizationId
   };
 
   return (
-    <OverlayContainer onClick={e => e.stopPropagation()}>
+    <OverlayContainer>
+      <div onClick={e => e.stopPropagation()}>
       <Modal
         ref={modalRef}
         onHide={onHide}
@@ -717,6 +718,7 @@ export const ImportProjectsModal = ({ organizationId, onHide }: { organizationId
           />
         )}
       </Modal>
+      </div>
     </OverlayContainer>
   );
 };

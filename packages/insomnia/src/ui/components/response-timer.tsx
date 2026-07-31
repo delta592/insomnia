@@ -1,4 +1,4 @@
-import React, { type DOMAttributes, type FunctionComponent, useEffect, useState } from 'react';
+import { type DOMAttributes, type FunctionComponent, useEffect, useState } from 'react';
 
 import type { TimingStep } from '../../main/network/request-timing';
 

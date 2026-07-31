@@ -1,4 +1,3 @@
-import React from 'react';
 
 import type { NunjucksParsedTag } from '~/common/templating/types';
 

@@ -1,5 +1,5 @@
 import type { ResponseTimelineEntry } from 'insomnia-data';
-import React, { type FC, useEffect, useRef } from 'react';
+import { type FC, useEffect, useRef } from 'react';
 
 import { CodeEditor, type CodeEditorHandle } from '~/ui/components/.client/codemirror/code-editor';
 

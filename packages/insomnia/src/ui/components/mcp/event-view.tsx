@@ -12,7 +12,7 @@ import {
   PREVIEW_MODE_SOURCE,
   PREVIEW_MODES,
 } from 'insomnia-data/common';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from 'react-aria-components';
 import { useParams } from 'react-router';
 

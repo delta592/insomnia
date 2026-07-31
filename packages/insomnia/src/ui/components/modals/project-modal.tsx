@@ -1,6 +1,6 @@
 import type { StorageRules } from 'insomnia-api';
 import type { GitRepository, Project } from 'insomnia-data';
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button, Dialog, Heading, Modal, ModalOverlay } from 'react-aria-components';
 import { useNavigation } from 'react-router';
 

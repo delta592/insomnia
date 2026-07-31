@@ -1,5 +1,5 @@
 import { type PersonalPlanType } from 'insomnia-api';
-import React, { forwardRef, useImperativeHandle, useRef } from 'react';
+import { forwardRef, useImperativeHandle, useRef } from 'react';
 
 import { getAppWebsiteBaseURL } from '../../../common/constants';
 import { type ModalProps } from '../base/modal';

@@ -1,4 +1,4 @@
-import React, { type FC } from 'react';
+import { type FC } from 'react';
 import { Button } from 'react-aria-components';
 
 import { DASHBOARD_SORT_ORDERS, type DashboardSortOrder, dashboardSortOrderName } from '../../../common/constants';

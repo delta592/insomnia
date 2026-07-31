@@ -1,5 +1,5 @@
 import { fuzzyMatch } from 'insomnia-data/common';
-import React, { useDeferredValue } from 'react';
+import { useDeferredValue } from 'react';
 import { Button, ComboBox, FieldError, Input, Label, ListBox, ListBoxItem, Popover } from 'react-aria-components';
 import * as reactUse from 'react-use';
 import { z } from 'zod/v4';

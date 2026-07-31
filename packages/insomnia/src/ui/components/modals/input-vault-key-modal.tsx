@@ -1,5 +1,5 @@
 import { services } from 'insomnia-data';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Dialog, Heading, Input, Modal, ModalOverlay } from 'react-aria-components';
 
 import { useRootLoaderData } from '~/root';

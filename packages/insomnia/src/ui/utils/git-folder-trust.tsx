@@ -1,4 +1,3 @@
-import React from 'react';
 
 import { showModal } from '~/ui/components/modals';
 import { AskModal } from '~/ui/components/modals/ask-modal';
