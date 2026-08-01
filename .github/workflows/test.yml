@@ -141,8 +141,34 @@ jobs:
               return res.circular();
             }
 
+            function normalizeCyclePath(filePath) {
+              return filePath
+                .replace(/^\.\.\/\.\.\/packages\//, '')
+                .replace(/^packages\//, '');
+            }
+
+            function canonicalizeCycle(cycle) {
+              const normalized = cycle.map(normalizeCyclePath);
+              const rotations = normalized.map((_, index) => {
+                const rotated = [...normalized.slice(index), ...normalized.slice(0, index)];
+                return rotated.join(' -> ');
+              });
+              return rotations.sort()[0];
+            }
+
+            function dedupeCycles(cycles) {
+              const seen = new Map();
+              for (const cycle of cycles) {
+                const key = canonicalizeCycle(cycle);
+                if (!seen.has(key)) {
+                  seen.set(key, key);
+                }
+              }
+              return Array.from(seen.values()).sort();
+            }
+
             // Function to generate markdown report
-            function generateMarkdownReport(prCircularRefs, baseCircularRefs, prCount, baseCount, baseBranch) {
+            function generateMarkdownReport(prCycleStrings, baseCycleStrings, prCount, baseCount, baseBranch) {
               const timestamp = new Date().toISOString();
               const diff = prCount - baseCount;
               const diffPercent = baseCount > 0 ? ((diff / baseCount) * 100).toFixed(2) : '0.00';
@@ -162,11 +188,11 @@ jobs:
               }
 
               // Find new and removed circular references
-              const prCycleStrings = new Set(prCircularRefs.map(cycle => cycle.join(' -> ')));
-              const baseCycleStrings = new Set(baseCircularRefs.map(cycle => cycle.join(' -> ')));
+              const prCycleStringSet = new Set(prCycleStrings);
+              const baseCycleStringSet = new Set(baseCycleStrings);
 
-              const newCycles = Array.from(prCycleStrings).filter(cycle => !baseCycleStrings.has(cycle)).sort();
-              const removedCycles = Array.from(baseCycleStrings).filter(cycle => !prCycleStrings.has(cycle)).sort();
+              const newCycles = prCycleStrings.filter(cycle => !baseCycleStringSet.has(cycle));
+              const removedCycles = baseCycleStrings.filter(cycle => !prCycleStringSet.has(cycle));
 
               return `# ${statusEmoji} Circular References Report
 
@@ -208,7 +234,7 @@ jobs:
             <summary>Click to view all circular references in PR (${prCount})</summary>
 
             \`\`\`
-            ${prCircularRefs.length > 0 ? prCircularRefs.sort().map(cycle => cycle.join(' -> ')).join('\n') : 'No circular references found'}
+            ${prCycleStrings.length > 0 ? prCycleStrings.join('\n') : 'No circular references found'}
             \`\`\`
 
             </details>
@@ -217,7 +243,7 @@ jobs:
             <summary>Click to view all circular references in base branch (${baseCount})</summary>
 
             \`\`\`
-            ${baseCircularRefs.length > 0 ? baseCircularRefs.sort().map(cycle => cycle.join(' -> ')).join('\n') : 'No circular references found'}
+            ${baseCycleStrings.length > 0 ? baseCycleStrings.join('\n') : 'No circular references found'}
             \`\`\`
 
             </details>
@@ -244,12 +270,12 @@ jobs:
               console.log(`Base packages dir: ${basePackagesDir}`);
 
               console.log('Analyzing circular references in PR (merge) tree...');
-              const prCircularRefs = await analyzeCircularReferences(prPackagesDir);
+              const prCircularRefs = dedupeCycles(await analyzeCircularReferences(prPackagesDir));
               const prCount = prCircularRefs.length;
               console.log(`PR: Found ${prCount} circular references`);
 
               console.log(`Analyzing circular references in ${baseBranch} tree...`);
-              const baseCircularRefs = await analyzeCircularReferences(basePackagesDir);
+              const baseCircularRefs = dedupeCycles(await analyzeCircularReferences(basePackagesDir));
               const baseCount = baseCircularRefs.length;
               console.log(`Base: Found ${baseCount} circular references`);
 

@@ -1,10 +1,24 @@
 // Simplified and extracted from insomnia/src/models/*
-import type { Database } from '../types';
+
+export type InsoModelType =
+  | 'ApiSpec'
+  | 'Environment'
+  | 'Request'
+  | 'RequestGroup'
+  | 'Workspace'
+  | 'WorkspaceMeta'
+  | 'UnitTestSuite'
+  | 'UnitTest'
+  | 'ClientCertificate'
+  | 'CaCertificate'
+  | 'CookieJar'
+  | 'CloudCredential'
+  | 'Settings';
 
 export interface BaseModel {
   _id: string;
   name: string;
-  type: keyof Database;
+  type: InsoModelType;
   parentId: string;
 }
 

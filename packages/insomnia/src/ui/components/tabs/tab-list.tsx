@@ -27,6 +27,7 @@ import { useDocBodyKeyboardShortcuts } from '../keydown-binder';
 import { AddRequestToCollectionModal } from '../modals/add-request-to-collection-modal';
 import { formatMethodName, getRequestMethodShortHand } from '../tags/method-tag';
 import { type BaseTab, InsomniaTab } from './tab';
+import { TAB_CONTEXT_MENU_COMMAND } from './tab-context-menu-commands';
 
 const { isRequest } = models.request;
 const { isRequestGroup } = models.requestGroup;
@@ -34,11 +35,6 @@ const { isRequestGroup } = models.requestGroup;
 export interface OrganizationTabs {
   tabList: BaseTab[];
   activeTabId?: string;
-}
-
-export const enum TAB_CONTEXT_MENU_COMMAND {
-  CLOSE_ALL = 'Close All',
-  CLOSE_OTHERS = 'Close Other Tabs',
 }
 
 export const OrganizationTabList = ({ showActiveStatus = true, currentPage = '' }) => {
