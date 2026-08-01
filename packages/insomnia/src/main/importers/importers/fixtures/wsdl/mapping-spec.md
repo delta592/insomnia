@@ -12,6 +12,7 @@ This document locks expected import output fields and maps each to its **standar
 | `multiport-input.wsdl` | Echo | SOAP 1.1 port preferred when both exist | SOAP 1.1 + 1.2 ports |
 | `multifile-input.wsdl` | Lookup | `http://example.com/multifile` | SOAP 1.1; types in `types.xsd` |
 | `deep-xsd-input.wsdl` | Process | `http://example.com/deep` | Nested XSD (depth guard test) |
+| `tempconvert-input.wsdl` | CelsiusToFahrenheit, FahrenheitToCelsius | `http://www.w3schools.com/xml/tempconvert.asmx` | Real-world W3Schools SOAP 1.1 service |
 
 ## Per-request expectations (all fixtures)
 
@@ -58,4 +59,5 @@ Postman-compatible nesting preserved for snapshot stability:
 | `soap12-input.wsdl` | SOAP 1.2 content type and envelope when no SOAP 1.1 port |
 | `multiport-input.wsdl` | Primary port selection (SOAP 1.1 preferred) |
 | `multifile-input.wsdl` + `types.xsd` | `oriFilePath` resolves XSD import |
-| `deep-xsd-input.wsdl` | Example generation depth/element limits (no silent truncation) |
+| `deep-xsd-input.wsdl` | Nested XSD complex types expand in example XML (not flat primitives) |
+| `tempconvert-input.wsdl` | Public W3Schools temperature conversion service (2 ops) |

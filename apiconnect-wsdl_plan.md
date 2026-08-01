@@ -297,7 +297,7 @@ export const convert: FilePathConverter = async importEntry => {
 - [x] Refresh lockfile; remove `DEVELOPMENT.md` engine workaround
 - [x] Full validation: importer tests (226 pass); root lint/type-check pending CI
 
-**Exit criteria:** All success criteria met (see below); manual QA checklist provided (sign-off pending).
+**Exit criteria:** All success criteria met (see below); manual QA signed off 2026-08-01.
 
 ---
 
@@ -313,7 +313,9 @@ export const convert: FilePathConverter = async importEntry => {
 - [x] Manual QA checklist (Import modal, file picker, paste fallback, send request) — `MANUAL-QA-CHECKLIST.md`
 - [ ] Optional: expose "Download OpenAPI" from WSDL import for interoperability with other tools
 
-**Exit criteria:** Documented WSDL support matrix; expanded test coverage; manual QA signed off (checklist ready, sign-off pending).
+**Exit criteria:** Documented WSDL support matrix; expanded test coverage; manual QA signed off.
+
+**Status:** Manual QA signed off 2026-08-01. Real-world fixture coverage in `realworld.test.ts` + `tempconvert-input.wsdl`.
 
 ---
 
@@ -383,7 +385,7 @@ This removes npm deprecation noise and lockfile hacks but **retains IBM IPLA**. 
 - [x] WSDL fixture snapshots pass (or updated with documented, standards-aligned improvements)
 - [x] `DEVELOPMENT.md` engine workaround removed
 - [x] WS-Security injected only when policy indicates (not unconditionally)
-- [ ] Import modal WSDL flow works end-to-end (manual QA sign-off pending)
+- [x] Import modal WSDL flow works end-to-end (manual QA signed off 2026-08-01)
 - [x] MIT-compatible dependency chain (or fully owned OSS)
 
 ---

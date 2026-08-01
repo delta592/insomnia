@@ -5,7 +5,9 @@
 - **WSDL 1.1** with SOAP **1.1** or **1.2** HTTP bindings
 - **Document/literal** message encoding (primary, WS-I Basic Profile aligned)
 - **RPC/literal** body shape (best-effort)
+- **Nested XSD complex types** and **unbounded arrays** (single example item per array)
 - Single-file and **multi-file** WSDL (via file import — `oriFilePath` resolves XSD/WSDL imports)
+- **Remote WSDL URLs** when passed as import path (TechSpokes fetches and resolves imports)
 - WS-Security example headers **only when** WS-Policy or operation security is present in WSDL
 
 ## Limitations
