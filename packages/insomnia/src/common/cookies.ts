@@ -27,6 +27,7 @@ export const jarFromCookies = (cookies: Cookie[] | ToughCookie[]) => {
   try {
     const sanitizedCookies = cookies.map(cookie => ({
       ...cookie,
+      path: cookie.path ?? '/',
       // TODO: null will make getCookiesSync unhappy
       // probably it should be `undefined` when types of tough cookie is updated
       expires: cookie.expires === null || cookie.expires === undefined ? 'Infinity' : cookie.expires,
