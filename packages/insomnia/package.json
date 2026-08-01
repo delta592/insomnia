@@ -233,10 +233,6 @@
     "type-fest": "5.8.0",
     "vite": "8.2.0"
   },
-  "optionalDependencies": {
-    "@kong/insomnia-plugin-ai": "^1.0.11",
-    "@kong/insomnia-plugin-external-vault": "0.1.4-dev.20251224090833"
-  },
   "dev": {
     "dev-server-port": 3334
   },
