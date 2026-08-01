@@ -2,5 +2,9 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "github>delta592/renovate-config"
+  ],
+  "ignoreDeps": [
+    "@kong/insomnia-plugin-ai",
+    "@kong/insomnia-plugin-external-vault"
   ]
 }
