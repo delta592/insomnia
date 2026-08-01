@@ -1,19 +1,14 @@
-import './base-imports';
-
+import { yaml } from '@codemirror/lang-yaml';
+import { MergeView } from '@codemirror/merge';
+import { EditorState } from '@codemirror/state';
+import { EditorView } from '@codemirror/view';
 import classnames from 'classnames';
-import CodeMirror from 'codemirror';
-import type { MergeView } from 'codemirror/addon/merge/merge';
-import { DiffMatchPatch, DiffOp } from 'diff-match-patch-ts';
 import { useEffect, useRef } from 'react';
 
 import { debounce } from '~/common/misc';
 import { useIsLightTheme } from '~/ui/hooks/theme';
 
-// these global variables are required by codemirror merge addon
-window.diff_match_patch = DiffMatchPatch;
-window.DIFF_DELETE = DiffOp.Delete;
-window.DIFF_INSERT = DiffOp.Insert;
-window.DIFF_EQUAL = DiffOp.Equal;
+import { insomniaEditorTheme, insomniaSyntaxHighlighting } from './cm6/theme';
 
 interface Props {
   leftContent: string;
@@ -22,65 +17,59 @@ interface Props {
   onChange: (value: string) => void;
 }
 
-export const MergeEditor = ({ leftContent, rightContent, centerContent, onChange }: Props) => {
+export const MergeEditor = ({ leftContent, rightContent: _rightContent, centerContent, onChange }: Props) => {
   const divRef = useRef<HTMLDivElement>(null);
   const mergeViewRef = useRef<MergeView | null>(null);
-
-  const leftContentRef = useRef(leftContent);
-  const rightContentRef = useRef(rightContent);
-  const centerContentRef = useRef(centerContent);
-  const onChangeRef = useRef<(value: string) => void>(onChange);
-
-  useEffect(() => {
-    leftContentRef.current = leftContent;
-    rightContentRef.current = rightContent;
-    centerContentRef.current = centerContent;
-    onChangeRef.current = onChange;
-  }, [leftContent, rightContent, centerContent, onChange]);
-
+  const onChangeRef = useRef(onChange);
   const isLightTheme = useIsLightTheme();
-  const isLightThemeRef = useRef(isLightTheme);
 
   useEffect(() => {
-    const onChange = debounce((instance: CodeMirror.Editor) => {
-      onChangeRef.current(instance.getDoc().getValue());
-    }, 300);
+    onChangeRef.current = onChange;
+  }, [onChange]);
+
+  useEffect(() => {
     if (!divRef.current) {
       return;
     }
     const div = divRef.current;
-    mergeViewRef.current = CodeMirror.MergeView(div, {
-      value: centerContentRef.current,
-      origLeft: leftContentRef.current,
-      origRight: rightContentRef.current,
-      lineNumbers: true,
-      mode: 'yaml',
-      theme: isLightThemeRef.current ? 'default' : 'base16-dark',
+    const debouncedOnChange = debounce((value: string) => onChangeRef.current(value), 300);
+    const baseExtensions = [yaml(), insomniaEditorTheme, insomniaSyntaxHighlighting, EditorView.lineWrapping];
+
+    mergeViewRef.current = new MergeView({
+      a: { doc: leftContent, extensions: [...baseExtensions, EditorState.readOnly.of(true)] },
+      b: {
+        doc: centerContent,
+        extensions: [
+          ...baseExtensions,
+          EditorView.updateListener.of(update => {
+            if (update.docChanged) {
+              debouncedOnChange(update.state.doc.toString());
+            }
+          }),
+        ],
+      },
+      parent: div,
+      highlightChanges: true,
+      gutter: true,
     });
-    mergeViewRef.current.editor().on('changes', onChange);
+
     return () => {
-      if (mergeViewRef.current) {
-        mergeViewRef.current.editor().off('changes', onChange);
-      }
+      mergeViewRef.current?.destroy();
       mergeViewRef.current = null;
-      if (div) {
-        div.innerHTML = '';
-      }
+      div.innerHTML = '';
     };
-  }, []);
+  }, [isLightTheme, leftContent]);
 
   useEffect(() => {
-    if (mergeViewRef.current?.editor().getDoc().getValue() !== centerContent) {
-      mergeViewRef.current?.editor().getDoc().setValue(centerContent);
+    const editor = mergeViewRef.current?.b;
+    if (editor && editor.state.doc.toString() !== centerContent) {
+      editor.dispatch({
+        changes: { from: 0, to: editor.state.doc.length, insert: centerContent },
+      });
     }
   }, [centerContent]);
 
   return (
-    <div
-      className={classnames('h-full', {
-        'dark-merge-editor': !isLightTheme,
-      })}
-      ref={divRef}
-    />
+    <div className={classnames('h-full merge-editor-cm6', { 'dark-merge-editor': !isLightTheme })} ref={divRef} />
   );
 };
