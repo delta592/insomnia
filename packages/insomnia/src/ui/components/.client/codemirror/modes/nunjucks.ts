@@ -1,6 +1,6 @@
 // Mode name is intentionally kept as 'nunjucks' for back-compat with all editor instantiations;
 // the underlying template engine is LiquidJS.
-import CodeMirror from 'codemirror';
+import CodeMirror from 'codemirror-legacy';
 
 export function isNunjucksMode(
   mode: CodeMirror.ModeSpec<unknown>,

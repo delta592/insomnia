@@ -1,7 +1,7 @@
-import type { LintOptions, ShowHintOptions, TextMarker } from 'codemirror';
 import type { GraphQLHintOptions } from 'codemirror-graphql/hint';
 import type { GraphQLInfoOptions } from 'codemirror-graphql/info';
 import type { ModifiedGraphQLJumpOptions } from 'codemirror-graphql/jump';
+import type { LintOptions, ShowHintOptions, TextMarker } from 'codemirror-legacy';
 import type { OpenDialogOptions } from 'electron';
 import type { GraphQLNonNull, GraphQLSchema, OperationTypeNode } from 'graphql';
 import {
@@ -25,7 +25,7 @@ import * as reactUse from 'react-use';
 
 import { invariant } from '~/common/utils/invariant';
 import { bodyBufferToUtf8 } from '~/common/utils/utf8-bytes';
-import { CodeEditor, type CodeEditorHandle } from '~/ui/components/.client/codemirror/code-editor';
+import { GraphQLCodeEditor, type GraphQLCodeEditorHandle as CodeEditorHandle } from '~/ui/components/.client/codemirror/graph-ql-cm5';
 import { Panel, PanelGroup, PanelResizeHandle } from '~/ui/components/panes/resizable-panels';
 import { jsonPrettify } from '~/ui/utils/prettify/json';
 
@@ -719,7 +719,7 @@ export const GraphQLEditor: FC<Props> = ({ request, environmentId, onChange, cla
       </Toolbar>
       <PanelGroup direction={'vertical'} autoSaveId="graphql-variables">
         <Panel id="GraphQL Editor" minSize={20} defaultSize={60}>
-          <CodeEditor
+          <GraphQLCodeEditor
             id="graphql-editor"
             ref={editorRef}
             dynamicHeight
@@ -749,7 +749,7 @@ export const GraphQLEditor: FC<Props> = ({ request, environmentId, onChange, cla
             {variablesSyntaxError && <span className="text-danger pull-right italic">{variablesSyntaxError}</span>}
           </Heading>
           <div className="flex-1 overflow-hidden">
-            <CodeEditor
+            <GraphQLCodeEditor
               id="graphql-editor-variables"
               dynamicHeight
               enableNunjucks

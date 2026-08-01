@@ -3,7 +3,7 @@
 // lint errors to account for the wrapper.
 //
 // The major modifications are marked in comments starting with "CHANGED ---"
-import CodeMirror from 'codemirror';
+import CodeMirror from 'codemirror-legacy';
 import { JSHINT, type LintError, type LintOptions } from 'jshint';
 CodeMirror.registerHelper('lint', 'javascript', validator);
 

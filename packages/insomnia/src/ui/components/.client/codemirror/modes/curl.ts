@@ -1,6 +1,6 @@
 import 'codemirror/addon/mode/simple';
 
-import CodeMirror from 'codemirror';
+import CodeMirror from 'codemirror-legacy';
 
 /** regular key-value header tokens */
 const keyValueHeaders = [

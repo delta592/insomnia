@@ -1,4 +1,4 @@
-import CodeMirror, { type Token } from 'codemirror';
+import CodeMirror, { type Token } from 'codemirror-legacy';
 
 import * as misc from '~/common/misc';
 import type { HandleRender, RenderContextAndKeys } from '~/common/templating/types';

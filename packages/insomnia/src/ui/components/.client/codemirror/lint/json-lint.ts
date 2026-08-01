@@ -5,7 +5,7 @@
 
 import 'codemirror/addon/lint/json-lint';
 
-import CodeMirror from 'codemirror';
+import CodeMirror from 'codemirror-legacy';
 import * as jsonlint from 'jsonlint-mod-fixed';
 
 import { render } from '~/ui/templating/renderer-safe';

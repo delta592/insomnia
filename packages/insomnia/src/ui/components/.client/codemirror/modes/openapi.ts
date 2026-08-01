@@ -1,4 +1,4 @@
-import CodeMirror from 'codemirror';
+import CodeMirror from 'codemirror-legacy';
 
 CodeMirror.defineMode('openapi', function () {
   const cons = ['true', 'false', 'on', 'off', 'yes', 'no'];

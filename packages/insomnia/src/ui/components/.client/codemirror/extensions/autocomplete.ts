@@ -1,6 +1,6 @@
 import 'codemirror/addon/mode/overlay';
 
-import CodeMirror, { type EnvironmentAutocompleteOptions, type Hint, type ShowHintOptions } from 'codemirror';
+import CodeMirror, { type EnvironmentAutocompleteOptions, type Hint, type ShowHintOptions } from 'codemirror-legacy';
 import { getPlatformKeyCombinations } from 'insomnia-data/common';
 
 import { escapeRegex, fnOrString, isNotNullOrUndefined } from '~/common/misc';
@@ -105,7 +105,7 @@ CodeMirror.defineOption(
         closeCharacters: COMPLETION_CLOSE_KEYS,
         completeSingle: false,
         extraKeys: {
-          Tab: (_cm, widget) => {
+          Tab: (_cm: CodeMirror.Editor, widget: { close: () => void }) => {
             // Override default behavior and don't select hint on Tab
             widget.close();
             return CodeMirror.Pass;
@@ -526,13 +526,13 @@ function escapeHTML(unsafeText: string) {
 /**
  * Render the autocomplete list entry
  */
-function renderHintMatch(li: HTMLElement, _allHints: CodeMirror.Hints, hint: Hint) {
+function renderHintMatch(li: HTMLElement, _data: Hint, hint: Hint) {
   // Bold the matched text
   const { displayText, segment, type, displayValue } = hint;
   const escapedDisplayText = escapeHTML(displayText || '');
   const escapedSegment = escapeHTML(segment);
   const markedName = replaceWithSurround(escapedDisplayText, escapedSegment, '<strong>', '</strong>');
-  const { char, title } = ICONS[type];
+  const { char, title } = ICONS[type as keyof typeof ICONS];
   let safeValue = '';
 
   if (isNotNullOrUndefined<string>(displayValue)) {
