@@ -1,3 +1,6 @@
 # node-forge AES-GCM uses a random IV via cipher.start(); Semgrep misidentifies
 # forge.cipher.createCipher/createDecipher as deprecated Node crypto APIs.
 packages/insomnia/src/common/account/crypt.ts
+
+# Fixture-only WSDL import tests; no runtime HTTP requests (removed live fetch in 2e6f01d).
+packages/insomnia/src/main/importers/importers/wsdl/realworld.test.ts

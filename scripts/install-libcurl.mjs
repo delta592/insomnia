@@ -7,12 +7,13 @@
  *
  * Usage: node scripts/install-libcurl.mjs <node|electron>
  */
-import { execSync, spawnSync } from 'node:child_process';
+import { execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { assertRequiredNodeVersion } from './required-node-version.mjs';
+import { spawnNpx } from './spawn-cli.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.join(__dirname, '..');
@@ -171,24 +172,14 @@ function runNodePreGyp({ fallbackToBuild = false } = {}) {
 
   console.log(`> npx ${args.join(' ')}`);
 
-  const result = spawnSync('npx', args, {
-    cwd: repoRoot,
-    stdio: 'inherit',
-    env: process.env,
-    shell: process.platform === 'win32',
-  });
+  const result = spawnNpx(args, { cwd: repoRoot, repoRoot, env: process.env });
 
   return result.status === 0;
 }
 
 function runNodeGypRebuild() {
   console.log('> npx node-gyp rebuild');
-  const result = spawnSync('npx', ['node-gyp', 'rebuild'], {
-    cwd: libcurlDir,
-    stdio: 'inherit',
-    env: process.env,
-    shell: process.platform === 'win32',
-  });
+  const result = spawnNpx(['node-gyp', 'rebuild'], { cwd: libcurlDir, repoRoot, env: process.env });
   return result.status === 0;
 }
 
