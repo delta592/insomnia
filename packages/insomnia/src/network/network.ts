@@ -31,7 +31,8 @@ import { getKVPairFromData } from '~/common/utils/environment-utils';
 import { buildQueryStringFromParams, joinUrlAndQueryString, smartEncodeUrl } from '~/common/utils/url/querystring';
 import { getRuntime } from '~/runtimes';
 
-import type { ExecutionOption, RequestContext } from '../../../insomnia-scripting-environment/src/objects';
+import type { ExecutionOption } from '../../../insomnia-scripting-environment/src/objects/execution';
+import type { RequestContext } from '../../../insomnia-scripting-environment/src/objects/interfaces';
 import { SINGLE_VALUE_HEADERS } from '../common/common-headers';
 import { JSON_ORDER_PREFIX, JSON_ORDER_SEPARATOR } from '../common/constants';
 import { database as db } from '../common/database';
@@ -43,6 +44,12 @@ import { QUERY_PARAMS } from './api-key/constants';
 import { getAuthObjectOrNull, isAuthEnabled } from './authentication';
 import { filterClientCertificates } from './certificate';
 import type { TransformedExecuteScriptContext } from './concurrency.renderer';
+import type {
+  sendCurlAndWriteTimelineError,
+  sendCurlAndWriteTimelineResponse,
+} from './send-timeline-result';
+
+export type { sendCurlAndWriteTimelineError, sendCurlAndWriteTimelineResponse } from './send-timeline-result';
 
 const { isRequest } = models.request;
 const { isRequestGroup } = models.requestGroup;
@@ -807,28 +814,6 @@ export const tryToTransformRequestWithPlugins = async (renderResult: {
   const { request, context } = renderResult;
   return await getRuntime().network.applyRequestHooks(request, context);
 };
-
-export interface sendCurlAndWriteTimelineError {
-  _id: string;
-  parentId: string;
-  timelinePath: string;
-  statusMessage: string;
-  // additional
-  url: string;
-  error: string;
-  elapsedTime: number;
-  bytesRead: number;
-}
-
-export interface sendCurlAndWriteTimelineResponse extends ResponsePatch {
-  _id: string;
-  parentId: string;
-  timelinePath: string;
-  statusMessage: string;
-  cookies: Cookie[];
-  timeline: string[];
-  bytesRead?: number;
-}
 
 export async function sendCurlAndWriteTimeline(
   renderedRequest: RenderedRequest,

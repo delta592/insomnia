@@ -1,4 +1,4 @@
-import { exportRequestsToFile } from 'insomnia/src/ui/components/settings/import-export';
+import { exportRequestsToFile } from 'insomnia/src/ui/components/settings/export-requests-to-file';
 import type { GrpcRequest, Request, RequestGroup, SocketIORequest, WebSocketRequest } from 'insomnia-data';
 import { models } from 'insomnia-data';
 import { type FC, type ReactNode, useEffect, useState } from 'react';
