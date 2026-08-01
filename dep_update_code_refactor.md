@@ -19,8 +19,9 @@ Plan for refactoring Insomnia application code to work with the **`chore(deps)!:
 | `npm test` (all workspaces) | **Pass** | 2751 tests across 6 workspaces; `insomnia-testing` 18, `insomnia` 2184+ |
 | `npm test` (insomnia) | **Pass** | 2184 passed \| 14 skipped |
 | `npm test` (other workspaces) | **Pass** | insomnia-data 448, analytics 5, api 11, scripting-env 85, testing 18 |
+| `npm run test:inso:bundle` | **Pass** | 45/45 bundle tests (smoke server + libcurl via `scripts/run-inso-smoke-tests.mjs`) |
 | `npm install` | **Pass** | Requires Node `v26.5.1` + npm `12.0.2`; `.npmrc` has `legacy-peer-deps=true` for ESLint 10 |
-| `npm start` / manual QA | **Not verified** | Editors, merge modal, GraphQL CM6, pane resize pending |
+| `npm start` / manual QA | **Partial** | App launches, HTTP GET works, sidebar expands; pane drag, editors, zoom pending |
 | Stage E (E2 CM6) | **Complete** | 13 commits (E2 phases 1–6 + GraphQL CM6 follow-up); manual editor QA pending |
 | Stage F exit | **Complete** | Automated gates green; manual UI sign-off checklist below |
 
@@ -68,9 +69,9 @@ Plan for refactoring Insomnia application code to work with the **`chore(deps)!:
 
 **Known remaining issues:**
 
-1. **Manual UI sign-off** (post-Stage-F, pre-merge) — pane resize, live editor input (GraphQL CM6), `npm start`, and `npm run test:smoke:dev` require human verification.
-2. **`insomnia-inso` bundle/binary tests locally** — run `npm run test:inso:bundle` from repo root (handles libcurl install, build, smoke server, and test run).
-3. **`npm install --force`** — still needed when refreshing lockfile due to `apiconnect-wsdl` restrictive engine range (see `DEVELOPMENT.md`).
+1. **Manual UI sign-off** (post-Stage-F, pre-merge) — pane drag-resize, live editor input (GraphQL CM6), `Cmd++` zoom, and `npm run test:smoke:dev` require human verification. **Confirmed so far:** app launches, Scratch Pad HTTP GET to `api.github.com` returns 200, left project sidebar expands, JSON response preview renders.
+2. **`npm install --force`** — still needed when refreshing lockfile due to `apiconnect-wsdl` restrictive engine range (see `DEVELOPMENT.md`).
+3. **Hung npm / stale smoke server** — if `test:inso:bundle` or a manual `npm run serve -w insomnia-smoke-test` was interrupted, port 4010 may stay occupied and later npm commands appear hung. Run `npm run kill-smoke-servers` before retrying. Prefer `npm run test:inso:bundle` (auto start/teardown) over raw background serve + wait-on.
 4. **Vitest `configLoader: 'native'` warning** — non-blocking; ESM/CJS mismatch in `vitest.config.ts`.
 5. **ESLint unicorn v72 / react-hooks v7 rules** — intentionally disabled; re-enable in a follow-up PR.
 
@@ -384,9 +385,10 @@ If **E2 — CM6 migration:**
 - [x] Run `npm test -w packages/insomnia-data`
 - [x] Run `npm test:unit -w packages/insomnia-inso` — libcurl mocked in Vitest setup; 76 pass
 - [x] Fix smoke-test server Express 5 wildcard routes (`path-to-regexp` v8)
+- [x] Fix smoke-test `/echo` handler for GET requests (`req.body` undefined with `body-parser.raw` on Express 5)
 - [x] Run `cookies.test.ts`, `network.test.ts`, `grpc.test.ts` (42 pass)
-- [ ] Run `npm run test:inso:bundle` from repo root (installs libcurl, starts smoke server, runs bundle tests)
-- [ ] Start app: `npm start -w insomnia` — **manual sign-off**
+- [x] Run `npm run test:inso:bundle` from repo root — **45/45 pass**
+- [ ] Start app: `npm start -w insomnia` — **partial manual sign-off** (launch + HTTP OK; editors/panes pending)
 - [ ] Optional: `npm run test:smoke:dev` — **manual sign-off**
 - [x] Resolve `git-vcs.test.ts` failures — fixed in `d67e2c4fb` (isomorphic-git 1.40 `repoExists()`)
 - [x] Review lockfile overrides removal — current overrides intentional (see `package.json` overrides + `DEVELOPMENT.md`)
@@ -399,12 +401,15 @@ If **E2 — CM6 migration:**
 
 **Manual UI sign-off checklist (pre-merge):**
 
-- [ ] `npm start -w insomnia` launches without runtime errors
-- [ ] Split panes resize (HTTP, WebSocket, MCP, Spec, Debug)
+- [x] `npm start -w insomnia` launches without runtime errors
+- [x] Left project sidebar expands (Documents, Collections, etc.)
+- [x] HTTP GET to external API works (e.g. `https://api.github.com` → 200)
+- [ ] Split panes resize via drag (HTTP, WebSocket, MCP, Spec, Debug)
 - [ ] Code editors accept input (JSON, Nunjucks, scripts, GraphQL CM6)
+- [ ] `Cmd++` / zoom in/out (fix in uncommitted `window-utils.ts`)
 - [ ] gRPC request execution in app
 - [ ] Cookie import/export in app
-- [ ] `npm run test:smoke:dev` (optional)
+- [ ] Optional: `npm run test:smoke:dev`
 
 ---
 
@@ -416,7 +421,7 @@ If **E2 — CM6 migration:**
 | `npm run type-check` | **Pass** | All workspaces |
 | `npm test` (all workspaces) | **Pass** | 2751+ tests |
 | `npm test:unit` (inso) | **Pass** | 76 pass — libcurl mocked in Vitest setup |
-| `npm test:bundle` (inso) | **Scripted** | `npm run test:inso:bundle` installs libcurl, smoke server, and runs tests |
+| `npm test:bundle` (inso) | **Pass** | 45/45 via `npm run test:inso:bundle` |
 | gRPC / cookies (automated) | **Pass** | `grpc.test.ts`, `cookies.test.ts`, `network.test.ts` (42 tests) |
 | `npm start` / UI manual QA | **Sign-off** | Checklist below — requires human verification |
 | v5 import parser tests | **Pass** | Part of insomnia suite |
@@ -431,8 +436,8 @@ If **E2 — CM6 migration:**
 - [x] `npm test` passes (all workspaces with `test` scripts) — 2751+ tests
 - [x] `npm test:unit` passes (`insomnia-inso`) — 76 tests
 - [x] gRPC and cookie flows covered by unit tests (`grpc.test.ts`, `cookies.test.ts`, `network.test.ts`)
-- [ ] `npm run test:inso:bundle` passes (`insomnia-inso` bundle tests with smoke server)
-- [ ] `npm start -w insomnia` launches without runtime errors — **manual sign-off**
+- [x] `npm run test:inso:bundle` passes (`insomnia-inso` bundle tests with smoke server) — 45/45
+- [ ] `npm start -w insomnia` launches without runtime errors — **partial sign-off**
 - [ ] Split panes resize correctly (HTTP, WebSocket, MCP, Spec, Debug) — **manual sign-off**
 - [ ] Code editors accept input (JSON, Nunjucks, scripts, GraphQL) — **manual sign-off**
 - [ ] gRPC requests execute in app — **manual sign-off** (unit tests pass)
