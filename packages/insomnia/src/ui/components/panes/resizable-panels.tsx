@@ -23,6 +23,21 @@ type PanelProps = Omit<ComponentProps<typeof ResizablePanel>, 'panelRef' | 'orde
   onResize?: ComponentProps<typeof ResizablePanel>['onResize'];
 };
 
+/** react-resizable-panels v3 used bare numbers as percentages; v4 treats them as pixels. */
+const asLegacyPercentageSize = (size: number | string | undefined) => {
+  if (size === undefined) {
+    return undefined;
+  }
+
+  if (typeof size === 'string') {
+    return size;
+  }
+
+  return `${size}%`;
+};
+
+const PERSISTED_LAYOUT_ID_SUFFIX = '-v4-pct';
+
 const PanelGroupInner = forwardRef<GroupImperativeHandle, PanelGroupProps & { layout?: ReturnType<typeof useDefaultLayout> }>(
   function PanelGroupInner({ direction = 'horizontal', layout, ...props }, ref) {
     return (
@@ -39,7 +54,7 @@ const PanelGroupInner = forwardRef<GroupImperativeHandle, PanelGroupProps & { la
 
 const PersistedPanelGroup = forwardRef<GroupImperativeHandle, PanelGroupProps & { autoSaveId: string }>(
   function PersistedPanelGroup({ autoSaveId, ...props }, ref) {
-    const layout = useDefaultLayout({ id: autoSaveId });
+    const layout = useDefaultLayout({ id: `${autoSaveId}${PERSISTED_LAYOUT_ID_SUFFIX}` });
     return <PanelGroupInner {...props} ref={ref} layout={layout} />;
   },
 );
@@ -60,12 +75,16 @@ export function PanelResizeHandle(props: ComponentProps<typeof Separator>) {
 }
 
 export const Panel = forwardRef<PanelImperativeHandle, PanelProps>(function Panel(
-  { order: _order, onCollapse, onExpand, onResize, ...props },
+  { order: _order, onCollapse, onExpand, onResize, defaultSize, minSize, maxSize, collapsedSize, ...props },
   ref,
 ) {
   return (
     <ResizablePanel
       panelRef={ref}
+      defaultSize={asLegacyPercentageSize(defaultSize)}
+      minSize={asLegacyPercentageSize(minSize)}
+      maxSize={asLegacyPercentageSize(maxSize)}
+      collapsedSize={asLegacyPercentageSize(collapsedSize)}
       onResize={(size, id, prevSize) => {
         onResize?.(size, id, prevSize);
         if (prevSize !== undefined) {
