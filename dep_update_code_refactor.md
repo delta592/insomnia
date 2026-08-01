@@ -68,8 +68,8 @@ Plan for refactoring Insomnia application code to work with the **`chore(deps)!:
 
 **Known remaining issues:**
 
-1. **Manual UI sign-off** (post-Stage-F, pre-merge) — pane resize, live editor input (GraphQL CM6), `npm start`, and `npm run test:smoke:dev` require human verification on a machine with working libcurl Electron binaries.
-2. **`insomnia-inso` bundle/binary tests locally** — need `npm run install-libcurl-node` + smoke server; darwin-arm64 prebuilds may be unavailable — CI (`test-cli.yml`) is the reference environment.
+1. **Manual UI sign-off** (post-Stage-F, pre-merge) — pane resize, live editor input (GraphQL CM6), `npm start`, and `npm run test:smoke:dev` require human verification.
+2. **`insomnia-inso` bundle/binary tests locally** — run `npm run test:inso:bundle` from repo root (handles libcurl install, build, smoke server, and test run).
 3. **`npm install --force`** — still needed when refreshing lockfile due to `apiconnect-wsdl` restrictive engine range (see `DEVELOPMENT.md`).
 4. **Vitest `configLoader: 'native'` warning** — non-blocking; ESM/CJS mismatch in `vitest.config.ts`.
 5. **ESLint unicorn v72 / react-hooks v7 rules** — intentionally disabled; re-enable in a follow-up PR.
@@ -385,8 +385,8 @@ If **E2 — CM6 migration:**
 - [x] Run `npm test:unit -w packages/insomnia-inso` — libcurl mocked in Vitest setup; 76 pass
 - [x] Fix smoke-test server Express 5 wildcard routes (`path-to-regexp` v8)
 - [x] Run `cookies.test.ts`, `network.test.ts`, `grpc.test.ts` (42 pass)
-- [ ] Run `npm test:bundle -w packages/insomnia-inso` locally — requires libcurl Node binary; **CI reference:** `.github/workflows/test-cli.yml`
-- [ ] Start app: `npm start -w insomnia` — **manual sign-off** (libcurl Electron binary platform-dependent)
+- [ ] Run `npm run test:inso:bundle` from repo root (installs libcurl, starts smoke server, runs bundle tests)
+- [ ] Start app: `npm start -w insomnia` — **manual sign-off**
 - [ ] Optional: `npm run test:smoke:dev` — **manual sign-off**
 - [x] Resolve `git-vcs.test.ts` failures — fixed in `d67e2c4fb` (isomorphic-git 1.40 `repoExists()`)
 - [x] Review lockfile overrides removal — current overrides intentional (see `package.json` overrides + `DEVELOPMENT.md`)
@@ -416,7 +416,7 @@ If **E2 — CM6 migration:**
 | `npm run type-check` | **Pass** | All workspaces |
 | `npm test` (all workspaces) | **Pass** | 2751+ tests |
 | `npm test:unit` (inso) | **Pass** | 76 pass — libcurl mocked in Vitest setup |
-| `npm test:bundle` (inso) | **CI** | Smoke server fixed; local run needs libcurl binary — validate via `test-cli.yml` |
+| `npm test:bundle` (inso) | **Scripted** | `npm run test:inso:bundle` installs libcurl, smoke server, and runs tests |
 | gRPC / cookies (automated) | **Pass** | `grpc.test.ts`, `cookies.test.ts`, `network.test.ts` (42 tests) |
 | `npm start` / UI manual QA | **Sign-off** | Checklist below — requires human verification |
 | v5 import parser tests | **Pass** | Part of insomnia suite |
@@ -431,7 +431,7 @@ If **E2 — CM6 migration:**
 - [x] `npm test` passes (all workspaces with `test` scripts) — 2751+ tests
 - [x] `npm test:unit` passes (`insomnia-inso`) — 76 tests
 - [x] gRPC and cookie flows covered by unit tests (`grpc.test.ts`, `cookies.test.ts`, `network.test.ts`)
-- [ ] `npm test:bundle` passes (`insomnia-inso`) — validate in CI (`test-cli.yml`) or locally with libcurl Node binary
+- [ ] `npm run test:inso:bundle` passes (`insomnia-inso` bundle tests with smoke server)
 - [ ] `npm start -w insomnia` launches without runtime errors — **manual sign-off**
 - [ ] Split panes resize correctly (HTTP, WebSocket, MCP, Spec, Debug) — **manual sign-off**
 - [ ] Code editors accept input (JSON, Nunjucks, scripts, GraphQL) — **manual sign-off**
