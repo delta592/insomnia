@@ -51,7 +51,6 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         '~': path.resolve(__dirname, './src'),
-        'codemirror-legacy': path.resolve(__dirname, '../../node_modules/codemirror-5'),
         // mime-types uses path.extname
         'path': path.resolve(__dirname, './src/path-shim.ts'),
         // jshint uses EventEmitter
