@@ -1,5 +1,4 @@
 import { type RJSFSchema } from '@rjsf/utils';
-import type { EditorChange } from 'codemirror';
 import type { Environment, EnvironmentKvPairData, McpPayload } from 'insomnia-data';
 import { type FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Heading, Tab, TabList, TabPanel, Tabs, Toolbar } from 'react-aria-components';
@@ -9,6 +8,7 @@ import { docsMcpClient } from '~/common/documentation';
 import { buildResourceJsonSchema, fillUriTemplate } from '~/common/mcp-utils';
 import type { McpReadyState } from '~/main/mcp/types';
 import { useWorkspaceLoaderData } from '~/routes/organization.$organizationId.project.$projectId.workspace.$workspaceId';
+import type { EditorChange } from '~/ui/components/.client/codemirror/cm6/types';
 import { Link } from '~/ui/components/base/link';
 import { EnvironmentKVEditor } from '~/ui/components/editors/environment-key-value-editor/key-value-editor';
 import { Panel, PanelGroup, PanelResizeHandle } from '~/ui/components/panes/resizable-panels';

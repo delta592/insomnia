@@ -6,7 +6,6 @@ import zlib from 'node:zlib';
 
 import type { ISpectralDiagnostic } from '@stoplight/spectral-core';
 import chardet from 'chardet';
-import type { MarkerRange } from 'codemirror';
 import {
   app,
   BrowserWindow,
@@ -54,6 +53,7 @@ import {
 } from '~/main/spectral-ruleset-cache';
 import { keyPair as sealedboxKeyPair, open as sealedboxOpen } from '~/main/utils/sealedbox';
 import { getSendRequestCallback } from '~/network/unit-test-feature';
+import type { MarkerRange } from '~/ui/components/.client/codemirror/cm6/types';
 
 import type { HiddenBrowserWindowBridgeAPI } from '../../entry.hidden-window';
 import { getRuntime } from '../../runtimes';
