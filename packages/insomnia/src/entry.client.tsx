@@ -1,10 +1,12 @@
 import './ui/renderer-listeners';
 import './ui/log';
+import '~/ui/css/monaco-editor.css';
 
 import { configureFetch } from 'insomnia-api';
-import { initDatabase, initServices, services } from 'insomnia-data';
+import { initDatabase, initServices, models, services } from 'insomnia-data';
 import { startTransition, StrictMode } from 'react';
 import { hydrateRoot } from 'react-dom/client';
+import { href } from 'react-router';
 import { HydratedRouter } from 'react-router/dom';
 
 import { insomniaFetch } from '~/common/insomnia-fetch';
@@ -27,6 +29,66 @@ import { PromptModal } from './ui/components/modals/prompt-modal';
 import { WrapperModal } from './ui/components/modals/wrapper-modal';
 import { initializeSentry } from './ui/sentry';
 import { registerSyncMergeConflictListener } from './ui/utils/insomnia-sync';
+
+const INITIAL_ENTRY_TIMEOUT_MS = 15_000;
+
+const scratchpadEntry = href('/organization/:organizationId/project/:projectId/workspace/:workspaceId/debug', {
+  organizationId: models.organization.SCRATCHPAD_ORGANIZATION_ID,
+  projectId: models.project.SCRATCHPAD_PROJECT_ID,
+  workspaceId: models.workspace.SCRATCHPAD_WORKSPACE_ID,
+});
+
+const applyInitialEntry = (initialEntry: Awaited<ReturnType<typeof getInitialEntry>>) => {
+  if (typeof initialEntry === 'string') {
+    if (window.location.pathname !== initialEntry) {
+      console.log('[entry.client] Initial entry:', initialEntry);
+      window.history.replaceState({}, '', initialEntry);
+    }
+    return;
+  }
+
+  if (window.location.pathname !== initialEntry.pathname) {
+    console.log('[entry.client] Initial entry:', initialEntry.pathname);
+    window.history.replaceState(initialEntry.state ?? {}, '', initialEntry.pathname);
+  }
+};
+
+async function getInitialEntryWithTimeout() {
+  try {
+    return await Promise.race([
+      getInitialEntry(),
+      new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('getInitialEntry timed out')), INITIAL_ENTRY_TIMEOUT_MS);
+      }),
+    ]);
+  } catch (error) {
+    console.warn('[entry.client] Falling back to Scratch Pad after initial entry failure.', error);
+    return scratchpadEntry;
+  }
+}
+
+async function bootstrapAfterHydrate() {
+  await migrateFromLocalStorage();
+  registerSyncMergeConflictListener();
+
+  try {
+    const skipOnboarding = getSkipOnboarding();
+    if (skipOnboarding) {
+      window.localStorage.setItem('hasSeenOnboardingV13', skipOnboarding.toString());
+      window.localStorage.setItem('hasUserLoggedInBefore', skipOnboarding.toString());
+    }
+  } catch (e) {
+    console.log('[onboarding] Failed to parse session data', e);
+  }
+
+  const appSettings = await services.settings.getOrCreate();
+
+  if (appSettings.clearOAuth2SessionOnRestart) {
+    await clearOAuthWindowSessionId();
+  }
+
+  applyColorScheme(appSettings);
+}
 
 initializeSentry();
 
@@ -51,9 +113,6 @@ initRuntime(rendererRuntime);
 configureFetch(options => insomniaFetch({ ...options, onDeepLink: (uri: string) => window.main.openDeepLink(uri) }));
 configureV3ClientDefaults();
 
-await migrateFromLocalStorage();
-registerSyncMergeConflictListener();
-
 try {
   window.showAlert = options => showModal(AlertModal, options);
   window.showPrompt = options =>
@@ -67,16 +126,8 @@ try {
       title: options?.title || '',
       body: <HtmlElementWrapper el={options?.body} onUnmount={options?.onHide} />,
     });
-
-  // In order to run playwight tests that simulate a logged in user
-  // we need to inject state into localStorage
-  const skipOnboarding = getSkipOnboarding();
-  if (skipOnboarding) {
-    window.localStorage.setItem('hasSeenOnboardingV13', skipOnboarding.toString());
-    window.localStorage.setItem('hasUserLoggedInBefore', skipOnboarding.toString());
-  }
 } catch (e) {
-  console.log('[onboarding] Failed to parse session data', e);
+  console.log('[entry.client] Failed to register window modals', e);
 }
 
 // Workaround for iframe redirect issue caused by api.protocol.ts
@@ -137,20 +188,7 @@ if (insomniaSession) {
   }
 }
 
-const appSettings = await services.settings.getOrCreate();
-
-if (appSettings.clearOAuth2SessionOnRestart) {
-  await clearOAuthWindowSessionId();
-}
-
-applyColorScheme(appSettings);
-
-const initialEntry = await getInitialEntry();
-
-if (typeof initialEntry === 'string' && window.location.pathname !== initialEntry) {
-  console.log('[entry.client] Initial entry:', initialEntry);
-  window.location.pathname = initialEntry;
-}
+applyInitialEntry(await getInitialEntryWithTimeout());
 
 startTransition(() => {
   hydrateRoot(
@@ -160,3 +198,5 @@ startTransition(() => {
     </StrictMode>,
   );
 });
+
+void bootstrapAfterHydrate();
