@@ -1,5 +1,7 @@
 import { bundlePlugins } from '../config/config.json';
 
+interface BundlePluginEntry { name: string }
+
 const isModuleInstalled = (moduleName: string) => {
   try {
     require.resolve(moduleName);
@@ -13,7 +15,9 @@ export const verifyBundlePlugins = () => {
   const executeInGithubActions = process.env.GITHUB_ACTIONS === 'true';
   if (executeInGithubActions) {
     console.log('[NPM Install] Verifying bundle plugins...');
-    const missingBundlePlugin = bundlePlugins.find(p => !isModuleInstalled(p.name));
+    const missingBundlePlugin = (bundlePlugins as BundlePluginEntry[]).find(
+      p => !isModuleInstalled(p.name),
+    );
     if (missingBundlePlugin) {
       // execute in Github Actions
       console.error(

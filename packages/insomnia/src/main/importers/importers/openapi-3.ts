@@ -34,8 +34,20 @@ const SUPPORTED_OPENAPI_VERSION = /^3\.\d+\.\d+$/;
 
 // 3.x.x
 const MIMETYPE_JSON = 'application/json';
+const MIMETYPE_XML = 'text/xml';
+const MIMETYPE_APPLICATION_XML = 'application/xml';
+const MIMETYPE_SOAP_XML = 'application/soap+xml';
 const MIMETYPE_LITERALLY_ANYTHING = '*/*';
-const SUPPORTED_MIME_TYPES = [MIMETYPE_JSON, MIMETYPE_LITERALLY_ANYTHING];
+const SUPPORTED_MIME_TYPES = [
+  MIMETYPE_JSON,
+  MIMETYPE_XML,
+  MIMETYPE_APPLICATION_XML,
+  MIMETYPE_SOAP_XML,
+  MIMETYPE_LITERALLY_ANYTHING,
+];
+const XML_MIME_TYPES = [MIMETYPE_XML, MIMETYPE_APPLICATION_XML, MIMETYPE_SOAP_XML];
+const INSOMNIA_SOAP_EXTENSION = 'x-insomnia-soap';
+const INSOMNIA_ABSOLUTE_URL_EXTENSION = 'x-insomnia-url';
 const WORKSPACE_ID = '__WORKSPACE_ID__';
 const SECURITY_TYPE = {
   HTTP: 'http',
@@ -209,6 +221,9 @@ const parseEndpoints = (document?: OpenAPIV3.Document | null) => {
     {} as Record<OpenAPIV3.TagObject['name'], string | undefined>,
   );
 
+  const soapDocument = document as OpenAPIV3.Document & Record<string, unknown>;
+  const soapServerUrl = soapDocument[INSOMNIA_SOAP_EXTENSION] === true ? document.servers?.[0]?.url : undefined;
+
   const requests: ImportRequest[] = [];
   endpointsSchemas.forEach(endpointSchema => {
     let { tags } = endpointSchema;
@@ -220,7 +235,7 @@ const parseEndpoints = (document?: OpenAPIV3.Document | null) => {
     tags.forEach(tag => {
       const parentId = folderLookup[tag] || defaultParent;
       const resolvedSecurity = (endpointSchema as unknown as OpenAPIV3.Document).security || rootSecurity;
-      requests.push(importRequest(endpointSchema, parentId, resolvedSecurity, securitySchemes));
+      requests.push(importRequest(endpointSchema, parentId, resolvedSecurity, securitySchemes, soapServerUrl));
     });
   });
 
@@ -260,10 +275,16 @@ export { pathWithParamsAsPathParameters };
  * Return Insomnia request
  */
 const importRequest = (
-  endpointSchema: OpenAPIV3.SchemaObject & { summary?: string; path?: string; method?: string },
+  endpointSchema: OpenAPIV3.SchemaObject & {
+    summary?: string;
+    path?: string;
+    method?: string;
+    [INSOMNIA_ABSOLUTE_URL_EXTENSION]?: string;
+  },
   parentId: string,
   security?: OpenAPIV3.SecurityRequirementObject[],
   securitySchemes?: OpenAPIV3.SecuritySchemeObject,
+  soapServerUrl?: string,
 ): ImportRequest => {
   const name = endpointSchema.summary || endpointSchema.path;
   const id = generateUniqueRequestId(endpointSchema as OpenAPIV3.OperationObject);
@@ -274,13 +295,14 @@ const importRequest = (
     headers: securityHeaders,
     parameters: securityParams,
   } = parseSecurity(security, securitySchemes);
+  const absoluteUrl = endpointSchema[INSOMNIA_ABSOLUTE_URL_EXTENSION] || soapServerUrl;
   return {
     _type: 'request',
     _id: id,
     parentId: parentId,
     name,
     method: endpointSchema.method?.toUpperCase(),
-    url: `{{ _.base_url }}${pathWithParamsAsPathParameters(endpointSchema.path)}`,
+    url: absoluteUrl || `{{ _.base_url }}${pathWithParamsAsPathParameters(endpointSchema.path)}`,
     body: body,
     description: endpointSchema.description || '',
     headers: [...paramHeaders, ...securityHeaders],
@@ -498,6 +520,24 @@ const getSecurityEnvVariables = (securitySchemeObject?: OpenAPIV3.SecurityScheme
  *
  * If multiple types are available, the one for which an example can be generated will be selected first (i.e. application/json)
  */
+const getContentExampleText = (bodyParameter: OpenAPIV3.MediaTypeObject): string | null => {
+  if (typeof bodyParameter.example === 'string') {
+    return bodyParameter.example;
+  }
+
+  if (bodyParameter.examples) {
+    const firstExample = Object.values(bodyParameter.examples)[0];
+    if (firstExample && '$ref' in firstExample) {
+      return null;
+    }
+    if (firstExample && 'value' in firstExample && typeof firstExample.value === 'string') {
+      return firstExample.value;
+    }
+  }
+
+  return null;
+};
+
 const prepareBody = (endpointSchema: OpenAPIV3.OperationObject): ImportRequest['body'] => {
   const { content } = (endpointSchema.requestBody || { content: {} }) as OpenAPIV3.RequestBodyObject;
 
@@ -522,6 +562,22 @@ const prepareBody = (endpointSchema: OpenAPIV3.OperationObject): ImportRequest['
     return {
       mimeType: MIMETYPE_JSON,
       text,
+    };
+  }
+
+  if (supportedMimeType && XML_MIME_TYPES.some(xmlMimeType => supportedMimeType.includes(xmlMimeType))) {
+    const bodyParameter = content[supportedMimeType];
+    const exampleText = bodyParameter ? getContentExampleText(bodyParameter) : undefined;
+
+    if (exampleText) {
+      return {
+        mimeType: 'text/plain',
+        text: exampleText,
+      };
+    }
+
+    return {
+      mimeType: supportedMimeType,
     };
   }
 

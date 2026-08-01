@@ -2,6 +2,10 @@
 
 The purpose of this document is to provide a general overview of the application architecture.
 
+## Fork note: Kong private packages
+
+This fork does **not** bundle `@kong/insomnia-plugin-ai` or `@kong/insomnia-plugin-external-vault`. They are published to Kong's private GitHub Packages registry and are unavailable here. Do not re-add them to `package.json` or the lockfile. See `AGENTS.md` → Fork constraints.
+
 ## Technologies
 
 Insomnia is a desktop application built on top of [Electron](http://electronjs.org/). Electron provides a Chromium runtime for the Insomnia web app to run inside, as well as additional tools to provide access to operating system features.
@@ -93,7 +97,6 @@ The structure for smoke tests is explained in the smoke testing package: [`packa
 
 This is just a brief summary of Insomnia's current technical debt.
 
-- We use npm engines feature to improve the dx of node upgrades. However one of our deps `node_modules/apiconnect-wsdl` has an overly restrictive engine max, so each time we refresh the package lock we are running `npm install --force` then manually editing the lock file to extend this engine config from `<21` to `<23`
 - Loading large responses (~20 MB) can crash the app on weaker hardware.
 - Bundling `libcurl` (native module) has caused many weeks of headaches trying to get builds working across Windows, Mac, and Linux. More expertise here is definitely needed.
 - All input fields that support features like templating or code completion are actually [CodeMirror](https://codemirror.net/6/) instances. This isn't really debt, but may affect things going forward.
@@ -103,12 +106,11 @@ This is just a brief summary of Insomnia's current technical debt.
 On `chore/dep-update-code-refactor` (and until merged), note these install/test differences:
 
 - **`.npmrc`:** `legacy-peer-deps=true` — `eslint-plugin-react@7.37.5` does not yet declare ESLint 10 peer support.
-- **`npm install --force`:** still required when refreshing the lockfile because `apiconnect-wsdl` declares `node <21` while the repo targets Node 26 (see engine note above).
 - **`is-unicode-supported`:** root override scopes `0.1.0` to `log-symbols` only (Mocha); `insomnia-inso` keeps direct dep `2.1.0`.
 - **Inso unit tests:** mock `@getinsomnia/node-libcurl` via `packages/insomnia-inso/setup-vitest.ts` (same mock as insomnia Vitest setup).
 - **Inso bundle/binary tests:** `npm run test:inso:bundle` or `npm run test:inso:binary` from repo root (installs libcurl Node binary, builds inso, starts smoke server, runs tests). Individual steps: `npm run install-libcurl-node`, build, `npm run serve -w insomnia-smoke-test`, then `npm run test:bundle -w insomnia-inso`. `pretest:bundle` / `posttest:bundle` on `insomnia-inso` switch libcurl between Node and Electron targets automatically.
 - **Smoke test server:** Express 5 / `path-to-regexp` v8 requires named wildcards (e.g. `/builds/check/*path`, not `/builds/check/*`).
-- **libcurl binaries:** pin `@getinsomnia/node-libcurl@3.3.0` (not `3.36.8` — no GitHub prebuilds for that tag). `scripts/install-libcurl.mjs` downloads prebuilds for the current Node/Electron version, or builds from source (Homebrew `curl` on macOS). `postinstall` runs `install-libcurl-electron`.
+- **libcurl binaries:** pin `@getinsomnia/node-libcurl@3.3.0`. Its npm install script is blocked during `npm ci` (npm 12 `allowScripts`); `postinstall` runs `install-libcurl-electron` via `scripts/install-libcurl.mjs`. Node 26 has no Node-runtime prebuilds — `install-libcurl-node` compiles from source (Homebrew `curl` on macOS, `libcurl4-openssl-dev` on Linux; CI installs the latter in `setup-insomnia-node`). For Node 26+, the script omits `--target` when invoking node-pre-gyp so it uses `process.versions.modules` instead of the stale abi crosswalk.
 
 - [x] upgrade spectral e2e testing
 - [x] upgrading electron
@@ -135,9 +137,11 @@ On `chore/dep-update-code-refactor` (and until merged), note these install/test 
 
 <https://releases.electronjs.org/>
 
-bump the following node and electron versions
+Bump the following together (Node **26.5.1**, npm **12.0.2** today):
 
-- `.npmrc`
 - `.nvmrc`
-- `packages/insomnia/package.json` electron and node-libcurl
-- `shell.nix`
+- Root and workspace `package.json` `engines` (`node`, `npm`)
+- Root `package-lock.json` `engines` (re-run `npm install` on the new runtime)
+- `.github/actions/setup-insomnia-node` (reads `.nvmrc` + root `engines.npm` automatically)
+- `packages/insomnia/package.json` `electron` and `@getinsomnia/node-libcurl`
+- `shell.nix` (if used)

@@ -3,8 +3,8 @@ import path from 'node:path';
 
 import { app, BrowserWindow, ipcMain, type IpcMainEvent, type IpcMainInvokeEvent } from 'electron';
 
+import { getMainWindow } from './main-window';
 import { requestPromptFromRenderer } from './prompt-bridge';
-import { getMainWindow } from './window-utils';
 
 let pluginWindow: BrowserWindow | null = null;
 let windowReady = false;

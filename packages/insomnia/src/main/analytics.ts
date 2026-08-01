@@ -17,19 +17,19 @@ import {
 
 export { AnalyticsEvent };
 
-type SegmentHttpRequest = {
+interface SegmentHttpRequest {
   url: string;
   method: 'POST';
   headers: Record<string, string>;
   body: string;
   httpRequestTimeout: number;
-};
+}
 
-type SegmentHttpResponse = {
+interface SegmentHttpResponse {
   status: number;
   statusText: string;
   headers?: Headers;
-};
+}
 
 let _currentOrganizationId: string | undefined;
 

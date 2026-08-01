@@ -1,0 +1,171 @@
+{
+  "options": {
+    "wsdl": "/Volumes/extvol004/lib/scm/github.com/delta592/insomnia/packages/insomnia/src/main/importers/importers/fixtures/wsdl/addition-input.wsdl",
+    "out": "/Volumes/extvol004/lib/scm/github.com/delta592/insomnia/packages/insomnia/src/main/importers/importers/fixtures/wsdl/expected-openapi",
+    "imports": "js",
+    "catalog": true,
+    "primitive": {
+      "int64As": "string",
+      "bigIntegerAs": "string",
+      "decimalAs": "string",
+      "dateAs": "string"
+    },
+    "choice": "all-optional",
+    "failOnUnresolved": false,
+    "attributesKey": "$attributes",
+    "nillableAsOptional": false
+  },
+  "types": [
+    {
+      "name": "Add",
+      "ns": "http://tempuri.org/",
+      "attrs": [],
+      "elems": [
+        {
+          "name": "intA",
+          "tsType": "number",
+          "min": 1,
+          "max": 1,
+          "nillable": false,
+          "declaredType": "xs:int"
+        },
+        {
+          "name": "intB",
+          "tsType": "number",
+          "min": 1,
+          "max": 1,
+          "nillable": false,
+          "declaredType": "xs:int"
+        }
+      ]
+    },
+    {
+      "name": "AddResponse",
+      "ns": "http://tempuri.org/",
+      "attrs": [],
+      "elems": [
+        {
+          "name": "AddResult",
+          "tsType": "number",
+          "min": 1,
+          "max": 1,
+          "nillable": false,
+          "declaredType": "xs:int"
+        }
+      ]
+    }
+  ],
+  "aliases": [],
+  "meta": {
+    "attrSpec": {
+      "Add": [],
+      "AddResponse": []
+    },
+    "attrType": {},
+    "childType": {
+      "Add": {
+        "intA": "number",
+        "intB": "number"
+      },
+      "AddResponse": {
+        "AddResult": "number"
+      }
+    },
+    "propMeta": {
+      "Add": {
+        "intA": {
+          "declaredType": "xs:int",
+          "min": 1,
+          "max": 1,
+          "nillable": false
+        },
+        "intB": {
+          "declaredType": "xs:int",
+          "min": 1,
+          "max": 1,
+          "nillable": false
+        }
+      },
+      "AddResponse": {
+        "AddResult": {
+          "declaredType": "xs:int",
+          "min": 1,
+          "max": 1,
+          "nillable": false
+        }
+      }
+    }
+  },
+  "operations": [
+    {
+      "name": "Add",
+      "soapAction": "http://tempuri.org/Add",
+      "inputElement": {
+        "ns": "http://tempuri.org/",
+        "local": "Add"
+      },
+      "outputElement": {
+        "ns": "http://tempuri.org/",
+        "local": "AddResponse"
+      },
+      "inputTypeName": "Add",
+      "outputTypeName": "AddResponse",
+      "doc": "Adds two integers. This is a test WebService. ©DNE Online",
+      "security": []
+    }
+  ],
+  "wsdlTargetNS": "http://tempuri.org/",
+  "serviceName": "Calculator",
+  "wsdlUri": "/Volumes/extvol004/lib/scm/github.com/delta592/insomnia/packages/insomnia/src/main/importers/importers/fixtures/wsdl/addition-input.wsdl",
+  "wsdlDocs": {
+    "bindings": [
+      {
+        "name": "CalculatorSoap",
+        "type": {
+          "ns": "http://tempuri.org/",
+          "local": "CalculatorSoap"
+        }
+      }
+    ],
+    "messages": [
+      {
+        "name": "AddSoapIn",
+        "parts": [
+          {
+            "name": "parameters",
+            "element": {
+              "ns": "http://tempuri.org/",
+              "local": "Add"
+            }
+          }
+        ]
+      },
+      {
+        "name": "AddSoapOut",
+        "parts": [
+          {
+            "name": "parameters",
+            "element": {
+              "ns": "http://tempuri.org/",
+              "local": "AddResponse"
+            }
+          }
+        ]
+      }
+    ],
+    "services": [
+      {
+        "name": "Calculator",
+        "ports": [
+          {
+            "name": "CalculatorSoap",
+            "binding": {
+              "ns": "http://tempuri.org/",
+              "local": "CalculatorSoap"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,17 +1,9 @@
-import type { BaseModel } from 'insomnia-data';
-
-import type { NunjucksParsedTag } from '~/common/templating/types';
 import { isBase64String, isValidJSONString } from '~/ui/utils/string-check';
 
+import type { ArgConfigFormProps } from './tag-editor-arg-types';
 import { ExternalVaultForm } from './external-vault/external-vault-form';
 
-export interface ArgConfigFormProps {
-  configValue: string;
-  activeTagDefinition: NunjucksParsedTag;
-  activeTagData: NunjucksParsedTag;
-  onChange: (newConfigValue: string) => void;
-  docs: Record<string, BaseModel[]>;
-}
+export type { ArgConfigFormProps } from './tag-editor-arg-types';
 const formTagNameMapping = {
   vault: ExternalVaultForm,
 };

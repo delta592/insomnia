@@ -495,4 +495,58 @@ describe('openapi-3', () => {
       expect(anyPetContentTypeHeader?.value).toBe('application/json');
     });
   });
+
+  describe('XML and SOAP request bodies', () => {
+    it('imports XML example bodies and header parameters', async () => {
+      const openApiDoc: OpenAPIV3.Document = {
+        openapi: '3.1.0',
+        info: {
+          title: 'SOAP API',
+          version: '1.0.0',
+        },
+        servers: [{ url: 'http://example.com/service.asmx' }],
+        paths: {
+          '/Add': {
+            post: {
+              operationId: 'Add',
+              summary: 'Add',
+              parameters: [
+                {
+                  name: 'SOAPAction',
+                  in: 'header',
+                  schema: { type: 'string', example: 'http://tempuri.org/Add' },
+                },
+                {
+                  name: 'Content-Type',
+                  in: 'header',
+                  schema: { type: 'string', example: 'text/xml' },
+                },
+              ],
+              requestBody: {
+                required: true,
+                content: {
+                  'text/xml': {
+                    example: '<Envelope><Body>Add</Body></Envelope>',
+                  },
+                },
+              },
+              responses: {
+                '200': { description: 'OK' },
+              },
+              'x-insomnia-url': 'http://example.com/service.asmx',
+            },
+          },
+        },
+      };
+
+      const result = await convert(JSON.stringify(openApiDoc));
+      expect(result).not.toBeNull();
+
+      const request = result?.find(item => item._type === 'request' && item.name === 'Add');
+      expect(request?.body?.mimeType).toBe('text/plain');
+      expect(request?.body?.text).toBe('<Envelope><Body>Add</Body></Envelope>');
+      expect(request?.headers?.find(header => header.name === 'SOAPAction')?.value).toBe('http://tempuri.org/Add');
+      expect(request?.url).toBe('http://example.com/service.asmx');
+    });
+  });
 });

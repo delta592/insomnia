@@ -10,7 +10,7 @@ import { scrollElementIntoView } from '~/ui/utils';
 import { useInsomniaTabContext } from '../../context/app/insomnia-tab-context';
 import { Icon } from '../icon';
 import { Tooltip } from '../tooltip';
-import { TAB_CONTEXT_MENU_COMMAND } from './tab-list';
+import { TAB_CONTEXT_MENU_COMMAND } from './tab-context-menu-commands';
 
 export type TabType =
   | 'request'

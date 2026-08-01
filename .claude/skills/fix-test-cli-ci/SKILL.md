@@ -17,7 +17,7 @@ argument-hint: 'Provide the failing test-cli.yml logs, a link to the failing wor
 1. Start with the failing CI evidence.
    - Use the provided logs or workflow run link to identify whether the failure happened during the `test:bundle` run, the packaged binary run, or the build/package setup before the tests.
    - Note the failing test name and the first actionable error message before reproducing locally.
-2. Ensure Node.js native dependencies are installed (not Electron-targeted variants):
+2. Ensure Node.js native dependencies are installed (not Electron-targeted variants). Requires Node **26.5.1** from repo root `.nvmrc`:
    ```bash
    npm run install-libcurl-node
    ```

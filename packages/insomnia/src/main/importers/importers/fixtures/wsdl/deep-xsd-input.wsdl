@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:tns="http://example.com/deep"
+                  xmlns:s="http://www.w3.org/2001/XMLSchema"
+                  targetNamespace="http://example.com/deep">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://example.com/deep">
+      <s:complexType name="Level3">
+        <s:sequence>
+          <s:element name="value" type="s:string" minOccurs="1" maxOccurs="1"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Level2">
+        <s:sequence>
+          <s:element name="level3" type="tns:Level3" minOccurs="1" maxOccurs="1"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Level1">
+        <s:sequence>
+          <s:element name="level2" type="tns:Level2" minOccurs="1" maxOccurs="1"/>
+        </s:sequence>
+      </s:complexType>
+      <s:element name="Process">
+        <s:complexType>
+          <s:sequence>
+            <s:element name="level1" type="tns:Level1" minOccurs="1" maxOccurs="1"/>
+            <s:element name="count" type="s:int" minOccurs="1" maxOccurs="1"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ProcessResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element name="ProcessResult" type="s:string" minOccurs="1" maxOccurs="1"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="ProcessSoapIn">
+    <wsdl:part name="parameters" element="tns:Process"/>
+  </wsdl:message>
+  <wsdl:message name="ProcessSoapOut">
+    <wsdl:part name="parameters" element="tns:ProcessResponse"/>
+  </wsdl:message>
+  <wsdl:portType name="ProcessSoap">
+    <wsdl:operation name="Process">
+      <wsdl:input message="tns:ProcessSoapIn"/>
+      <wsdl:output message="tns:ProcessSoapOut"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="ProcessSoap" type="tns:ProcessSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="Process">
+      <soap:operation soapAction="http://example.com/deep/Process" style="document"/>
+      <wsdl:input><soap:body use="literal"/></wsdl:input>
+      <wsdl:output><soap:body use="literal"/></wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="DeepXsdService">
+    <wsdl:port name="ProcessSoap" binding="tns:ProcessSoap">
+      <soap:address location="http://example.com/deep"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

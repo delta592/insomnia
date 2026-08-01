@@ -46,7 +46,7 @@
     "test:smoke:package": "npm run test:package -w insomnia-smoke-test -- --project=Smoke",
     "test:crit:package": "npm run test:package -w insomnia-smoke-test -- --project=Critical",
     "test:crit:dev": "npm run test:dev -w insomnia-smoke-test -- --project=Critical",
-    "postinstall": "patch-package && npm run verify-bundle-plugins -w insomnia && npm run install-libcurl-electron",
+    "postinstall": "patch-package && node scripts/ensure-optional-native-deps.mjs && npm run verify-bundle-plugins -w insomnia && npm run install-libcurl-electron",
     "check-cycle-references": "madge --circular --extensions ts,tsx packages",
     "tsc7": "node node_modules/@typescript/native/bin/tsc"
   },
@@ -108,7 +108,6 @@
     "ajv": "8.20.0"
   },
   "allowScripts": {
-    "@getinsomnia/node-libcurl@3.3.0": true,
     "@scarf/scarf@1.4.0": true,
     "electron-winstaller@5.4.0": true,
     "esbuild@0.25.12": true,

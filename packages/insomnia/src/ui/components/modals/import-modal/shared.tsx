@@ -4,6 +4,23 @@ import React, { type FC, Fragment, type PropsWithChildren, useMemo } from 'react
 import { type ProjectScopeKeys, scopeToLabelMap } from '~/common/get-workspace-label';
 import { isApiSpecScanResult, type ScanResult } from '~/common/import';
 
+const downloadOpenApiSpec = async (spec: { fileName?: string; contents?: string }) => {
+  if (!spec.contents) {
+    return;
+  }
+
+  const { canceled, filePath } = await window.dialog.showSaveDialog({
+    defaultPath: spec.fileName || 'openapi.json',
+    filters: [{ name: 'OpenAPI', extensions: ['json', 'yaml', 'yml'] }],
+  });
+
+  if (canceled || !filePath) {
+    return;
+  }
+
+  await window.main.writeFile({ path: filePath, content: spec.contents });
+};
+
 export const validImportExtensions = [
   'sh',
   'txt',
@@ -178,6 +195,10 @@ export const SupportedFormats = () => {
           WSDL
         </Pill>
       </div>
+      <p className="mt-2 text-xs text-[--color-help]">
+        WSDL 1.1 (SOAP 1.1/1.2, document/literal and RPC/encoded). Multi-file WSDL resolves via file import,
+        companion files in the same batch, or remote WSDL URLs. Download generated OpenAPI from the scan results.
+      </p>
     </div>
   );
 };
@@ -276,6 +297,17 @@ export const ScanResultsTable = ({ scanResults }: { scanResults: ScanResult[] })
                         <div className="flex items-center gap-(--padding-md)">
                           {scanResult.apiSpecs.length}{' '}
                           {scanResult.apiSpecs.length === 1 ? 'OpenAPI Spec' : 'OpenAPI Specs'}
+                          {scanResult.type?.id === 'wsdl' &&
+                            scanResult.apiSpecs.map(spec => (
+                              <button
+                                key={spec._id}
+                                type="button"
+                                className="btn btn--clicky btn--super-compact"
+                                onClick={() => downloadOpenApiSpec(spec)}
+                              >
+                                Download OpenAPI
+                              </button>
+                            ))}
                         </div>
                       </td>
                     </tr>

@@ -21,13 +21,6 @@
       "siteId": "4d5c703f3edbc5155bac"
     }
   },
-  "bundlePlugins": [
-    {
-      "name": "@kong/insomnia-plugin-external-vault"
-    },
-    {
-      "name": "@kong/insomnia-plugin-ai"
-    }
-  ],
+  "bundlePlugins": [],
   "sentryDsn": "https://aaec2e800e644070a8daba5b7ad02c16@o1147619.ingest.sentry.io/6311804"
 }

@@ -1,7 +1,7 @@
 import { Ajv, type ErrorObject } from 'ajv';
 import * as chai from 'chai';
 import { RESPONSE_CODE_REASONS } from 'insomnia/src/common/constants';
-import type { sendCurlAndWriteTimelineError, sendCurlAndWriteTimelineResponse } from 'insomnia/src/network/network';
+import type { sendCurlAndWriteTimelineError, sendCurlAndWriteTimelineResponse } from 'insomnia/src/network/send-timeline-result';
 import { services } from 'insomnia-data';
 
 import { Cookie, type CookieOptions } from './cookies';

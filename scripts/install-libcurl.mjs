@@ -7,10 +7,13 @@
  *
  * Usage: node scripts/install-libcurl.mjs <node|electron>
  */
-import { execSync, spawnSync } from 'node:child_process';
+import { execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import { assertRequiredNodeVersion } from './required-node-version.mjs';
+import { spawnNpx } from './spawn-cli.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.join(__dirname, '..');
@@ -23,6 +26,8 @@ if (!['node', 'electron'].includes(runtime)) {
   console.error('Usage: node scripts/install-libcurl.mjs <node|electron>');
   process.exit(1);
 }
+
+assertRequiredNodeVersion('install-libcurl');
 
 if (!fs.existsSync(libcurlDir)) {
   console.error('@getinsomnia/node-libcurl is not installed. Run npm ci from the repo root first.');
@@ -97,6 +102,30 @@ function ensureMacOsLibcurl() {
   process.env.PATH = [path.join(brewPrefix, 'bin'), process.env.PATH].filter(Boolean).join(':');
 }
 
+function ensureLinuxLibcurl() {
+  if (process.platform !== 'linux') {
+    return;
+  }
+
+  if (commandExists('curl-config')) {
+    return;
+  }
+
+  if (commandExists('apt-get')) {
+    console.log('Installing libcurl development headers via apt-get...');
+    execSync(
+      'sudo DEBIAN_FRONTEND=noninteractive apt-get update && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y libcurl4-openssl-dev',
+      { stdio: 'inherit' },
+    );
+    return;
+  }
+
+  if (commandExists('dnf')) {
+    console.log('Installing libcurl development headers via dnf...');
+    execSync('sudo dnf install -y libcurl-devel', { stdio: 'inherit' });
+  }
+}
+
 function printLinuxHint() {
   if (process.platform !== 'linux') {
     return;
@@ -122,7 +151,6 @@ function printWindowsHint() {
 }
 
 function runNodePreGyp({ fallbackToBuild = false } = {}) {
-  const target = getTargetVersion();
   const args = [
     'node-pre-gyp',
     'install',
@@ -130,8 +158,13 @@ function runNodePreGyp({ fallbackToBuild = false } = {}) {
     libcurlDir,
     '--update-binary',
     `--runtime=${runtime}`,
-    `--target=${target}`,
   ];
+
+  // node-pre-gyp's abi_crosswalk.json lags new Node majors; omit --target for node so it
+  // uses process.versions.modules (e.g. node-v147 on Node 26).
+  if (runtime === 'electron') {
+    args.push(`--target=${getTargetVersion()}`);
+  }
 
   if (fallbackToBuild) {
     args.push('--fallback-to-build');
@@ -139,12 +172,14 @@ function runNodePreGyp({ fallbackToBuild = false } = {}) {
 
   console.log(`> npx ${args.join(' ')}`);
 
-  const result = spawnSync('npx', args, {
-    cwd: repoRoot,
-    stdio: 'inherit',
-    env: process.env,
-  });
+  const result = spawnNpx(args, { cwd: repoRoot, repoRoot, env: process.env });
 
+  return result.status === 0;
+}
+
+function runNodeGypRebuild() {
+  console.log('> npx node-gyp rebuild');
+  const result = spawnNpx(['node-gyp', 'rebuild'], { cwd: libcurlDir, repoRoot, env: process.env });
   return result.status === 0;
 }
 
@@ -156,9 +191,17 @@ let success = runNodePreGyp();
 if (!success) {
   console.log('Prebuilt binary unavailable — ensuring system libcurl and building from source...');
   ensureMacOsLibcurl();
-  printLinuxHint();
+  ensureLinuxLibcurl();
+  if (process.platform === 'linux' && !commandExists('curl-config')) {
+    printLinuxHint();
+  }
   printWindowsHint();
   success = runNodePreGyp({ fallbackToBuild: true });
+}
+
+if (!success && runtime === 'node') {
+  console.log('node-pre-gyp failed — trying node-gyp rebuild directly...');
+  success = runNodeGypRebuild();
 }
 
 if (!success || !fs.existsSync(bindingPath)) {

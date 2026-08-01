@@ -34,11 +34,13 @@ describe('Fixtures', () => {
         expect.assertions(3);
 
         expect(typeof input).toBe('string');
-        const inputContents = fs.readFileSync(path.join(dir, input), 'utf8');
+        const inputPath = path.join(dir, input);
+        const inputContents = fs.readFileSync(inputPath, 'utf8');
         expect(typeof inputContents).toBe('string');
 
         const results = await convert({
           contentStr: inputContents,
+          ...(name === 'wsdl' ? { oriFilePath: inputPath } : {}),
         });
         results.data.__export_date = '';
         expect(results.data).toMatchSnapshot();

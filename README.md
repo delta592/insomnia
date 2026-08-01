@@ -72,7 +72,7 @@ Check out our official [Insomnia Documentation](https://docs.insomnia.rest/).
 
 ## Develop Insomnia
 
-Development on Insomnia can be done on Mac, Windows, or Linux as long as you have [Node.js](https://nodejs.org) and [Git](https://git-scm.com/). See the `.nvmrc` file located in the project for the correct Node version.
+Development on Insomnia can be done on Mac, Windows, or Linux as long as you have [Node.js](https://nodejs.org) 26.x and [Git](https://git-scm.com/). Use the version in `.nvmrc` (currently **26.5.1**) with a version manager such as [fnm](https://github.com/Schniz/fnm).
 
 <details>
 <summary>Initial Dev Setup</summary>

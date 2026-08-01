@@ -71,6 +71,9 @@ export interface ImportRequest extends Comment {
   afterResponseScript?: string;
   metaSortKey?: number;
   scope?: string;
+  fileName?: string;
+  contentType?: 'json' | 'yaml';
+  contents?: string;
 }
 
 interface ConvertErrorResult {
@@ -105,4 +108,5 @@ export interface ImportEntry {
   contentStr: string;
   oriFileName?: string;
   oriFilePath?: string;
+  relatedImportEntries?: Pick<ImportEntry, 'contentStr' | 'oriFileName' | 'oriFilePath'>[];
 }
