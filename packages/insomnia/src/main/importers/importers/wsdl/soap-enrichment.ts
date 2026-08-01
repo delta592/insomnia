@@ -2,24 +2,11 @@ import type { OpenAPIV3 } from 'openapi-types';
 
 import { generateRootElementXml, type XsdTypeDefinition } from '../../soap/xsd-to-xml';
 import { buildTypeLookup } from './catalog-adapter';
+import type { CompiledCatalogLike } from './compiled-catalog';
 import type { ParsedWsdl, SoapVersion, WsdlBindingOperation, WsdlPort } from './wsdl-parser';
 
 export const INSOMNIA_SOAP_EXTENSION = 'x-insomnia-soap';
 export const INSOMNIA_ABSOLUTE_URL_EXTENSION = 'x-insomnia-url';
-
-export interface CompiledCatalogLike {
-  serviceName?: string;
-  wsdlTargetNS: string;
-  types: XsdTypeDefinition[];
-  operations: {
-    name: string;
-    soapAction: string;
-    inputElement?: { ns: string; local: string };
-    inputTypeName?: string;
-    doc?: string;
-    security?: string[];
-  }[];
-}
 
 const SOAP11_ENVELOPE_NS = 'http://schemas.xmlsoap.org/soap/envelope/';
 const SOAP12_ENVELOPE_NS = 'http://www.w3.org/2003/05/soap-envelope';

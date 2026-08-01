@@ -1,5 +1,5 @@
 import type { XsdElementMeta, XsdTypeDefinition } from '../../soap/xsd-to-xml';
-import type { CompiledCatalogLike } from './soap-enrichment';
+import type { CompiledCatalogLike } from './compiled-catalog';
 
 const PRIMITIVE_TS_TYPES = new Set(['string', 'number', 'boolean', 'Date']);
 
