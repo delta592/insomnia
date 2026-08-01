@@ -17,11 +17,60 @@ import {
 
 export { AnalyticsEvent };
 
+type SegmentHttpRequest = {
+  url: string;
+  method: 'POST';
+  headers: Record<string, string>;
+  body: string;
+  httpRequestTimeout: number;
+};
+
+type SegmentHttpResponse = {
+  status: number;
+  statusText: string;
+  headers?: Headers;
+};
+
 let _currentOrganizationId: string | undefined;
 
 export function setCurrentOrganizationId(id: string | undefined): void {
   _currentOrganizationId = id;
 }
+
+let segmentUnavailableLogged = false;
+
+function logSegmentUnavailable(error: unknown) {
+  if (segmentUnavailableLogged) {
+    return;
+  }
+  segmentUnavailableLogged = true;
+  console.warn('[analytics] Segment unreachable; analytics disabled for this session.', error);
+}
+
+const segmentHttpClient = {
+  makeRequest(options: SegmentHttpRequest): Promise<SegmentHttpResponse> {
+    if (analytics.isDisabled) {
+      return Promise.resolve({ status: 204, statusText: 'Analytics Disabled' });
+    }
+
+    return net
+      .fetch(options.url, {
+        method: options.method,
+        headers: options.headers,
+        body: options.body,
+        signal: AbortSignal.timeout(options.httpRequestTimeout ?? 5000),
+      })
+      .then(response => ({
+        status: response.status,
+        statusText: response.statusText,
+        headers: response.headers,
+      }))
+      .catch((error: unknown) => {
+        analytics.disable(error);
+        return { status: 204, statusText: 'Analytics Unavailable' };
+      });
+  },
+};
 
 const analytics = new InsomniaAnalytics({
   writeKey: getSegmentWriteKey(),
@@ -32,19 +81,13 @@ const analytics = new InsomniaAnalytics({
     platform: 'app',
   },
   settings: {
-    httpClient: {
-      makeRequest(_options) {
-        return net.fetch(_options.url, {
-          method: _options.method,
-          headers: _options.headers,
-          body: _options.body,
-          signal: AbortSignal.timeout(_options.httpRequestTimeout),
-        });
-      },
-    },
+    maxRetries: 0,
+    maxTotalBackoffDuration: 0,
+    httpRequestTimeout: 5000,
+    httpClient: segmentHttpClient,
   },
   onError: error => {
-    console.warn('[analytics] Error sending analytics event', error);
+    logSegmentUnavailable(error);
   },
 });
 
@@ -58,7 +101,7 @@ function hashString(input: string) {
 }
 
 export async function trackAnalyticsEvent(event: AnalyticsEvent, properties?: Record<string, any>) {
-  if (PLAYWRIGHT_TEST) {
+  if (PLAYWRIGHT_TEST || analytics.isDisabled) {
     return;
   }
   const settings = await services.settings.getOrCreate();
@@ -83,7 +126,8 @@ export async function trackAnalyticsEvent(event: AnalyticsEvent, properties?: Re
       userId: userSession?.hashedAccountId || '',
     });
   } catch (error: unknown) {
-    console.warn('[analytics] Unexpected error while sending analytics event', error);
+    logSegmentUnavailable(error);
+    analytics.disable(error);
   } finally {
     if (!userSession?.hashedAccountId && [AnalyticsEvent.unitTestRun, AnalyticsEvent.unitTestRunAll].includes(event)) {
       Sentry.captureException(`Run tests by anonymous`, {
@@ -100,7 +144,7 @@ export async function trackAnalyticsEvent(event: AnalyticsEvent, properties?: Re
 }
 
 export async function trackPageView(name: string) {
-  if (PLAYWRIGHT_TEST) {
+  if (PLAYWRIGHT_TEST || analytics.isDisabled) {
     return;
   }
   const settings = await services.settings.getOrCreate();
@@ -119,15 +163,20 @@ export async function trackPageView(name: string) {
     analytics.page({ name, anonymousId, userId: userSession?.hashedAccountId });
 
     if (userSession?.id) {
-      net.fetch(getApiBaseURL() + '/v1/telemetry/', {
-        method: 'POST',
-        headers: new Headers({
-          'X-Session-Id': userSession?.id,
-          'X-Insomnia-Client': getClientString(),
-        }),
-      });
+      net
+        .fetch(getApiBaseURL() + '/v1/telemetry/', {
+          method: 'POST',
+          headers: new Headers({
+            'X-Session-Id': userSession?.id,
+            'X-Insomnia-Client': getClientString(),
+          }),
+        })
+        .catch(error => {
+          console.warn('[analytics] Failed to send telemetry event', error);
+        });
     }
   } catch (error: unknown) {
-    console.warn('[analytics] Unexpected error while sending analytics event', error);
+    logSegmentUnavailable(error);
+    analytics.disable(error);
   }
 }

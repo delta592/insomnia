@@ -45,6 +45,7 @@ export class InsomniaAnalytics {
   private readonly client: Analytics;
   private readonly app: AppContext;
   private readonly onError: (error: unknown) => void;
+  private disabled = false;
 
   constructor({ writeKey, app, settings, onError }: InsomniaAnalyticsOptions) {
     this.client = new Analytics({ writeKey, ...settings });
@@ -52,7 +53,26 @@ export class InsomniaAnalytics {
     this.onError = onError ?? (() => {});
   }
 
+  get isDisabled() {
+    return this.disabled;
+  }
+
+  /** Stop sending analytics for this process (e.g. Segment host unreachable). */
+  disable(error?: unknown): void {
+    if (this.disabled) {
+      return;
+    }
+    this.disabled = true;
+    if (error !== undefined) {
+      this.onError(error);
+    }
+  }
+
   track({ event, properties, anonymousId, userId }: TrackOptions): void {
+    if (this.disabled) {
+      return;
+    }
+
     this.client.track(
       {
         event,
@@ -63,13 +83,17 @@ export class InsomniaAnalytics {
       },
       error => {
         if (error) {
-          this.onError(error);
+          this.disable(error);
         }
       },
     );
   }
 
   page({ name, anonymousId, userId }: PageOptions): void {
+    if (this.disabled) {
+      return;
+    }
+
     this.client.page(
       {
         name,
@@ -79,7 +103,7 @@ export class InsomniaAnalytics {
       },
       error => {
         if (error) {
-          this.onError(error);
+          this.disable(error);
         }
       },
     );

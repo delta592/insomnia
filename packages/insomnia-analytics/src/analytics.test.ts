@@ -69,5 +69,19 @@ describe('InsomniaAnalytics', () => {
     callback(new Error('segment failure'));
 
     expect(onError).toHaveBeenCalledWith(expect.any(Error));
+    expect(analytics.isDisabled).toBe(true);
+  });
+
+  it('skips track calls after disable()', async () => {
+    const { InsomniaAnalytics } = await import('./analytics');
+    const analytics = new InsomniaAnalytics({
+      writeKey: 'test',
+      app: { appName: 'app', appVersion: '0.1', osVersion: '1.0', platform: 'app' },
+    });
+
+    analytics.disable();
+    analytics.track({ event: 'App Started', anonymousId: 'a' });
+
+    expect(mockTrack).not.toHaveBeenCalled();
   });
 });
