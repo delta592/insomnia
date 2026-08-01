@@ -23,7 +23,7 @@ import {
   TooltipTrigger,
   useDragAndDrop,
 } from 'react-aria-components';
-import { Panel, PanelResizeHandle } from 'react-resizable-panels';
+import { Panel, PanelResizeHandle } from '~/ui/components/panes/resizable-panels';
 import { href, useNavigate, useParams, useSearchParams, useSubmit } from 'react-router';
 import * as reactUse from 'react-use';
 import { v4 as uuidv4 } from 'uuid';

@@ -3,7 +3,7 @@ import type { MockRoute } from 'insomnia-data';
 import { services } from 'insomnia-data';
 import { Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Button, GridList, GridListItem, Menu, MenuItem, MenuTrigger, Popover } from 'react-aria-components';
-import { type ImperativePanelGroupHandle, Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
+import { type ImperativePanelGroupHandle, Panel, PanelGroup, PanelResizeHandle } from '~/ui/components/panes/resizable-panels';
 import {
   href,
   redirect,

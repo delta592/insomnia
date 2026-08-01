@@ -2,7 +2,7 @@ import { getLearningFeature } from 'insomnia-api';
 import { models, services } from 'insomnia-data';
 import { type Dispatch, type SetStateAction, useEffect, useRef, useState } from 'react';
 import { Button, Heading } from 'react-aria-components';
-import { type ImperativePanelHandle, Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
+import { type ImperativePanelHandle, Panel, PanelGroup, PanelResizeHandle } from '~/ui/components/panes/resizable-panels';
 import { href, Outlet, redirect, useOutletContext, useParams, useRouteLoaderData, useSearchParams } from 'react-router';
 import * as reactUse from 'react-use';
 

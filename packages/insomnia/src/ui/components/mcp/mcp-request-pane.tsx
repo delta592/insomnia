@@ -3,7 +3,7 @@ import type { EditorChange } from 'codemirror';
 import type { Environment, EnvironmentKvPairData, McpPayload } from 'insomnia-data';
 import { type FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Heading, Tab, TabList, TabPanel, Tabs, Toolbar } from 'react-aria-components';
-import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
+import { Panel, PanelGroup, PanelResizeHandle } from '~/ui/components/panes/resizable-panels';
 import { useLatest } from 'react-use';
 
 import { docsMcpClient } from '~/common/documentation';

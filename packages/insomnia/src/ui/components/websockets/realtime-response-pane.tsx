@@ -11,7 +11,7 @@ import { models } from 'insomnia-data';
 import { deserializeNDJSON } from 'insomnia-data/common';
 import { type FC, useEffect, useMemo, useState } from 'react';
 import { Button, Input, SearchField, Tab, TabList, TabPanel, Tabs } from 'react-aria-components';
-import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
+import { Panel, PanelGroup, PanelResizeHandle } from '~/ui/components/panes/resizable-panels';
 
 import { docsMcpAuthentication } from '~/common/documentation';
 import { useMcpReadyState } from '~/ui/hooks/use-mcp-ready-state';

@@ -27,7 +27,7 @@ import {
   Panel,
   PanelGroup,
   PanelResizeHandle,
-} from 'react-resizable-panels';
+} from '~/ui/components/panes/resizable-panels';
 import { href, redirect, useLoaderData } from 'react-router';
 import * as reactUse from 'react-use';
 import { SwaggerUIBundle } from 'swagger-ui-dist';

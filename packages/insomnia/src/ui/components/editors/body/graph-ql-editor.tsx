@@ -21,7 +21,7 @@ import { services } from 'insomnia-data';
 import React, { type FC, useCallback, useEffect, useRef, useState } from 'react';
 import { Button, Group, Heading, Toolbar, Tooltip, TooltipTrigger } from 'react-aria-components';
 import ReactDOM from 'react-dom';
-import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
+import { Panel, PanelGroup, PanelResizeHandle } from '~/ui/components/panes/resizable-panels';
 import * as reactUse from 'react-use';
 
 import { invariant } from '~/common/utils/invariant';

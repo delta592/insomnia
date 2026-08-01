@@ -13,7 +13,7 @@ import {
   Tooltip,
   TooltipTrigger,
 } from 'react-aria-components';
-import { type ImperativePanelGroupHandle, Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
+import { type ImperativePanelGroupHandle, Panel, PanelGroup, PanelResizeHandle } from '~/ui/components/panes/resizable-panels';
 import { useParams } from 'react-router';
 import { useLocalStorage } from 'react-use';
 

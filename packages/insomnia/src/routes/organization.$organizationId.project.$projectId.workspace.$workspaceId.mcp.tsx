@@ -1,6 +1,6 @@
 import { services } from 'insomnia-data';
 import { Breadcrumb, Breadcrumbs, Button } from 'react-aria-components';
-import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
+import { Panel, PanelGroup, PanelResizeHandle } from '~/ui/components/panes/resizable-panels';
 import { href, NavLink, redirect, useParams } from 'react-router';
 
 import { Icon } from '~/basic-components/icon';

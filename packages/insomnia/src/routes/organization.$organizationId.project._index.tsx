@@ -1,7 +1,7 @@
 import type { GitRepository, Project } from 'insomnia-data';
 import { models, services } from 'insomnia-data';
 import { useEffect, useState } from 'react';
-import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
+import { Panel, PanelGroup, PanelResizeHandle } from '~/ui/components/panes/resizable-panels';
 import type { LoaderFunctionArgs } from 'react-router';
 import { href, redirect, useParams } from 'react-router';
 

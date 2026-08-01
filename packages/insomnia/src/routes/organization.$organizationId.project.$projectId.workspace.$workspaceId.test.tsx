@@ -14,7 +14,7 @@ import {
   Popover,
   useDragAndDrop,
 } from 'react-aria-components';
-import { type ImperativePanelGroupHandle, Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
+import { type ImperativePanelGroupHandle, Panel, PanelGroup, PanelResizeHandle } from '~/ui/components/panes/resizable-panels';
 import { Route as RouteComponent, Routes, useFetchers, useLoaderData, useParams } from 'react-router';
 
 import { DEFAULT_SIDEBAR_SIZE } from '~/common/constants';

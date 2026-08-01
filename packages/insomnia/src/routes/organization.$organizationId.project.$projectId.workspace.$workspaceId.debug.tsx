@@ -37,7 +37,7 @@ import {
   TooltipTrigger,
   useDragAndDrop,
 } from 'react-aria-components';
-import { type ImperativePanelGroupHandle, Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
+import { type ImperativePanelGroupHandle, Panel, PanelGroup, PanelResizeHandle } from '~/ui/components/panes/resizable-panels';
 import { href, redirect, useFetchers, useMatch, useParams, useSearchParams } from 'react-router';
 import * as reactUse from 'react-use';
 
