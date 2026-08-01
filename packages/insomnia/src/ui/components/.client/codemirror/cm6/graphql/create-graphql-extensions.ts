@@ -5,6 +5,8 @@ import { graphqlInfoExtension } from './graphql-info';
 import { graphqlInputFilterExtension } from './graphql-input-filter';
 import { graphqlJumpExtension } from './graphql-jump';
 import { graphqlLintExtension } from './graphql-lint';
+import { graphqlVariablesAutocompleteExtension } from './graphql-variables-autocomplete';
+import { graphqlVariablesLintExtension } from './graphql-variables-lint';
 import type { GraphQLExtensionOptions } from './types';
 
 export const createGraphQLExtensions = (options: GraphQLExtensionOptions): Extension[] => {
@@ -30,5 +32,13 @@ export const createGraphQLExtensions = (options: GraphQLExtensionOptions): Exten
     extensions.push(graphqlInputFilterExtension());
   }
 
+  if (options.mode === 'graphql-variables' && !options.noLint && options.lintOptions && 'variableToType' in options.lintOptions) {
+      extensions.push(graphqlVariablesLintExtension(options.lintOptions));
+    }
+
   return extensions;
 };
+
+export const createGraphQLVariablesAutocompleteExtensions = (
+  getConstants?: () => string[] | PromiseLike<string[]>,
+): Extension[] => graphqlVariablesAutocompleteExtension(getConstants);
