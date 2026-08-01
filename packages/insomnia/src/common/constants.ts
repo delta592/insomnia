@@ -38,9 +38,9 @@ export const getAppVersion = () => version;
 export const getProductName = () => appConfig.productName;
 export const getAppSynopsis = () => appConfig.synopsis;
 export const getAppId = () => appConfig.appId;
-export type AppBundlePluginConfig = {
+export interface AppBundlePluginConfig {
   name: string;
-};
+}
 
 export const getAppBundlePlugins = (): AppBundlePluginConfig[] =>
   appConfig.bundlePlugins as AppBundlePluginConfig[];

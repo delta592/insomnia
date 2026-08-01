@@ -106,7 +106,7 @@ jobs:
         if: github.event_name == 'pull_request' && always()
         uses: ./.github/actions/setup-insomnia-node
         with:
-          node-version-file: insomnia-base/.nvmrc
+          node-version-file: .nvmrc
           cache-dependency-path: insomnia-base/package-lock.json
           registry-url: 'https://npm.pkg.github.com'
           scope: '@kong'

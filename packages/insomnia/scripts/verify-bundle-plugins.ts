@@ -1,6 +1,6 @@
 import { bundlePlugins } from '../config/config.json';
 
-type BundlePluginEntry = { name: string };
+interface BundlePluginEntry { name: string }
 
 const isModuleInstalled = (moduleName: string) => {
   try {

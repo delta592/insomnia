@@ -175,6 +175,7 @@ function runNodePreGyp({ fallbackToBuild = false } = {}) {
     cwd: repoRoot,
     stdio: 'inherit',
     env: process.env,
+    shell: process.platform === 'win32',
   });
 
   return result.status === 0;
@@ -186,6 +187,7 @@ function runNodeGypRebuild() {
     cwd: libcurlDir,
     stdio: 'inherit',
     env: process.env,
+    shell: process.platform === 'win32',
   });
   return result.status === 0;
 }

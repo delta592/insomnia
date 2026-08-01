@@ -26,7 +26,7 @@ type PanelProps = Omit<ComponentProps<typeof ResizablePanel>, 'panelRef' | 'orde
 /** react-resizable-panels v3 used bare numbers as percentages; v4 treats them as pixels. */
 const asLegacyPercentageSize = (size: number | string | undefined) => {
   if (size === undefined) {
-    return undefined;
+    return;
   }
 
   if (typeof size === 'string') {
