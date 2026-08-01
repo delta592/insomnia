@@ -21,7 +21,11 @@ argument-hint: 'Provide the failing test-cli.yml logs, a link to the failing wor
    ```bash
    npm run install-libcurl-node
    ```
-3. Build `insomnia-inso` to generate `dist`:
+   Or run the full local bundle suite (libcurl + build + smoke server + tests):
+   ```bash
+   npm run test:inso:bundle
+   ```
+3. Build `insomnia-inso` to generate `dist` (skipped if using `test:inso:bundle`):
    ```bash
    npm run build -w insomnia-inso
    ```

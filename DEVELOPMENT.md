@@ -106,9 +106,9 @@ On `chore/dep-update-code-refactor` (and until merged), note these install/test 
 - **`npm install --force`:** still required when refreshing the lockfile because `apiconnect-wsdl` declares `node <21` while the repo targets Node 26 (see engine note above).
 - **`is-unicode-supported`:** root override scopes `0.1.0` to `log-symbols` only (Mocha); `insomnia-inso` keeps direct dep `2.1.0`.
 - **Inso unit tests:** mock `@getinsomnia/node-libcurl` via `packages/insomnia-inso/setup-vitest.ts` (same mock as insomnia Vitest setup).
-- **Inso bundle tests:** run `npm run install-libcurl-node` then `npm run build -w insomnia-inso`; start smoke server (`npm run serve -w insomnia-smoke-test`) before `npm run test:bundle -w insomnia-inso`. CI runs this on Ubuntu (`.github/workflows/test-cli.yml`).
+- **Inso bundle/binary tests:** `npm run test:inso:bundle` or `npm run test:inso:binary` from repo root (installs libcurl Node binary, builds inso, starts smoke server, runs tests). Individual steps: `npm run install-libcurl-node`, build, `npm run serve -w insomnia-smoke-test`, then `npm run test:bundle -w insomnia-inso`. `pretest:bundle` / `posttest:bundle` on `insomnia-inso` switch libcurl between Node and Electron targets automatically.
 - **Smoke test server:** Express 5 / `path-to-regexp` v8 requires named wildcards (e.g. `/builds/check/*path`, not `/builds/check/*`).
-- **libcurl binaries:** pin `@getinsomnia/node-libcurl@3.3.0` (not `3.36.8` — no GitHub prebuilds for that tag). Run `npm run install-libcurl-electron` after install; use `install-libcurl-node` before inso bundle tests. Until `3.3.0` clears `min-release-age=7` (~2026-08-03), refresh the lockfile with `npm install --force --min-release-age=0`.
+- **libcurl binaries:** pin `@getinsomnia/node-libcurl@3.3.0` (not `3.36.8` — no GitHub prebuilds for that tag). `scripts/install-libcurl.mjs` downloads prebuilds for the current Node/Electron version, or builds from source (Homebrew `curl` on macOS). `postinstall` runs `install-libcurl-electron`.
 
 - [x] upgrade spectral e2e testing
 - [x] upgrading electron

@@ -104,6 +104,19 @@ npm run dev:autoRestart
 If you are on Linux, you may need to install the following supporting packages:
 
 <details>
+<summary>macOS</summary>
+
+`npm ci` runs `install-libcurl-electron` automatically. If the prebuilt binary is missing for your platform, the install script falls back to a source build and will install libcurl via Homebrew when needed:
+
+```shell
+brew install curl pkg-config
+npm run install-libcurl-electron   # app (Electron)
+npm run install-libcurl-node       # inso CLI / bundle tests (Node)
+```
+
+</details>
+
+<details>
 <summary>Ubuntu/Debian</summary>
 
 ```shell
