@@ -6,6 +6,7 @@ import type { RenderedRequest } from '~/common/templating/types';
 import { COOKIE, HEADER } from '../../network/api-key/constants';
 import { getBasicAuthHeader } from '../../network/basic-auth/get-header';
 import { getBearerAuthHeader } from '../../network/bearer-auth/get-header';
+import { createAsapAuthHeaderGenerator } from './asap/create-auth-header-generator';
 import getOAuth1Token from './o-auth-1/get-token';
 import { getOAuth2Token } from './o-auth-2/get-token';
 
@@ -136,7 +137,7 @@ export async function getAuthHeader(renderedRequest: RenderedRequest, url: strin
       throw new Error(`additional-claims must be an object received: '${typeof parsedAdditionalClaims}' instead`);
     }
 
-    const generator = (await import('httplease-asap')).createAuthHeaderGenerator({
+    const generator = createAsapAuthHeaderGenerator({
       privateKey: authentication.privateKey,
       issuer: authentication.issuer,
       keyId: authentication.keyId,
