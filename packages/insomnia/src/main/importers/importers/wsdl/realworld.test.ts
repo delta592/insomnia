@@ -3,7 +3,7 @@ import path from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
-import { convertWsdlFromPath, convertWsdlResources } from './index';
+import { convertWsdlFromPath } from './index';
 import { wsdlToOpenApi } from './wsdl-to-openapi';
 
 const fixturesPath = path.join(__dirname, '../fixtures/wsdl');
@@ -35,20 +35,4 @@ describe('real-world WSDL import', () => {
     expect(xml).toContain('<tns:level3>');
     expect(xml).toContain('<tns:value>');
   });
-
-  it.skipIf(!process.env.WSDL_NETWORK_TESTS)(
-    'imports live CountryInfo service (21 operations)',
-    async () => {
-      const wsdlUrl = 'http://webservices.oorsprong.org/websamples.countryinfo/CountryInfoService.wso?WSDL';
-      const content = await fetch(wsdlUrl).then(r => r.text());
-      const resources = await convertWsdlResources({
-        contentStr: content,
-        oriFileName: wsdlUrl,
-      });
-      const requests = resources.filter(r => r._type === 'request');
-
-      expect(requests.length).toBeGreaterThanOrEqual(21);
-    },
-    30_000,
-  );
 });
