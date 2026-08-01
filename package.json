@@ -44,9 +44,11 @@
     "test:crit:package": "npm run test:package -w insomnia-smoke-test -- --project=Critical",
     "test:crit:dev": "npm run test:dev -w insomnia-smoke-test -- --project=Critical",
     "postinstall": "patch-package && npm run verify-bundle-plugins -w insomnia && npm run install-libcurl-electron",
-    "check-cycle-references": "madge --circular --extensions ts,tsx packages"
+    "check-cycle-references": "madge --circular --extensions ts,tsx packages",
+    "tsc7": "node node_modules/@typescript/native/bin/tsc"
   },
   "devDependencies": {
+    "@typescript/native": "npm:typescript@7.0.2",
     "@eslint/js": "10.0.1",
     "@types/chai": "5.2.3",
     "@types/har-format": "1.2.16",
@@ -71,7 +73,7 @@
     "prettier-plugin-tailwindcss": "0.8.1",
     "tslib": "2.8.1",
     "type-fest": "5.8.0",
-    "typescript": "7.0.2",
+    "typescript": "npm:@typescript/typescript6@6.0.2",
     "typescript-eslint": "8.65.0",
     "vitest": "4.1.10"
   },
