@@ -7,7 +7,7 @@ import { FLEXIBLE_URL_REGEX } from '~/common/constants';
 import type { CodeMirrorLinkClickCallback } from '../types';
 
 const linkDecorator = new MatchDecorator({
-  regexp: FLEXIBLE_URL_REGEX,
+  regexp: new RegExp(FLEXIBLE_URL_REGEX.source, 'g'),
   decoration: Decoration.mark({ class: 'cm-clickable' }),
 });
 
