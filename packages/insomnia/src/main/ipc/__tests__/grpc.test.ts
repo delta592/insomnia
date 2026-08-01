@@ -39,7 +39,8 @@ describe('loadMethodsFromReflection', () => {
   describe('one service reflection', () => {
     beforeEach(() => {
       // we want to test that the values that are passed to axios are returned in the config key
-      (grpcReflection.Client as unknown as vi.Mock).mockImplementation(() => ({
+      (grpcReflection.Client as unknown as vi.Mock).mockImplementation(function () {
+        return {
         listServices: () => Promise.resolve(['FooService']),
         fileContainingSymbol: async () => {
           const parsed = protobuf.parse(`
@@ -58,7 +59,8 @@ describe('loadMethodsFromReflection', () => {
             }`);
           return parsed.root;
         },
-      }));
+      };
+      });
     });
 
     it('parses methods', async () => {
@@ -82,7 +84,8 @@ describe('loadMethodsFromReflection', () => {
   describe('format service reflection', () => {
     beforeEach(() => {
       // we want to test that the values that are passed to axios are returned in the config key
-      (grpcReflection.Client as unknown as vi.Mock).mockImplementation(() => ({
+      (grpcReflection.Client as unknown as vi.Mock).mockImplementation(function () {
+        return {
         listServices: () => Promise.resolve(['FooService']),
         fileContainingSymbol: async () => {
           const parsed = protobuf.parse(`
@@ -101,7 +104,8 @@ describe('loadMethodsFromReflection', () => {
             }`);
           return parsed.root;
         },
-      }));
+      };
+      });
     });
 
     it('parses methods', async () => {
@@ -125,7 +129,8 @@ describe('loadMethodsFromReflection', () => {
   describe('multiple service reflection', () => {
     beforeEach(() => {
       // we want to test that the values that are passed to axios are returned in the config key
-      (grpcReflection.Client as unknown as vi.Mock).mockImplementation(() => ({
+      (grpcReflection.Client as unknown as vi.Mock).mockImplementation(function () {
+        return {
         listServices: () => Promise.resolve(['FooService', 'BarService']),
         fileContainingSymbol: async () => {
           const parsed = protobuf.parse(`
@@ -156,7 +161,8 @@ describe('loadMethodsFromReflection', () => {
             }`);
           return parsed.root;
         },
-      }));
+      };
+      });
     });
 
     it('parses methods', async () => {

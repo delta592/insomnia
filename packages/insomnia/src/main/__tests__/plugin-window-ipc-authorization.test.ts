@@ -33,7 +33,9 @@ const forgedSender = { id: 'forged-sender' };
 
 vi.mock('electron', () => ({
   app: { getPath: vi.fn(() => '/fake/userData') },
-  BrowserWindow: vi.fn(() => fakePluginWindow),
+  BrowserWindow: vi.fn(function BrowserWindow() {
+    return fakePluginWindow;
+  }),
   ipcMain: {
     handle: vi.fn((channel: string, fn: (...args: any[]) => any) => registeredHandlers.set(channel, fn)),
     on: vi.fn((channel: string, fn: (...args: any[]) => any) => registeredListeners.set(channel, fn)),
