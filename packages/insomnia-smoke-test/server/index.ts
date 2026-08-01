@@ -65,7 +65,7 @@ async function echoHandler(req: any, res: any) {
   res.status(200).send({
     method: req.method,
     headers: req.headers,
-    data: req.body.toString(),
+    data: req.body == null ? '' : req.body.toString(),
     cookies: req.cookies,
   });
 }
