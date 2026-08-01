@@ -2,6 +2,10 @@
 
 The purpose of this document is to provide a general overview of the application architecture.
 
+## Fork note: Kong private packages
+
+This fork does **not** bundle `@kong/insomnia-plugin-ai` or `@kong/insomnia-plugin-external-vault`. They are published to Kong's private GitHub Packages registry and are unavailable here. Do not re-add them to `package.json` or the lockfile. See `AGENTS.md` → Fork constraints.
+
 ## Technologies
 
 Insomnia is a desktop application built on top of [Electron](http://electronjs.org/). Electron provides a Chromium runtime for the Insomnia web app to run inside, as well as additional tools to provide access to operating system features.

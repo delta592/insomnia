@@ -52,6 +52,16 @@ npm -v
 - After switching versions in a fresh worktree, install dependencies from repo root with `npm ci`.
 - Do **not** use `npm ci --ignore-scripts` for normal worktree setup. It leaves Electron partially installed, which later breaks builds, renderer import checks, and other validation commands.
 
+## Fork constraints (delta592/insomnia)
+
+This fork **does not** use Kong private GitHub Packages (`@kong/insomnia-plugin-ai`, `@kong/insomnia-plugin-external-vault`). Those packages live in private Kong org repos and are unavailable without Kong registry credentials.
+
+- **Do not** add them back to `optionalDependencies` or `package-lock.json`.
+- **`bundlePlugins`** in `packages/insomnia/config/config.json` is intentionally empty.
+- **`renovate.json`** lists them under `ignoreDeps` — keep them ignored.
+- After dependency updates, always run `npm install` / refresh the lockfile with Node/npm from `.nvmrc` + `package.json` engines.
+- AI and External Vault plugin **names** remain in runtime constants for optional user-installed plugins; they are not bundled in this fork.
+
 ## Repository Structure
 
 `packages/`
