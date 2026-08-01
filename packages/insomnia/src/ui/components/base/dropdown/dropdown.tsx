@@ -1,5 +1,5 @@
 import { PressResponder } from '@react-aria/interactions';
-import type { MenuTriggerProps } from '@react-types/menu';
+import type { MenuProps as AriaMenuProps, MenuTriggerProps } from '@react-types/menu';
 import type { Placement } from '@react-types/overlays';
 import { type CSSProperties, forwardRef, type ReactNode, useImperativeHandle, useRef } from 'react';
 import { mergeProps, useMenuTrigger } from 'react-aria';

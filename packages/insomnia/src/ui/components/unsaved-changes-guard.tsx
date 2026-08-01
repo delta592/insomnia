@@ -14,7 +14,7 @@ interface Props {
    * bounds so the dialog appears centered within it (e.g. a parent modal).
    * When omitted, the backdrop is centered relative to the full viewport.
    */
-  parentRef?: RefObject<HTMLElement>;
+  parentRef?: RefObject<HTMLElement | null>;
   /**
    * Render content here. Wire every close affordance (X button, Cancel,
    * overlay dismiss) to the provided `requestClose` instead of closing directly —

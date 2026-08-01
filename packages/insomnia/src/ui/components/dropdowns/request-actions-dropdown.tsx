@@ -42,7 +42,7 @@ interface Props {
   activeWorkspace: Workspace;
   requestGroup?: RequestGroup;
   isOpen: boolean;
-  triggerRef?: React.RefObject<HTMLDivElement>;
+  triggerRef?: React.RefObject<HTMLDivElement | null>;
   onOpenChange: (isOpen: boolean) => void;
   onRename: () => void;
 }

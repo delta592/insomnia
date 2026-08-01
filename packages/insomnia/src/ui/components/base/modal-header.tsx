@@ -1,5 +1,5 @@
 import classnames from 'classnames';
-import { type FC, memo, type ReactNode } from 'react';
+import { type FC, memo, type ReactElement, type ReactNode } from 'react';
 
 interface Props {
   children: ReactNode;
@@ -8,7 +8,7 @@ interface Props {
 }
 
 export const ModalHeader: FC<Props> = memo(({ hideCloseButton, className, children }) => {
-  let closeButton: null | JSX.Element = null;
+  let closeButton: null | ReactElement = null;
 
   if (!hideCloseButton) {
     closeButton = (

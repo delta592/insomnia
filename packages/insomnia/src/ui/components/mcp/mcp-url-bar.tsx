@@ -300,7 +300,7 @@ export const McpUrlActionBar = ({
 const isAllowedToRunSTDIO = async (
   request: McpRequest,
   project: Project,
-  modalRef: React.RefObject<MCPStdioAccessModalHandle>,
+  modalRef: React.RefObject<MCPStdioAccessModalHandle | null>,
 ) => {
   if (request.mcpStdioAccess) {
     return true;
