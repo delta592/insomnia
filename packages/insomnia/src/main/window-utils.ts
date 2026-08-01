@@ -362,7 +362,7 @@ export function createWindow(): ElectronBrowserWindow {
       },
       {
         label: `Zoom ${MNEMONIC_SYM}In`,
-        accelerator: 'CmdOrCtrl+=',
+        accelerator: 'CmdOrCtrl+Plus',
         click: setZoom(zoom => zoom * 1.2),
       },
       {
@@ -814,19 +814,18 @@ const getZoomFactor = () => {
 };
 
 export const setZoom = (transformer: (current: number) => number) => () => {
-  const browserWindow = BrowserWindow.getFocusedWindow();
+  const browserWindow = BrowserWindow.getFocusedWindow() ?? browserWindows.get('Insomnia');
 
-  if (!browserWindow || !browserWindow.webContents) {
+  if (!browserWindow?.webContents) {
     return;
   }
 
-  const current = getZoomFactor();
+  const current = browserWindow.webContents.getZoomFactor();
   const desired = transformer(current);
   const actual = Math.min(Math.max(ZOOM_MIN, desired), ZOOM_MAX);
 
-  browserWindow.webContents.setZoomLevel(actual);
-  const electronStorage = getElectronStorage();
-  electronStorage?.setItem('zoomFactor', actual);
+  browserWindow.webContents.setZoomFactor(actual);
+  getElectronStorage()?.setItem('zoomFactor', actual);
 };
 
 export function createWindowsAndReturnMain() {
