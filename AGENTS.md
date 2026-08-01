@@ -48,7 +48,7 @@ node -v
 npm -v
 ```
 
-- This repo expects the `.nvmrc` Node version and npm 11+. If `fnm` is unavailable, manually use an equivalent Node/npm version before running any `npm` commands.
+- This repo expects the `.nvmrc` Node version and npm 12+ (see `package.json` `engines`). If `fnm` is unavailable, manually use an equivalent Node/npm version before running any `npm` commands.
 - After switching versions in a fresh worktree, install dependencies from repo root with `npm ci`.
 - Do **not** use `npm ci --ignore-scripts` for normal worktree setup. It leaves Electron partially installed, which later breaks builds, renderer import checks, and other validation commands.
 
