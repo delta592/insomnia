@@ -197,7 +197,7 @@ jobs:
 
       # Setup regctl to parse platform specific image digest from image manifest
       - name: Install regctl
-        uses: regclient/actions/regctl-installer@ce5fd131e371ffcdd7508b478cb223b3511a9183 # main
+        uses: regclient/actions/regctl-installer@5c882eb04fcca27ebb4f5904e0da01f0780063ea # main
 
       # The image manifest digest/sha is generated only after the image is published to registry
       - name: Parse architecture specific digest from image manifest
