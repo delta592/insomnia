@@ -167,7 +167,7 @@ export default async function build(options: Options) {
       '@reflink/reflink-linux-x64-musl',
       '@reflink/reflink-win32-arm64-msvc',
       '@reflink/reflink-win32-x64-msvc',
-      'apiconnect-wsdl',
+      '@techspokes/typescript-wsdl-client',
       ...Object.keys(builtinModules),
     ],
   };

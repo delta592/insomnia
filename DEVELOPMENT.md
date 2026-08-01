@@ -93,7 +93,6 @@ The structure for smoke tests is explained in the smoke testing package: [`packa
 
 This is just a brief summary of Insomnia's current technical debt.
 
-- We use npm engines feature to improve the dx of node upgrades. However one of our deps `node_modules/apiconnect-wsdl` has an overly restrictive engine max, so each time we refresh the package lock we are running `npm install --force` then manually editing the lock file to extend this engine config from `<21` to `<23`
 - Loading large responses (~20 MB) can crash the app on weaker hardware.
 - Bundling `libcurl` (native module) has caused many weeks of headaches trying to get builds working across Windows, Mac, and Linux. More expertise here is definitely needed.
 - All input fields that support features like templating or code completion are actually [CodeMirror](https://codemirror.net/6/) instances. This isn't really debt, but may affect things going forward.
@@ -103,7 +102,6 @@ This is just a brief summary of Insomnia's current technical debt.
 On `chore/dep-update-code-refactor` (and until merged), note these install/test differences:
 
 - **`.npmrc`:** `legacy-peer-deps=true` — `eslint-plugin-react@7.37.5` does not yet declare ESLint 10 peer support.
-- **`npm install --force`:** still required when refreshing the lockfile because `apiconnect-wsdl` declares `node <21` while the repo targets Node 26 (see engine note above).
 - **`is-unicode-supported`:** root override scopes `0.1.0` to `log-symbols` only (Mocha); `insomnia-inso` keeps direct dep `2.1.0`.
 - **Inso unit tests:** mock `@getinsomnia/node-libcurl` via `packages/insomnia-inso/setup-vitest.ts` (same mock as insomnia Vitest setup).
 - **Inso bundle/binary tests:** `npm run test:inso:bundle` or `npm run test:inso:binary` from repo root (installs libcurl Node binary, builds inso, starts smoke server, runs tests). Individual steps: `npm run install-libcurl-node`, build, `npm run serve -w insomnia-smoke-test`, then `npm run test:bundle -w insomnia-inso`. `pretest:bundle` / `posttest:bundle` on `insomnia-inso` switch libcurl between Node and Electron targets automatically.

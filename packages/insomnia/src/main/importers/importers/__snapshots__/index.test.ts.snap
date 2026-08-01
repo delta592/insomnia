@@ -8500,46 +8500,32 @@ exports[`Fixtures > Import wsdl > addition-input.wsdl 1`] = `
     {
       "_id": "__REQ_1__",
       "_type": "request",
-      "afterResponseScript": "",
       "authentication": {},
       "body": {
         "mimeType": "text/plain",
-        "text": "
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
- <soapenv:Header>
-  <!-- The Security element should be removed if WS-Security is not enabled on the SOAP target-url -->
-  <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
-   <wsse:UsernameToken>
-    <wsse:Username>string</wsse:Username>
-    <wsse:Password>string</wsse:Password>
-    <wsse:Nonce EncodingType="string">string</wsse:Nonce>
-    <wsu:Created>string</wsu:Created>
-   </wsse:UsernameToken>
-   <wsu:Timestamp wsu:Id="string">
-    <wsu:Created>string</wsu:Created>
-    <wsu:Expires>string</wsu:Expires>
-   </wsu:Timestamp>
-  </wsse:Security>
- </soapenv:Header>
+        "text": "<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
  <soapenv:Body>
-  <tns:Add xmlns:tns="http://tempuri.org/"><!-- mandatory -->
-   <tns:intA><!-- mandatory -->3</tns:intA>
-   <tns:intB><!-- mandatory -->3</tns:intB>
-  </tns:Add>
+ <tns:Add xmlns:tns="http://tempuri.org/"><!-- mandatory -->
+  <tns:intA><!-- mandatory -->3</tns:intA>
+  <tns:intB><!-- mandatory -->3</tns:intB>
+ </tns:Add>
  </soapenv:Body>
 </soapenv:Envelope>",
       },
-      "description": "",
+      "description": "Adds two integers. This is a test WebService. ©DNE Online",
       "headers": [
         {
+          "disabled": false,
           "name": "SOAPAction",
           "value": "http://tempuri.org/Add",
         },
         {
+          "disabled": false,
           "name": "Content-Type",
           "value": "text/xml",
         },
         {
+          "disabled": false,
           "name": "Accept",
           "value": "application/xml",
         },
@@ -8549,8 +8535,6 @@ exports[`Fixtures > Import wsdl > addition-input.wsdl 1`] = `
       "name": "Add",
       "parameters": [],
       "parentId": "__GRP_2__",
-      "pathParameters": [],
-      "preRequestScript": "",
       "url": "http://www.dneonline.com/calculator.asmx",
     },
   ],
@@ -8591,46 +8575,32 @@ exports[`Fixtures > Import wsdl > calculator-input.wsdl 1`] = `
     {
       "_id": "__REQ_1__",
       "_type": "request",
-      "afterResponseScript": "",
       "authentication": {},
       "body": {
         "mimeType": "text/plain",
-        "text": "
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
- <soapenv:Header>
-  <!-- The Security element should be removed if WS-Security is not enabled on the SOAP target-url -->
-  <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
-   <wsse:UsernameToken>
-    <wsse:Username>string</wsse:Username>
-    <wsse:Password>string</wsse:Password>
-    <wsse:Nonce EncodingType="string">string</wsse:Nonce>
-    <wsu:Created>string</wsu:Created>
-   </wsse:UsernameToken>
-   <wsu:Timestamp wsu:Id="string">
-    <wsu:Created>string</wsu:Created>
-    <wsu:Expires>string</wsu:Expires>
-   </wsu:Timestamp>
-  </wsse:Security>
- </soapenv:Header>
+        "text": "<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
  <soapenv:Body>
-  <tns:Add xmlns:tns="http://tempuri.org/"><!-- mandatory -->
-   <tns:intA><!-- mandatory -->3</tns:intA>
-   <tns:intB><!-- mandatory -->3</tns:intB>
-  </tns:Add>
+ <tns:Add xmlns:tns="http://tempuri.org/"><!-- mandatory -->
+  <tns:intA><!-- mandatory -->3</tns:intA>
+  <tns:intB><!-- mandatory -->3</tns:intB>
+ </tns:Add>
  </soapenv:Body>
 </soapenv:Envelope>",
       },
-      "description": "",
+      "description": "Adds two integers. This is a test WebService. ©DNE Online",
       "headers": [
         {
+          "disabled": false,
           "name": "SOAPAction",
           "value": "http://tempuri.org/Add",
         },
         {
+          "disabled": false,
           "name": "Content-Type",
           "value": "text/xml",
         },
         {
+          "disabled": false,
           "name": "Accept",
           "value": "application/xml",
         },
@@ -8640,53 +8610,37 @@ exports[`Fixtures > Import wsdl > calculator-input.wsdl 1`] = `
       "name": "Add",
       "parameters": [],
       "parentId": "__GRP_2__",
-      "pathParameters": [],
-      "preRequestScript": "",
       "url": "http://www.dneonline.com/calculator.asmx",
     },
     {
       "_id": "__REQ_2__",
       "_type": "request",
-      "afterResponseScript": "",
       "authentication": {},
       "body": {
         "mimeType": "text/plain",
-        "text": "
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
- <soapenv:Header>
-  <!-- The Security element should be removed if WS-Security is not enabled on the SOAP target-url -->
-  <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
-   <wsse:UsernameToken>
-    <wsse:Username>string</wsse:Username>
-    <wsse:Password>string</wsse:Password>
-    <wsse:Nonce EncodingType="string">string</wsse:Nonce>
-    <wsu:Created>string</wsu:Created>
-   </wsse:UsernameToken>
-   <wsu:Timestamp wsu:Id="string">
-    <wsu:Created>string</wsu:Created>
-    <wsu:Expires>string</wsu:Expires>
-   </wsu:Timestamp>
-  </wsse:Security>
- </soapenv:Header>
+        "text": "<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
  <soapenv:Body>
-  <tns:Subtract xmlns:tns="http://tempuri.org/"><!-- mandatory -->
-   <tns:intA><!-- mandatory -->3</tns:intA>
-   <tns:intB><!-- mandatory -->3</tns:intB>
-  </tns:Subtract>
+ <tns:Subtract xmlns:tns="http://tempuri.org/"><!-- mandatory -->
+  <tns:intA><!-- mandatory -->3</tns:intA>
+  <tns:intB><!-- mandatory -->3</tns:intB>
+ </tns:Subtract>
  </soapenv:Body>
 </soapenv:Envelope>",
       },
       "description": "",
       "headers": [
         {
+          "disabled": false,
           "name": "SOAPAction",
           "value": "http://tempuri.org/Subtract",
         },
         {
+          "disabled": false,
           "name": "Content-Type",
           "value": "text/xml",
         },
         {
+          "disabled": false,
           "name": "Accept",
           "value": "application/xml",
         },
@@ -8696,53 +8650,37 @@ exports[`Fixtures > Import wsdl > calculator-input.wsdl 1`] = `
       "name": "Subtract",
       "parameters": [],
       "parentId": "__GRP_2__",
-      "pathParameters": [],
-      "preRequestScript": "",
       "url": "http://www.dneonline.com/calculator.asmx",
     },
     {
       "_id": "__REQ_3__",
       "_type": "request",
-      "afterResponseScript": "",
       "authentication": {},
       "body": {
         "mimeType": "text/plain",
-        "text": "
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
- <soapenv:Header>
-  <!-- The Security element should be removed if WS-Security is not enabled on the SOAP target-url -->
-  <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
-   <wsse:UsernameToken>
-    <wsse:Username>string</wsse:Username>
-    <wsse:Password>string</wsse:Password>
-    <wsse:Nonce EncodingType="string">string</wsse:Nonce>
-    <wsu:Created>string</wsu:Created>
-   </wsse:UsernameToken>
-   <wsu:Timestamp wsu:Id="string">
-    <wsu:Created>string</wsu:Created>
-    <wsu:Expires>string</wsu:Expires>
-   </wsu:Timestamp>
-  </wsse:Security>
- </soapenv:Header>
+        "text": "<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
  <soapenv:Body>
-  <tns:Multiply xmlns:tns="http://tempuri.org/"><!-- mandatory -->
-   <tns:intA><!-- mandatory -->3</tns:intA>
-   <tns:intB><!-- mandatory -->3</tns:intB>
-  </tns:Multiply>
+ <tns:Multiply xmlns:tns="http://tempuri.org/"><!-- mandatory -->
+  <tns:intA><!-- mandatory -->3</tns:intA>
+  <tns:intB><!-- mandatory -->3</tns:intB>
+ </tns:Multiply>
  </soapenv:Body>
 </soapenv:Envelope>",
       },
       "description": "",
       "headers": [
         {
+          "disabled": false,
           "name": "SOAPAction",
           "value": "http://tempuri.org/Multiply",
         },
         {
+          "disabled": false,
           "name": "Content-Type",
           "value": "text/xml",
         },
         {
+          "disabled": false,
           "name": "Accept",
           "value": "application/xml",
         },
@@ -8752,53 +8690,37 @@ exports[`Fixtures > Import wsdl > calculator-input.wsdl 1`] = `
       "name": "Multiply",
       "parameters": [],
       "parentId": "__GRP_2__",
-      "pathParameters": [],
-      "preRequestScript": "",
       "url": "http://www.dneonline.com/calculator.asmx",
     },
     {
       "_id": "__REQ_4__",
       "_type": "request",
-      "afterResponseScript": "",
       "authentication": {},
       "body": {
         "mimeType": "text/plain",
-        "text": "
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
- <soapenv:Header>
-  <!-- The Security element should be removed if WS-Security is not enabled on the SOAP target-url -->
-  <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
-   <wsse:UsernameToken>
-    <wsse:Username>string</wsse:Username>
-    <wsse:Password>string</wsse:Password>
-    <wsse:Nonce EncodingType="string">string</wsse:Nonce>
-    <wsu:Created>string</wsu:Created>
-   </wsse:UsernameToken>
-   <wsu:Timestamp wsu:Id="string">
-    <wsu:Created>string</wsu:Created>
-    <wsu:Expires>string</wsu:Expires>
-   </wsu:Timestamp>
-  </wsse:Security>
- </soapenv:Header>
+        "text": "<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
  <soapenv:Body>
-  <tns:Divide xmlns:tns="http://tempuri.org/"><!-- mandatory -->
-   <tns:intA><!-- mandatory -->3</tns:intA>
-   <tns:intB><!-- mandatory -->3</tns:intB>
-  </tns:Divide>
+ <tns:Divide xmlns:tns="http://tempuri.org/"><!-- mandatory -->
+  <tns:intA><!-- mandatory -->3</tns:intA>
+  <tns:intB><!-- mandatory -->3</tns:intB>
+ </tns:Divide>
  </soapenv:Body>
 </soapenv:Envelope>",
       },
       "description": "",
       "headers": [
         {
+          "disabled": false,
           "name": "SOAPAction",
           "value": "http://tempuri.org/Divide",
         },
         {
+          "disabled": false,
           "name": "Content-Type",
           "value": "text/xml",
         },
         {
+          "disabled": false,
           "name": "Accept",
           "value": "application/xml",
         },
@@ -8808,8 +8730,6 @@ exports[`Fixtures > Import wsdl > calculator-input.wsdl 1`] = `
       "name": "Divide",
       "parameters": [],
       "parentId": "__GRP_2__",
-      "pathParameters": [],
-      "preRequestScript": "",
       "url": "http://www.dneonline.com/calculator.asmx",
     },
   ],
