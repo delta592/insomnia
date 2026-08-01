@@ -88,7 +88,9 @@
     "https-proxy-agent": "9.1.0",
     "iconv-lite": "0.7.3",
     "ip-address": "10.4.0",
-    "is-unicode-supported": "2.1.0",
+    "log-symbols": {
+      "is-unicode-supported": "0.1.0"
+    },
     "js-yaml": "5.2.2",
     "mime-types": "3.0.2",
     "minimatch": "10.2.6",
