@@ -3,6 +3,7 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   test: {
     hideSkippedTests: true,
+    setupFiles: ['./setup-vitest.ts'],
     alias: {
       '~/': new URL('../insomnia/src/', import.meta.url).pathname,
     },
