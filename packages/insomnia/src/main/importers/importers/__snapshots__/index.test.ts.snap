@@ -8776,7 +8776,13 @@ exports[`Fixtures > Import wsdl > deep-xsd-input.wsdl 1`] = `
         "text": "<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
  <soapenv:Body>
  <tns:Process xmlns:tns="http://example.com/deep"><!-- mandatory -->
-  <tns:level1><!-- mandatory -->string</tns:level1>
+  <tns:level1><!-- mandatory -->
+   <tns:level2><!-- mandatory -->
+    <tns:level3><!-- mandatory -->
+     <tns:value><!-- mandatory -->string</tns:value>
+    </tns:level3>
+   </tns:level2>
+  </tns:level1>
   <tns:count><!-- mandatory -->3</tns:count>
  </tns:Process>
  </soapenv:Body>
@@ -9028,6 +9034,119 @@ exports[`Fixtures > Import wsdl > soap12-input.wsdl 1`] = `
       "parameters": [],
       "parentId": "__GRP_2__",
       "url": "http://example.com/soap12",
+    },
+  ],
+}
+`;
+
+exports[`Fixtures > Import wsdl > tempconvert-input.wsdl 1`] = `
+{
+  "__export_date": "",
+  "__export_format": 4,
+  "__export_source": "insomnia.importers:v0.1.0",
+  "_type": "export",
+  "resources": [
+    {
+      "_id": "__GRP_1__",
+      "_type": "request_group",
+      "afterResponseScript": "",
+      "authentication": {},
+      "description": "",
+      "environment": {},
+      "metaSortKey": -1622117984000,
+      "name": "TempConvert",
+      "parentId": "__WORKSPACE_ID__",
+      "preRequestScript": "",
+    },
+    {
+      "_id": "__GRP_2__",
+      "_type": "request_group",
+      "afterResponseScript": "",
+      "authentication": {},
+      "description": "",
+      "environment": {},
+      "metaSortKey": -1622117983999,
+      "name": "TempConvert",
+      "parentId": "__GRP_1__",
+      "preRequestScript": "",
+    },
+    {
+      "_id": "__REQ_1__",
+      "_type": "request",
+      "authentication": {},
+      "body": {
+        "mimeType": "text/plain",
+        "text": "<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+ <soapenv:Body>
+ <tns:FahrenheitToCelsius xmlns:tns="https://www.w3schools.com/xml/"><!-- mandatory -->
+  <tns:Fahrenheit>string</tns:Fahrenheit>
+ </tns:FahrenheitToCelsius>
+ </soapenv:Body>
+</soapenv:Envelope>",
+      },
+      "description": "",
+      "headers": [
+        {
+          "disabled": false,
+          "name": "SOAPAction",
+          "value": "https://www.w3schools.com/xml/FahrenheitToCelsius",
+        },
+        {
+          "disabled": false,
+          "name": "Content-Type",
+          "value": "text/xml",
+        },
+        {
+          "disabled": false,
+          "name": "Accept",
+          "value": "application/xml",
+        },
+      ],
+      "metaSortKey": -1622117983998,
+      "method": "POST",
+      "name": "FahrenheitToCelsius",
+      "parameters": [],
+      "parentId": "__GRP_2__",
+      "url": "http://www.w3schools.com/xml/tempconvert.asmx",
+    },
+    {
+      "_id": "__REQ_2__",
+      "_type": "request",
+      "authentication": {},
+      "body": {
+        "mimeType": "text/plain",
+        "text": "<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+ <soapenv:Body>
+ <tns:CelsiusToFahrenheit xmlns:tns="https://www.w3schools.com/xml/"><!-- mandatory -->
+  <tns:Celsius>string</tns:Celsius>
+ </tns:CelsiusToFahrenheit>
+ </soapenv:Body>
+</soapenv:Envelope>",
+      },
+      "description": "",
+      "headers": [
+        {
+          "disabled": false,
+          "name": "SOAPAction",
+          "value": "https://www.w3schools.com/xml/CelsiusToFahrenheit",
+        },
+        {
+          "disabled": false,
+          "name": "Content-Type",
+          "value": "text/xml",
+        },
+        {
+          "disabled": false,
+          "name": "Accept",
+          "value": "application/xml",
+        },
+      ],
+      "metaSortKey": -1622117983997,
+      "method": "POST",
+      "name": "CelsiusToFahrenheit",
+      "parameters": [],
+      "parentId": "__GRP_2__",
+      "url": "http://www.w3schools.com/xml/tempconvert.asmx",
     },
   ],
 }
