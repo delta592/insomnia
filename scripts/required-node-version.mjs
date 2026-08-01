@@ -18,12 +18,32 @@ export function getRequiredNpmVersion() {
   return pkg.engines.npm;
 }
 
+export function parseNodeVersion(version) {
+  const normalized = version.startsWith('v') ? version.slice(1) : version;
+  const [major, minor, patch] = normalized.split('.').map(Number);
+
+  if ([major, minor, patch].some(Number.isNaN)) {
+    throw new Error(`Invalid Node version: ${version}`);
+  }
+
+  return { major, minor, patch };
+}
+
 export function assertRequiredNodeVersion(context = 'insomnia') {
   const required = getRequiredNodeVersion();
-  const expected = `v${required}`;
+  const expected = parseNodeVersion(required);
+  const runtime = parseNodeVersion(process.version);
 
-  if (process.version !== expected) {
-    console.error(`[${context}] Node ${expected} is required (see .nvmrc); got ${process.version}`);
+  if (runtime.major !== expected.major || runtime.minor !== expected.minor) {
+    console.error(
+      `[${context}] Node v${required} is required (see .nvmrc); got ${process.version}`,
+    );
     process.exit(1);
+  }
+
+  if (runtime.patch !== expected.patch) {
+    console.warn(
+      `[${context}] Node v${required} is recommended (see .nvmrc); got ${process.version}`,
+    );
   }
 }
