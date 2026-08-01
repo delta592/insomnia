@@ -25,6 +25,7 @@ import { docsBase } from '../common/documentation';
 import { getElectronStorage } from './electron-storage';
 import { ipcMainOn } from './ipc/electron';
 import { getLogDirectory } from './log';
+import { getMainWindow, setMainWindow } from './main-window';
 import { createPluginWindow, destroyPluginWindow, getPluginWindow } from './plugin-window';
 import { MAIN_WINDOW_SECURITY } from './window-security';
 
@@ -33,9 +34,7 @@ const DEFAULT_HEIGHT = 720;
 const MINIMUM_WIDTH = 500;
 const MINIMUM_HEIGHT = 400;
 const browserWindows = new Map<'Insomnia' | 'HiddenBrowserWindow', ElectronBrowserWindow>();
-export function getMainWindow(): ElectronBrowserWindow | null {
-  return browserWindows.get('Insomnia') ?? null;
-}
+export { getMainWindow } from './main-window';
 let hiddenWindowIsBusy = false;
 interface Bounds {
   height?: number;
@@ -213,6 +212,7 @@ export function createWindow(): ElectronBrowserWindow {
     },
   });
   browserWindows.set('Insomnia', mainBrowserWindow);
+  setMainWindow(mainBrowserWindow);
 
   // BrowserWindow doesn't have an option for this, so we have to do it manually :(
   if (maximize) {
@@ -256,6 +256,7 @@ export function createWindow(): ElectronBrowserWindow {
   mainBrowserWindow.on('closed', () => {
     if (browserWindows.get('Insomnia')) {
       browserWindows.delete('Insomnia');
+      setMainWindow(null);
     }
   });
 
