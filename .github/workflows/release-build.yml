@@ -13,12 +13,12 @@ jobs:
   # shared kong github action for security checking
   generate-sbom-and-upload-assets:
     if: startsWith(github.ref_name, 'release/')
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: read # Required for actions/checkout
     steps:
       - name: Checkout repository
-        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # Perform SCA / SBOM analysis for the entire monorepo code repository
       # Produces SCA(SBOM and CVE) report
@@ -53,18 +53,18 @@ jobs:
           - os: windows-latest
             csc_link_secret: ''
             csc_key_password_secret: ''
-          - os: ubuntu-24.04
+          - os: ubuntu-26.04
             csc_link_secret: ''
             csc_key_password_secret: ''
-          # - os: ubuntu-24.04-arm
+          # - os: ubuntu-26.04-arm
           #   csc_link_secret: ''
           #   csc_key_password_secret: ''
     steps:
       - name: Checkout branch
-        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup Node
-        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
@@ -370,13 +370,13 @@ jobs:
     if: startsWith(github.ref_name, 'release/')
     timeout-minutes: ${{ fromJSON(vars.GHA_DEFAULT_TIMEOUT) }}
     needs: build-and-upload-release-artifacts
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
       pull-requests: write
     steps:
       - name: Checkout branch
-        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Get release version
         id: release_version
