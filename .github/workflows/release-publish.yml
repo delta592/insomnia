@@ -61,14 +61,14 @@ jobs:
           echo "RELEASE_BRANCH=release/$MAJOR_MINOR" >> $GITHUB_ENV
 
       - name: Checkout branch # Check out the release branch
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           ref: ${{ env.RELEASE_BRANCH }}
           fetch-depth: 0
           persist-credentials: false
 
       - name: Setup Node
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
@@ -172,14 +172,14 @@ jobs:
           docker image ls
 
       - name: Login to Docker Hub
-        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
+        uses: docker/login-action@371161bbe7024a29a25c5e19bfcbc0804fe9ad2c # v4.5.2
         with:
           username: ${{ secrets.DOCKER_REGISTRY_USER }}
           password: ${{ secrets.DOCKER_REGISTRY_TOKEN }}
 
       - name: Docker meta for Inso CLI Docker Image
         id: inso_docker_meta
-        uses: docker/metadata-action@80c7e94dd9b9319bd5eb7a0e0fe9291e23a2a2e9 # v6.1.0
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
           images: ${{ env.INSO_DOCKER_IMAGE }}
           tags: |
@@ -214,7 +214,7 @@ jobs:
       - name: Sign images
         id: sign_images
         if: ${{ steps.image_manifest_metadata.outputs.inso_image_sha != '' }}
-        uses: Kong/public-shared-actions/security-actions/sign-docker-image@2f02738ecb1670f01391162e43fe3f5d4e7942a1 # v2.2.2
+        uses: Kong/public-shared-actions/security-actions/sign-docker-image@0ccacffed804d85da3f938a1b78c12831935f992 # v2.8.0
         with:
           image_digest: ${{ steps.image_manifest_metadata.outputs.inso_image_sha }}
           tags: ${{ steps.inso_docker_meta.outputs.tags }}
