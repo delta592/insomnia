@@ -2,9 +2,8 @@ import type { Organization } from 'insomnia-api';
 import { services } from 'insomnia-data';
 import { href, redirect } from 'react-router';
 
-import { invariant } from '~/common/utils/invariant';
-import * as session from '~/ui/account/session';
 import { findMigrationTargetSpaceId, migrateProjectsUnderOrganization, syncOrganizations } from '~/ui/organization-utils';
+import * as session from '~/ui/account/session';
 
 import type { Route } from './+types/organization._index';
 
@@ -14,10 +13,17 @@ export async function clientLoader(_args: Route.ClientLoaderArgs) {
     await syncOrganizations(sessionId, accountId);
 
     const organizations = JSON.parse(localStorage.getItem(`${accountId}:spaces`) || '[]') as Organization[];
-    invariant(organizations.length, 'Failed to fetch organizations. Check your network connection and try again.');
+    if (!organizations.length) {
+      console.warn('[organization] No organizations available after sync; signing out.');
+      await session.logout();
+      return redirect(href('/auth/login'));
+    }
 
-    const landingOrganizationId = organizations[0].id;
-    await migrateProjectsUnderOrganization(findMigrationTargetSpaceId(organizations), sessionId);
+    try {
+      await migrateProjectsUnderOrganization(findMigrationTargetSpaceId(organizations), sessionId);
+    } catch (error) {
+      console.warn('[organization] Project migration failed; continuing startup.', error);
+    }
 
     const specificOrgRedirectAfterAuthorize = window.localStorage.getItem('specificOrgRedirectAfterAuthorize');
     if (specificOrgRedirectAfterAuthorize && specificOrgRedirectAfterAuthorize !== '') {
@@ -25,6 +31,7 @@ export async function clientLoader(_args: Route.ClientLoaderArgs) {
       return redirect(`/organization/${specificOrgRedirectAfterAuthorize}`);
     }
 
+    const landingOrganizationId = organizations[0].id;
     return redirect(`/organization/${landingOrganizationId}`);
   }
 

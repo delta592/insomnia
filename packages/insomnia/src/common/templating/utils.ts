@@ -1,7 +1,8 @@
-import type { EditorFromTextArea, MarkerRange } from 'codemirror';
+import type { EditorView } from '@codemirror/view';
 
 import type { NunjucksParsedTag, NunjucksParsedTagArg } from '~/common/templating/types';
 import { base64ToUtf8, utf8ToBase64 } from '~/common/utils/utf8-bytes';
+import type { MarkerRange } from '~/ui/components/.client/codemirror/cm6/types';
 
 import { tokenizeArgs } from './tokenize-args';
 export { tokenizeArgs };
@@ -143,23 +144,47 @@ export function decodeEncoding<T>(value: T) {
 
 export function extractNunjucksTagFromCoords(
   coordinates: { left: number; top: number },
-  cm: React.MutableRefObject<EditorFromTextArea | null>,
+  cm: React.RefObject<unknown>,
 ): { range: MarkerRange; template: string } | void {
-  if (cm && cm.current) {
-    const { left, top } = coordinates;
-    // get position from left and right position
-    const textMarkerPos = cm.current.coordsChar({ left, top });
-    // get textMarker from position
-    const textMarker = cm.current?.getDoc().findMarksAt(textMarkerPos)[0];
+  const editor = cm?.current;
+  if (!editor || typeof editor !== 'object') {
+    return;
+  }
+
+  if ('coordsChar' in editor && typeof editor.coordsChar === 'function' && 'getDoc' in editor && typeof editor.getDoc === 'function') {
+    const legacyEditor = editor as CodeMirrorLegacyEditor;
+    const textMarkerPos = legacyEditor.coordsChar(coordinates);
+    const textMarker = legacyEditor.getDoc().findMarksAt(textMarkerPos)[0];
     if (textMarker) {
       const range = textMarker.find() as MarkerRange;
       return {
         range,
-        // @ts-expect-error __template should be property of nunjucks tag markText
-        template: textMarker.__template || '',
+        template: (textMarker as { __template?: string }).__template || '',
       };
     }
+    return;
   }
+
+  const view = editor as EditorView;
+  const pos = view.posAtCoords({ x: coordinates.left, y: coordinates.top });
+  if (pos == null) {
+    return;
+  }
+  const target = globalThis.document?.elementFromPoint(coordinates.left, coordinates.top) as HTMLElement | null;
+  const tagEl = target?.closest('[data-nunjucks-tag]') as HTMLElement | null;
+  if (tagEl?.dataset.template) {
+    return {
+      range: {},
+      template: tagEl.dataset.template,
+    };
+  }
+}
+
+interface CodeMirrorLegacyEditor {
+  coordsChar: (coordinates: { left: number; top: number }) => unknown;
+  getDoc: () => {
+    findMarksAt: (pos: unknown) => { find: () => MarkerRange; __template?: string }[];
+  };
 }
 
 export const responseTagRegex = new RegExp('{% *response *.* %}');

@@ -145,21 +145,32 @@ export async function removeGitRepository(repo: GitRepository) {
 }
 
 // TODO: v12 remove this function and getLocalStorageDataFromFileOrigin from main
+const FILE_ORIGIN_MIGRATION_TIMEOUT_MS = 10_000;
+
 export async function migrateFromLocalStorage() {
   if (!window.localStorage.getItem('file-origin-localStorage-migrated')) {
     console.log('[migration] Migrating localStorage data from file origin');
     try {
-      const localStorageData = await window.main.getLocalStorageDataFromFileOrigin();
+      const localStorageData = await Promise.race([
+        window.main.getLocalStorageDataFromFileOrigin(),
+        new Promise<null>((_, reject) => {
+          setTimeout(
+            () => reject(new Error('file-origin localStorage migration timed out')),
+            FILE_ORIGIN_MIGRATION_TIMEOUT_MS,
+          );
+        }),
+      ]);
       if (localStorageData) {
         for (const [key, value] of Object.entries(localStorageData)) {
           if (key && value) {
             localStorage.setItem(key, value);
           }
         }
-        localStorage.setItem('file-origin-localStorage-migrated', 'true');
       }
     } catch (error) {
       console.error('[migration] Failed to migrate localStorage data:', error);
+    } finally {
+      localStorage.setItem('file-origin-localStorage-migrated', 'true');
     }
   }
   const sessionId = window.localStorage.getItem('currentSessionId');

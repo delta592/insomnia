@@ -93,7 +93,7 @@ describe('mcpUrlToInsomniaV5Yaml', () => {
     expect(() => importUtil.mcpUrlToInsomniaV5Yaml('ftp://example.com')).toThrow(
       'MCP server URL must use http or https',
     );
-    expect(() => importUtil.mcpUrlToInsomniaV5Yaml('not-a-url')).toThrow('Invalid URL: not-a-url');
+    expect(() => importUtil.mcpUrlToInsomniaV5Yaml('not-a-url')).toThrow('Invalid URL');
   });
 
   it('escape sequences in the MCP URL are unmodified', () => {

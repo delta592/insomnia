@@ -1,8 +1,5 @@
-import 'codemirror/addon/mode/simple';
+import { StreamLanguage } from '@codemirror/language';
 
-import CodeMirror from 'codemirror';
-
-/** regular key-value header tokens */
 const keyValueHeaders = [
   {
     regex: /^(> )([^:]*:)(.*)$/,
@@ -14,9 +11,6 @@ const keyValueHeaders = [
   },
 ];
 
-/**
- * @example POST /foo/bar HTTP/1.1
- */
 const headerFields = [
   {
     regex: /^(> )([^:]+ .*)$/,
@@ -42,8 +36,21 @@ const informationalText = [
   },
 ];
 
-CodeMirror.defineSimpleMode('curl', {
-  start: [...keyValueHeaders, ...headerFields, ...data, ...informationalText],
-  comment: [],
-  meta: {},
+export const curlLanguage = StreamLanguage.define({
+  startState: () => ({}),
+  token(stream) {
+    const rules = [...keyValueHeaders, ...headerFields, ...data, ...informationalText];
+    for (const rule of rules) {
+      if (stream.match(rule.regex, false)) {
+        stream.match(rule.regex, true);
+        const tokens = rule.token;
+        if (Array.isArray(tokens)) {
+          return tokens[Math.min(stream.start, tokens.length - 1)] ?? null;
+        }
+        return tokens;
+      }
+    }
+    stream.next();
+    return null;
+  },
 });

@@ -505,6 +505,9 @@ export const McpRequestSchema = z.object({
     .optional(),
 });
 
+// Keys that must be absent on a union variant (Zod v4: z.undefined() rejects missing keys).
+const absentKey = () => z.never().optional();
+
 type Request = z.infer<typeof RequestSchema>;
 type GRPCRequest = z.infer<typeof GRPCRequestSchema>;
 type WebsocketRequest = z.infer<typeof WebsocketRequestSchema>;
@@ -516,32 +519,32 @@ type RequestGroup = z.input<typeof RequestGroupSchema> & {
 const RequestGroupWithChildrenSchema: z.ZodType<RequestGroup> = RequestGroupSchema.extend({
   children: z.lazy(() => RequestCollectionSchema).optional(),
   // These undefined properties are added to differentiate between the different types of children in the union
-  method: z.undefined(),
-  url: z.undefined(),
-  parameters: z.undefined(),
-  pathParameters: z.undefined(),
+  method: absentKey(),
+  url: absentKey(),
+  parameters: absentKey(),
+  pathParameters: absentKey(),
 });
 
 export const RequestCollectionSchema = z
   .union([
     GRPCRequestSchema.extend({
       // These undefined properties are added to differentiate between the different types of children in the union
-      children: z.undefined(),
-      method: z.undefined(),
+      children: absentKey(),
+      method: absentKey(),
     }),
     RequestSchema.extend({
       // These undefined properties are added to differentiate between the different types of children in the union
-      children: z.undefined(),
+      children: absentKey(),
     }),
     WebsocketRequestSchema.extend({
       // These undefined properties are added to differentiate between the different types of children in the union
-      children: z.undefined(),
-      method: z.undefined(),
+      children: absentKey(),
+      method: absentKey(),
     }),
     SocketIORequestSchema.extend({
       // These undefined properties are added to differentiate between the different types of children in the union
-      children: z.undefined(),
-      method: z.undefined(),
+      children: absentKey(),
+      method: absentKey(),
     }),
     RequestGroupWithChildrenSchema,
   ])

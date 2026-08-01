@@ -28,7 +28,7 @@ import { RequestGroupSettingsModal } from '../modals/request-group-settings-moda
 interface Props extends Partial<DropdownProps> {
   requestGroup: RequestGroup;
   isOpen: boolean;
-  triggerRef?: React.RefObject<HTMLDivElement>;
+  triggerRef?: React.RefObject<HTMLDivElement | null>;
   activeProject: Project;
   activeWorkspace: Workspace;
   onOpenChange: (isOpen: boolean) => void;

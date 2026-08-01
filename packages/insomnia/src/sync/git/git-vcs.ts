@@ -2042,7 +2042,7 @@ export class GitVCS {
 
   async repoExists() {
     try {
-      await git.getConfig({ ...this._baseOpts, path: '' });
+      await git.resolveRef({ ...this._baseOpts, ref: 'HEAD' });
     } catch {
       return false;
     }

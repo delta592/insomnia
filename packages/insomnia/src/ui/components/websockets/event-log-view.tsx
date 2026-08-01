@@ -1,6 +1,6 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { format } from 'date-fns';
-import React, { type FC, useEffect, useRef, useState } from 'react';
+import React, { type FC, type ReactElement, useEffect, useRef, useState } from 'react';
 import { Button, Cell, Column, Row, Table, TableBody, TableHeader } from 'react-aria-components';
 
 import { HelpTooltip } from '~/ui/components/help-tooltip';
@@ -84,7 +84,7 @@ const stringifyEventData = (data: unknown): string => {
   return String(data);
 };
 
-const getMessage = (event: EventTypes, isLoading: boolean): string | JSX.Element => {
+const getMessage = (event: EventTypes, isLoading: boolean): string | ReactElement => {
   switch (event.type) {
     case 'message': {
       if (isSocketIOEvent(event)) {

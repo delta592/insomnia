@@ -669,7 +669,7 @@ export default function setup(app: Application) {
     res.json(null);
   });
 
-  app.get('/v1/desktop/organizations/:organizationId/collaborators/search/*', (_req, res) => {
+  app.get('/v1/desktop/organizations/:organizationId/collaborators/search/*query', (_req, res) => {
     res.json(emailsAndGroupsToSearch);
   });
 

@@ -3,7 +3,6 @@ import type { MockRoute } from 'insomnia-data';
 import { services } from 'insomnia-data';
 import { Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Button, GridList, GridListItem, Menu, MenuItem, MenuTrigger, Popover } from 'react-aria-components';
-import { type ImperativePanelGroupHandle, Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import {
   href,
   redirect,
@@ -26,6 +25,7 @@ import { showModal } from '~/ui/components/modals';
 import { AskModal } from '~/ui/components/modals/ask-modal';
 import { MockRouteModal } from '~/ui/components/modals/mock-route-modal';
 import { EmptyStatePane } from '~/ui/components/panes/empty-state-pane';
+import { type ImperativePanelGroupHandle, Panel, PanelGroup, PanelResizeHandle } from '~/ui/components/panes/resizable-panels';
 import { SvgIcon } from '~/ui/components/svg-icon';
 import { OrganizationTabList } from '~/ui/components/tabs/tab-list';
 import { formatMethodName } from '~/ui/components/tags/method-tag';

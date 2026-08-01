@@ -1,5 +1,5 @@
 import type { Workspace } from 'insomnia-data';
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
+import { forwardRef, type ReactElement, useImperativeHandle, useRef, useState } from 'react';
 
 import { Modal, type ModalHandle, type ModalProps } from '../base/modal';
 import { ModalBody } from '../base/modal-body';
@@ -67,7 +67,7 @@ export const NunjucksModal = forwardRef<NunjucksModalHandle, ModalProps & Props>
   const { workspace } = props;
   const { template, isTag } = state;
   const title = isTag ? 'Tag' : 'Variable';
-  let editor: JSX.Element | null = null;
+  let editor: ReactElement | null = null;
   editor = isTag ? (
     <TagEditor
       onChange={handleTemplateChange}

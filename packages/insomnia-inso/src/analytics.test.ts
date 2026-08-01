@@ -1,12 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockTrack = vi.fn();
+const mockCloseAndFlush = vi.fn().mockResolvedValue(void 0);
 
 vi.mock('@segment/analytics-node', () => ({
-  Analytics: vi.fn(() => ({
-    track: mockTrack,
-    closeAndFlush: vi.fn(),
-  })),
+  Analytics: vi.fn(function Analytics(this: { track: typeof mockTrack; closeAndFlush: typeof mockCloseAndFlush }) {
+    this.track = mockTrack;
+    this.closeAndFlush = mockCloseAndFlush;
+  }),
 }));
 
 vi.mock('./db/adapters/ne-db-adapter', () => ({

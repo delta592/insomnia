@@ -1,7 +1,4 @@
-import type { LintOptions, ShowHintOptions, TextMarker } from 'codemirror';
-import type { GraphQLHintOptions } from 'codemirror-graphql/hint';
-import type { GraphQLInfoOptions } from 'codemirror-graphql/info';
-import type { ModifiedGraphQLJumpOptions } from 'codemirror-graphql/jump';
+
 import type { OpenDialogOptions } from 'electron';
 import type { GraphQLNonNull, GraphQLSchema, OperationTypeNode } from 'graphql';
 import {
@@ -21,12 +18,19 @@ import { services } from 'insomnia-data';
 import React, { type FC, useCallback, useEffect, useRef, useState } from 'react';
 import { Button, Group, Heading, Toolbar, Tooltip, TooltipTrigger } from 'react-aria-components';
 import ReactDOM from 'react-dom';
-import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import * as reactUse from 'react-use';
 
 import { invariant } from '~/common/utils/invariant';
 import { bodyBufferToUtf8 } from '~/common/utils/utf8-bytes';
+import type {
+  EditorHighlightRange,
+  GraphQLHintOptions,
+  GraphQLInfoOptions,
+  GraphQLJumpOptions,
+  GraphQLQueryLintOptions,
+} from '~/ui/components/.client/codemirror/cm6/graphql/types';
 import { CodeEditor, type CodeEditorHandle } from '~/ui/components/.client/codemirror/code-editor';
+import { Panel, PanelGroup, PanelResizeHandle } from '~/ui/components/panes/resizable-panels';
 import { jsonPrettify } from '~/ui/utils/prettify/json';
 
 import { CONTENT_TYPE_JSON } from '../../../../common/constants';
@@ -251,7 +255,7 @@ export const GraphQLEditor: FC<Props> = ({ request, environmentId, onChange, cla
       ?.map(def => def.name?.value || '')
       .filter(Boolean) || [];
   const operationName = requestBody.operationName || operations[0] || '';
-  const disabledOperationMarkers = useRef<TextMarker[]>([]);
+  const [dimmedOperationRanges, setDimmedOperationRanges] = useState<EditorHighlightRange[]>([]);
   const [state, setState] = useState<State>({
     body: {
       query: requestBody.query || '',
@@ -477,10 +481,10 @@ export const GraphQLEditor: FC<Props> = ({ request, environmentId, onChange, cla
 
   let graphqlOptions:
     | {
-        hintOptions: GraphQLHintOptions & ShowHintOptions;
+        hintOptions: GraphQLHintOptions;
         infoOptions: GraphQLInfoOptions;
-        jumpOptions: ModifiedGraphQLJumpOptions;
-        lintOptions: LintOptions;
+        jumpOptions: GraphQLJumpOptions;
+        lintOptions: GraphQLQueryLintOptions;
       }
     | undefined;
   const handleClickReference = (reference: Maybe<ActiveReference>, event: MouseEvent) => {
@@ -517,36 +521,32 @@ export const GraphQLEditor: FC<Props> = ({ request, environmentId, onChange, cla
 
   const highlightOperation = useCallback(
     (operationName?: string | null) => {
-      if (!state.documentAST || !editorRef.current) {
+      if (!state.documentAST) {
+        setDimmedOperationRanges([]);
         return;
       }
 
-      // Remove current query highlighting
-      for (const textMarker of disabledOperationMarkers?.current || []) {
-        textMarker.clear();
-      }
-
-      disabledOperationMarkers.current = state.documentAST?.definitions
+      const ranges = state.documentAST.definitions
         .filter(isOperationDefinition)
         .filter(name => {
           const fn = matchesOperation(operationName);
           return !fn(name);
         })
         .filter(hasLocation)
-        .map(({ loc: { startToken, endToken } }) => {
-          const from = {
+        .map(({ loc: { startToken, endToken } }) => ({
+          from: {
             line: startToken.line - 1,
             ch: startToken.column - 1,
-          };
-          const to = {
+          },
+          to: {
             line: endToken.line,
             ch: endToken.column - 1,
-          };
+          },
+          className: 'opacity-70',
+        }));
 
-          return editorRef.current?.getDoc()?.markText(from, to, {
-            className: 'opacity-70',
-          }) as TextMarker;
-        });
+      setDimmedOperationRanges(ranges);
+      editorRef.current?.setHighlightRanges(ranges);
     },
     [state.documentAST],
   );
@@ -735,7 +735,8 @@ export const GraphQLEditor: FC<Props> = ({ request, environmentId, onChange, cla
             hintOptions={graphqlOptions?.hintOptions}
             infoOptions={graphqlOptions?.infoOptions}
             jumpOptions={graphqlOptions?.jumpOptions}
-            lintOptions={graphqlOptions?.lintOptions}
+            lintOptions={graphqlOptions?.lintOptions as Record<string, unknown> | undefined}
+            highlightRanges={dimmedOperationRanges}
           />
         </Panel>
         <PanelResizeHandle className={'h-px w-full bg-(--hl-md)'} />

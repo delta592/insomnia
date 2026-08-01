@@ -6,7 +6,6 @@ import zlib from 'node:zlib';
 
 import type { ISpectralDiagnostic } from '@stoplight/spectral-core';
 import chardet from 'chardet';
-import type { MarkerRange } from 'codemirror';
 import {
   app,
   BrowserWindow,
@@ -54,6 +53,7 @@ import {
 } from '~/main/spectral-ruleset-cache';
 import { keyPair as sealedboxKeyPair, open as sealedboxOpen } from '~/main/utils/sealedbox';
 import { getSendRequestCallback } from '~/network/unit-test-feature';
+import type { MarkerRange } from '~/ui/components/.client/codemirror/cm6/types';
 
 import type { HiddenBrowserWindowBridgeAPI } from '../../entry.hidden-window';
 import { getRuntime } from '../../runtimes';
@@ -700,22 +700,42 @@ export function registerMainHandlers() {
 
     fileOriginWindow.loadURL(`file:${tmpHTMLFile}`);
 
-    return new Promise<Record<string, any>>((resolve, reject) => {
-      fileOriginWindow.webContents.on('did-finish-load', async () => {
-        const localStorageData = await fileOriginWindow.webContents.executeJavaScript(
-          'JSON.stringify(localStorage)',
-          true,
-        );
+    const timeoutMs = 10_000;
 
-        // Clear the localStorage of the file:// origin
-        await fileOriginWindow.webContents.executeJavaScript('localStorage.clear();', true);
-        // Close the hidden window after retrieving localStorage data
+    return new Promise<Record<string, any>>((resolve, reject) => {
+      const timeout = setTimeout(() => {
         fileOriginWindow.close();
-        // Clean up the temporary file
-        fs.unlinkSync(tmpHTMLFile);
-        resolve(JSON.parse(localStorageData));
+        try {
+          fs.unlinkSync(tmpHTMLFile);
+        } catch {}
+        reject(new Error('Timed out loading file:// origin to get localStorage data'));
+      }, timeoutMs);
+
+      fileOriginWindow.webContents.on('did-finish-load', async () => {
+        clearTimeout(timeout);
+        try {
+          const localStorageData = await fileOriginWindow.webContents.executeJavaScript(
+            'JSON.stringify(localStorage)',
+            true,
+          );
+
+          // Clear the localStorage of the file:// origin
+          await fileOriginWindow.webContents.executeJavaScript('localStorage.clear();', true);
+          // Close the hidden window after retrieving localStorage data
+          fileOriginWindow.close();
+          // Clean up the temporary file
+          fs.unlinkSync(tmpHTMLFile);
+          resolve(JSON.parse(localStorageData));
+        } catch (error) {
+          fileOriginWindow.close();
+          try {
+            fs.unlinkSync(tmpHTMLFile);
+          } catch {}
+          reject(error);
+        }
       });
       fileOriginWindow.webContents.on('did-fail-load', () => {
+        clearTimeout(timeout);
         // Close the hidden window and clean up the temporary file on failure
         fileOriginWindow.close();
         tmpHTMLFile && fs.unlinkSync(tmpHTMLFile);

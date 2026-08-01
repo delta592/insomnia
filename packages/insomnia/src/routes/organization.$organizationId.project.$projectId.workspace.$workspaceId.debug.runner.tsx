@@ -23,7 +23,6 @@ import {
   TooltipTrigger,
   useDragAndDrop,
 } from 'react-aria-components';
-import { Panel, PanelResizeHandle } from 'react-resizable-panels';
 import { href, useNavigate, useParams, useSearchParams, useSubmit } from 'react-router';
 import * as reactUse from 'react-use';
 import { v4 as uuidv4 } from 'uuid';
@@ -47,6 +46,7 @@ import { AlertModal } from '~/ui/components/modals/alert-modal';
 import { CLIPreviewModal } from '~/ui/components/modals/cli-preview-modal';
 import { UploadDataModal, type UploadDataType } from '~/ui/components/modals/upload-runner-data-modal';
 import { Pane, PaneBody, PaneHeader } from '~/ui/components/panes/pane';
+import { Panel, PanelResizeHandle } from '~/ui/components/panes/resizable-panels';
 import { RunnerLiveProgressPane } from '~/ui/components/panes/runner-live-progress-pane';
 import { RunnerResultHistoryPane } from '~/ui/components/panes/runner-result-history-pane';
 import { RunnerTestResultPane } from '~/ui/components/panes/runner-test-result-pane';

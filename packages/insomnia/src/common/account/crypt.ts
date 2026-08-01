@@ -229,11 +229,11 @@ export async function generateAES256Key() {
 // ~~~~~~~~~~~~~~~~ //
 
 function forgeCreateCipher(mode: string, key: string) {
-  return forge.cipher.createCipher(mode, key); // nosemgrep: javascript.node-crypto.security.create-de-cipher-no-iv.create-de-cipher-no-iv
+  return forge.cipher.createCipher(mode as 'AES-GCM', key); // nosemgrep: javascript.node-crypto.security.create-de-cipher-no-iv.create-de-cipher-no-iv
 }
 
 function forgeCreateDecipher(mode: string, key: string) {
-  return forge.cipher.createDecipher(mode, key); // nosemgrep: javascript.node-crypto.security.create-de-cipher-no-iv.create-de-cipher-no-iv
+  return forge.cipher.createDecipher(mode as 'AES-GCM', key); // nosemgrep: javascript.node-crypto.security.create-de-cipher-no-iv.create-de-cipher-no-iv
 }
 
 function _hexToB64Url(h: string) {

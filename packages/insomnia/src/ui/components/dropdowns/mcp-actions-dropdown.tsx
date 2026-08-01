@@ -12,7 +12,7 @@ import type { PrimitiveTypeItem } from '../mcp/types';
 interface Props {
   item: PrimitiveTypeItem;
   activeRequest: McpRequest;
-  triggerRef: React.RefObject<HTMLDivElement>;
+  triggerRef: React.RefObject<HTMLDivElement | null>;
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   onRefreshPrimitive: (

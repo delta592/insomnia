@@ -1,6 +1,6 @@
 import type { CloudProviderCredential, CloudProviderName } from 'insomnia-data';
 import { models } from 'insomnia-data';
-import { useEffect, useState } from 'react';
+import { type ReactElement,useEffect, useState } from 'react';
 import { Button, Menu, MenuItem, MenuTrigger, Popover } from 'react-aria-components';
 
 import { useRootLoaderData } from '~/root';
@@ -23,7 +23,7 @@ const { getProviderDisplayName } = models.cloudCredential;
 interface createCredentialItemType {
   name: string;
   id: CloudProviderName;
-  icon: JSX.Element;
+  icon: ReactElement;
 }
 const createCredentialItemList: createCredentialItemType[] = [
   {

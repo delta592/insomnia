@@ -1,4 +1,3 @@
-import type { Snippet } from 'codemirror';
 import { type FC, useRef } from 'react';
 import {
   Button,
@@ -485,7 +484,7 @@ export const RequestScriptEditor: FC<Props> = ({ className, defaultValue, onChan
     onSnippetAdded?.(snippet);
   };
 
-  const requestScriptSnippets = autocompleteSnippets as Snippet[];
+  const requestScriptSnippets = autocompleteSnippets as { name: string; value?: string }[];
 
   return (
     <div className="flex h-full flex-col divide-y divide-solid divide-(--hl-md)">

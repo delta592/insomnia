@@ -2,7 +2,7 @@ import type { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { getOnboardingState, type UserOnboarding } from 'insomnia-api';
 import type { Request } from 'insomnia-data';
 import { services } from 'insomnia-data';
-import { type KeyboardEvent as ReactKeyboardEvent, useEffect, useRef, useState } from 'react';
+import { type KeyboardEvent as ReactKeyboardEvent, type ReactElement, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router';
 
 import { Button } from '~/basic-components/button';
@@ -113,7 +113,7 @@ interface CollectionItem {
 interface QuickStartItem {
   id: string;
   label: string;
-  icon: JSX.Element;
+  icon: ReactElement;
   badge?: string;
   onClick: () => void | Promise<void>;
 }

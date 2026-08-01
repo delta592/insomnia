@@ -4,18 +4,24 @@ How to use [Inso CLI](https://docs.insomnia.rest/inso-cli/introduction).
 
 ## Testing
 
+From repo root (recommended — handles libcurl install, build, smoke server, and restores Electron libcurl after):
+
 ```shell
-# unit tests
-npm run test:unit
+npm run test:inso:bundle   # dev bundle e2e
+npm run test:inso:binary   # packaged binary e2e
+```
 
-# start smoke test api (required for e2e tests)
+Or run steps manually:
+
+```shell
+# unit tests (libcurl mocked)
+npm run test:unit -w insomnia-inso
+
+# bundle e2e — pretest/posttest hooks install the correct libcurl binary automatically
+npm run test:bundle -w insomnia-inso   # requires smoke server on :4010
+
+# start smoke test api (required for e2e tests if not using test:inso:bundle)
 npm run serve -w insomnia-smoke-test
-
-# e2e tests for dev bundle
-npm run test:bundle
-
-# e2e tests for binary
-npm run test:binary
 ```
 
 ## Development
@@ -33,15 +39,11 @@ $PWD/packages/insomnia-inso/bin/inso -w packages/insomnia-inso/src/db/fixtures/g
 
 ### node-libcurl
 
-`Error: The module '.../insomnia/node_modules/@getinsomnia/node-libcurl/lib/binding/node_libcurl.node' was compiled against a different Node.js version using`
-
-node-libcurl builds for 3 operating systems and two versions of nodejs. insomnia-inso uses the nodejs build and insomnia app uses the electron build. you can switch between them using the following two commands
+Insomnia app uses the Electron build; Inso CLI uses the Node build. `scripts/install-libcurl.mjs` downloads prebuilt binaries for your current Node/Electron version, or builds from source (Homebrew `curl` on macOS). `postinstall` installs the Electron binary; bundle test hooks switch to Node and back automatically.
 
 ```shell
-# install node version
-npm run install-libcurl-node
-# install electron version
-npm run install-libcurl-electron
+npm run install-libcurl-node       # inso / Node
+npm run install-libcurl-electron   # app / Electron (also runs on postinstall)
 ```
 
 ## Run CLI Smoke Tests

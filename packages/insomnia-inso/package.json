@@ -31,6 +31,10 @@
   ],
   "scripts": {
     "lint": "eslint . --ext .js,.ts,.tsx --cache",
+    "pretest:bundle": "node ../../scripts/install-libcurl.mjs node",
+    "posttest:bundle": "node ../../scripts/install-libcurl.mjs electron",
+    "pretest:binary": "node ../../scripts/install-libcurl.mjs node",
+    "posttest:binary": "node ../../scripts/install-libcurl.mjs electron",
     "test:unit": "cross-env NO_COLOR=1 vitest run --exclude '**/cli.test.ts'",
     "test:unit:color": "vitest run --exclude '**/cli.test.ts'",
     "test:bundle": "vitest cli.test.ts -t \"inso dev bundle\"",

@@ -1,11 +1,4 @@
-import {
-  FileDescriptorSet as ProtobufEsFileDescriptorSet,
-  MethodIdempotency,
-  MethodKind,
-  proto3,
-} from '@bufbuild/protobuf';
-import { Code, ConnectError, createPromiseClient } from '@connectrpc/connect';
-import { createConnectTransport } from '@connectrpc/connect-node';
+import { Code, ConnectError } from '@connectrpc/connect';
 import {
   type Call,
   ChannelCredentials,
@@ -37,6 +30,7 @@ import { parseGrpcUrl } from '../../network/grpc/parse-grpc-url';
 import { writeProtoFile } from '../../network/grpc/write-proto-file.node';
 import { mockRequestMethods } from './automock';
 import { ipcMainHandle, ipcMainOn } from './electron';
+import { fetchFileDescriptorSet } from './grpc-buf-reflection';
 
 const grpcCalls = new Map<string, Call>();
 
@@ -132,66 +126,23 @@ const getMethodsFromReflectionServer = async (
   disableUserAgentHeader: boolean,
 ): Promise<MethodDefs[]> => {
   const { url, module, apiKey } = reflectionApi;
-  const GetFileDescriptorSetRequest = proto3.makeMessageType('buf.reflect.v1beta1.GetFileDescriptorSetRequest', () => [
-    { no: 1, name: 'module', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: 'version', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
-    {
-      no: 3,
-      name: 'symbols',
-      kind: 'scalar',
-      T: 9 /* ScalarType.STRING */,
-      repeated: true,
-    },
-  ]);
-  const GetFileDescriptorSetResponse = proto3.makeMessageType(
-    'buf.reflect.v1beta1.GetFileDescriptorSetResponse',
-    () => [
-      {
-        no: 1,
-        name: 'file_descriptor_set',
-        kind: 'message',
-        T: ProtobufEsFileDescriptorSet,
-      },
-      { no: 2, name: 'version', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
-    ],
-  );
-  const FileDescriptorSetService = {
-    typeName: 'buf.reflect.v1beta1.FileDescriptorSetService',
-    methods: {
-      getFileDescriptorSet: {
-        name: 'GetFileDescriptorSet',
-        I: GetFileDescriptorSetRequest,
-        O: GetFileDescriptorSetResponse,
-        kind: MethodKind.Unary,
-        idempotency: MethodIdempotency.NoSideEffects,
-      },
-    },
-  } as const;
-  const transport = createConnectTransport({
-    baseUrl: url,
-    httpVersion: '1.1',
-  });
-  const client = createPromiseClient(FileDescriptorSetService, transport);
   const headers: HeadersInit = {
     ...(disableUserAgentHeader ? {} : { 'User-Agent': `insomnia/${version}` }),
     ...(apiKey === '' ? {} : { Authorization: `Bearer ${apiKey}` }),
   };
   try {
-    const res = await client.getFileDescriptorSet(
+    const res = await fetchFileDescriptorSet(
+      url,
       {
         module,
       },
-      {
-        headers,
-      },
+      headers,
     );
     const methodDefs: MethodDefs[] = [];
-    if (res.fileDescriptorSet === undefined) {
+    if (!res.fileDescriptorSet) {
       return [];
     }
-    const packageDefinition = protoLoader.loadFileDescriptorSetFromBuffer(
-      Buffer.from(res.fileDescriptorSet.toBinary()),
-    );
+    const packageDefinition = protoLoader.loadFileDescriptorSetFromObject(res.fileDescriptorSet, {});
     for (const definition of Object.values(packageDefinition)) {
       const serviceDefinition = asServiceDefinition(definition);
       if (serviceDefinition === null) {

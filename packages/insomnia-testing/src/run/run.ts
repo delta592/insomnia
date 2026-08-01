@@ -1,5 +1,5 @@
-import { unlink, writeFileSync } from 'node:fs';
 import fs from 'node:fs';
+import { unlink, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import nodePath from 'node:path';
 
@@ -109,7 +109,7 @@ const runInternal = async <TReturn, TNetworkResponse>(
 
         // Clean up temp files
         mocha.files.forEach(file => {
-          unlink(file, err => {
+          unlink(file, (err: NodeJS.ErrnoException | null) => {
             if (err) {
               console.log('Failed to clean up test file', file, err);
             }

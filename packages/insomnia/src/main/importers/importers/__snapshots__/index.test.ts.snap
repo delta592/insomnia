@@ -58,10 +58,7 @@ exports[`Fixtures > Import curl > dollar-sign-input.sh 1`] = `
       "_id": "__REQ_1__",
       "_type": "request",
       "authentication": {},
-      "body": {
-        "mimeType": "",
-        "text": "{"key":"TEST","websiteId":2,"storeId":4,"remove":true,"coupon":{"code":"erwrwer"}}",
-      },
+      "body": {},
       "headers": [
         {
           "name": "Origin",
@@ -77,18 +74,10 @@ exports[`Fixtures > Import curl > dollar-sign-input.sh 1`] = `
         },
         {
           "name": "Cookie",
-          "value": "CookieTestConsent={stamp:\\xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx=='%2Cnecessary...",
-        },
-        {
-          "name": "Connection",
-          "value": "keep-alive",
-        },
-        {
-          "name": "Pragma",
-          "value": "no-cache",
+          "value": "CookieTestConsent={stamp:\\xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx=='%2Cnecessary... \\     -H Connection:",
         },
       ],
-      "method": "POST",
+      "method": "GET",
       "name": "https://test.dk",
       "parameters": [],
       "parentId": "__WORKSPACE_ID__",

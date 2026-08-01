@@ -1,5 +1,5 @@
+import type { Diagnostic } from '@codemirror/lint';
 import { type IRuleResult } from '@stoplight/spectral-core';
-import CodeMirror from 'codemirror';
 import { models, services } from 'insomnia-data';
 import type { OpenAPIV3 } from 'openapi-types';
 import { type ReactNode, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
@@ -21,13 +21,6 @@ import {
   Tooltip,
   TooltipTrigger,
 } from 'react-aria-components';
-import {
-  type ImperativePanelGroupHandle,
-  type ImperativePanelHandle,
-  Panel,
-  PanelGroup,
-  PanelResizeHandle,
-} from 'react-resizable-panels';
 import { href, redirect, useLoaderData } from 'react-router';
 import * as reactUse from 'react-use';
 import { SwaggerUIBundle } from 'swagger-ui-dist';
@@ -49,6 +42,7 @@ import { useSpecGenerateRequestCollectionActionFetcher } from '~/routes/organiza
 import { useSpecUpdateActionFetcher } from '~/routes/organization.$organizationId.project.$projectId.workspace.$workspaceId.spec.update';
 import { useStorageRulesLoaderFetcher } from '~/routes/organization.$organizationId.storage-rules';
 import { AnalyticsEvent } from '~/ui/analytics';
+import { setOpenapiLintValidator } from '~/ui/components/.client/codemirror/cm6/lint/openapi-lint';
 import { CodeEditor, type CodeEditorHandle } from '~/ui/components/.client/codemirror/code-editor';
 import { Badge } from '~/ui/components/base/badge';
 import { DesignEmptyState } from '~/ui/components/design-empty-state';
@@ -61,6 +55,13 @@ import { CookiesModal } from '~/ui/components/modals/cookies-modal';
 import { NewWorkspaceModal } from '~/ui/components/modals/new-workspace-modal';
 import { CertificatesModal } from '~/ui/components/modals/workspace-certificates-modal';
 import { WorkspaceEnvironmentsEditModal } from '~/ui/components/modals/workspace-environments-edit-modal';
+import {
+  type ImperativePanelGroupHandle,
+  type ImperativePanelHandle,
+  Panel,
+  PanelGroup,
+  PanelResizeHandle,
+} from '~/ui/components/panes/resizable-panels';
 import { OrganizationTabList } from '~/ui/components/tabs/tab-list';
 import { formatMethodName } from '~/ui/components/tags/method-tag';
 import { showResourceNotFoundToast, showToast } from '~/ui/components/toast-notification';
@@ -200,6 +201,15 @@ const lintOptions = {
   delay: 1000,
 };
 
+const lineCharToOffset = (contents: string, line: number, character: number) => {
+  const lines = contents.split('\n');
+  let offset = 0;
+  for (let i = 0; i < line && i < lines.length; i++) {
+    offset += lines[i].length + 1;
+  }
+  return offset + character;
+};
+
 const Component = ({ params }: Route.ComponentProps) => {
   const { organizationId, projectId, workspaceId } = params;
   const { activeProject, vcsVersion } = useWorkspaceLoaderData()!;
@@ -304,7 +314,7 @@ const Component = ({ params }: Route.ComponentProps) => {
 
   const registerCodeMirrorLint = useCallback(
     (rulesetContent: string) => {
-      CodeMirror.registerHelper('lint', 'openapi', async (contents: string) => {
+      setOpenapiLintValidator(async (contents: string): Promise<Diagnostic[]> => {
         try {
           const { diagnostics, error, cancelled } = await window.main.lintSpec({
             documentContent: contents,
@@ -323,23 +333,24 @@ const Component = ({ params }: Route.ComponentProps) => {
             });
             return [];
           }
-          const lintResult = diagnostics?.map(({ severity, code, message, range, path }) => {
-            return {
-              from: CodeMirror.Pos(range.start.line, range.start.character),
-              to: CodeMirror.Pos(range.end.line, range.end.character),
+          const lintResult: LintMessage[] =
+            diagnostics?.map(({ severity, code, message, range, path }) => ({
               code: String(code),
               message,
-              severity: ['error', 'warning'][severity] ?? 'info',
               type: (['error', 'warning'][severity] ?? 'info') as LintMessage['type'],
               range,
               line: range.start.line,
               path: path.join('.'),
-            };
-          });
-          setLintMessages?.(lintResult || []);
-          return lintResult;
+            })) || [];
+          setLintMessages(lintResult);
+          return lintResult.map(({ message, type, range, code }) => ({
+            from: lineCharToOffset(contents, range.start.line, range.start.character),
+            to: lineCharToOffset(contents, range.end.line, range.end.character),
+            message,
+            severity: type as Diagnostic['severity'],
+            source: code,
+          }));
         } catch (error) {
-          // return a rejected promise so that codemirror do nothing
           console.log('Unhandled error while linting:', error);
           setLintMessages([]);
           showError({
@@ -370,8 +381,7 @@ const Component = ({ params }: Route.ComponentProps) => {
   }, [gitSyncRulesetPath, isConnectedGitProject, rulesetWritePath, rulesetContent]);
 
   reactUse.useUnmount(() => {
-    // delete the helper to avoid it run multiple times when user enter the page next time
-    CodeMirror.registerHelper('lint', 'openapi', () => {});
+    setOpenapiLintValidator(null);
   });
 
   const onCodeEditorChange = useMemo(() => {

@@ -52,8 +52,16 @@ but the addon only provides a light theme, so we add a dark theme here.
 .dark-merge-editor .CodeMirror-merge-l-chunk-end.CodeMirror-merge-r-chunk-end {
   border-bottom: 1px solid #4caf50;
 }
-.dark-merge-editor .CodeMirror-merge-collapsed-widget {
-  color: #aab;
+.dark-merge-editor .cm-mergeView {
+  border: 1px solid #444;
+}
+
+.dark-merge-editor .cm-mergeViewEditors {
+  background: #1e1e1e;
+}
+
+.dark-merge-editor .cm-collapsedLines {
   background: #2a2d2e;
+  color: #aab;
   border: 1px solid #3a3d3e;
 }

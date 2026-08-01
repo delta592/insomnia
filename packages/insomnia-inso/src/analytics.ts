@@ -19,6 +19,11 @@ const analytics = new InsomniaAnalytics({
     osVersion: () => os.release(),
     platform: 'cli',
   },
+  settings: {
+    maxRetries: 0,
+    maxTotalBackoffDuration: 0,
+    httpRequestTimeout: 5000,
+  },
 });
 
 let deviceId: string | null = null;

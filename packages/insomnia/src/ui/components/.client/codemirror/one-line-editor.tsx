@@ -1,54 +1,21 @@
-import './base-imports';
-
+import { EditorSelection, EditorState } from '@codemirror/state';
+import { EditorView } from '@codemirror/view';
 import classnames from 'classnames';
-import clone from 'clone';
-import CodeMirror, { type EditorConfiguration, type EditorEventMap } from 'codemirror';
-import type { KeyCombination } from 'insomnia-data/common';
-import { isMac } from 'insomnia-data/common';
-import React, {
-  forwardRef,
-  useCallback,
-  useEffect,
-  useImperativeHandle,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from 'react';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
 import * as reactUse from 'react-use';
 
-import { DEBOUNCE_MILLIS } from '~/common/constants';
-import * as misc from '~/common/misc';
-import { type NunjucksParsedTag, type nunjucksTagContextMenuOptions } from '~/common/templating/types';
-import { extractNunjucksTagFromCoords } from '~/common/templating/utils';
 import { isCurlCommand } from '~/common/utils/curl';
 import { useRootLoaderData } from '~/root';
-import { showModal } from '~/ui/components/modals';
-import { NunjucksModal } from '~/ui/components/modals/nunjucks-modal';
-import { UpgradeModal } from '~/ui/components/modals/upgrade-modal';
-import { isKeyCombinationInRegistry } from '~/ui/components/settings/shortcuts';
 import { Tooltip } from '~/ui/components/tooltip';
 import { useNunjucks } from '~/ui/context/nunjucks/use-nunjucks';
 import { useEditorRefresh } from '~/ui/hooks/use-editor-refresh';
-import { usePlanData } from '~/ui/hooks/use-plan';
 import { useResizeObserver } from '~/ui/hooks/use-resize-observer';
-import { plugins } from '~/ui/plugins/renderer-bridge';
 import { getTagDefinitions } from '~/ui/templating/renderer-safe';
 
-import { getCachedEditorState, setCachedEditorState } from './editor-state-cache';
-
-// Replace the editor's entire value while PRESERVING undo/redo history and the
-// cursor. Unlike cm.setValue(), which clears history, replaceRange records the
-// change as a normal, undoable edit. No-ops when the value is unchanged so we
-// don't push empty history entries or move the cursor needlessly.
-const replaceValuePreservingHistory = (cm: CodeMirror.EditorFromTextArea, value: string) => {
-  if (cm.getValue() === value) {
-    return;
-  }
-  const cursor = cm.getCursor();
-  const lastLine = cm.lastLine();
-  cm.replaceRange(value, { line: 0, ch: 0 }, { line: lastLine, ch: cm.getLine(lastLine).length });
-  cm.setCursor(cursor);
-};
+import { createEditorExtensions, reconfigureReadOnly } from './cm6/create-editor-extensions';
+import { attachViewReference, getEditorValue, setCursor, setEditorValue } from './cm6/editor-utils';
+import { nunjucksTagsExtension } from './cm6/extensions/nunjucks-tags';
+import { setCachedEditorState } from './editor-state-cache';
 
 export interface OneLineEditorProps {
   defaultValue: string;
@@ -61,551 +28,231 @@ export interface OneLineEditorProps {
   type?: string;
   onPaste?: (text: string) => void;
   onBlur?: (e: FocusEvent) => void;
-  eventListeners?: EditorEventListener<keyof EditorEventMap>[];
-  // NOTE: stable key for caching/restoring undo history across remounts
+  eventListeners?: { eventName: string; handler: (...args: unknown[]) => void }[];
   historyKey?: string;
   autoFocus?: boolean;
-  // Called once when the editor focuses itself due to `autoFocus`. Lets callers clear a one-shot flag.
   onAutoFocus?: () => void;
 }
 
-export interface EditorEventListener<T extends keyof EditorEventMap> {
-  eventName: T;
-  handler: EditorEventMap[T];
-}
 export interface OneLineEditorHandle {
   selectAll: () => void;
   focusEnd: () => void;
   setValue: (value: string) => void;
 }
-export const OneLineEditor = forwardRef<OneLineEditorHandle, OneLineEditorProps>(
-  (
-    {
-      defaultValue,
-      getAutocompleteConstants,
-      id,
-      onChange,
-      onKeyDown,
-      placeholder,
-      readOnly,
-      type,
-      onPaste,
-      onBlur,
-      eventListeners,
-      historyKey,
-      autoFocus,
-      onAutoFocus,
-    },
-    ref,
-  ) => {
-    const editorContainerRef = useRef<HTMLDivElement>(null);
-    const textAreaRef = useRef<HTMLTextAreaElement>(null);
-    const codeMirror = useRef<CodeMirror.EditorFromTextArea | null>(null);
-    // We need to track editor version in order to re-apply some effects when the editor is re-initialized.
-    const [editorVersion, setEditorVersion] = useState(0);
-    const [tooltipValue, setTooltipValue] = useState<string>(
-      type?.toLowerCase() === 'password' ? '' : defaultValue || '',
-    );
-    const { settings } = useRootLoaderData()!;
-    const { isOwner, isEnterprisePlan } = usePlanData();
-    const { handleRender, handleGetRenderContext } = useNunjucks();
 
-    // Update the tooltip value, including rendering the value of a nunjucks tag if necessary
-    const updateTooltipValue = useCallback(
-      async (rawValue: string) => {
-        if (type?.toLowerCase() === 'password') {
-          return;
-        }
-        if (!handleRender || !/{{|{%/.test(rawValue)) {
-          setTooltipValue(rawValue);
-          return;
-        }
-        try {
-          setTooltipValue(await handleRender(rawValue));
-        } catch {
-          // Rendering fails when any tag in the field is invalid. Fall back to showing the raw template string that's there.
-          setTooltipValue(rawValue);
-        }
-      },
-      [handleRender, type],
-    );
+export const OneLineEditor = forwardRef<OneLineEditorHandle, OneLineEditorProps>(function OneLineEditor(
+  {
+    defaultValue,
+    getAutocompleteConstants,
+    id,
+    onChange,
+    onKeyDown,
+    placeholder,
+    readOnly,
+    type,
+    onPaste,
+    onBlur,
+    historyKey,
+    autoFocus,
+    onAutoFocus,
+  },
+  ref,
+) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const viewRef = useRef<EditorView | null>(null);
+  const [editorVersion, setEditorVersion] = useState(0);
+  const [tooltipValue, setTooltipValue] = useState(type?.toLowerCase() === 'password' ? '' : defaultValue || '');
+  const { settings } = useRootLoaderData()!;
+  const { handleRender, handleGetRenderContext } = useNunjucks();
+  const enableNunjucksTags = Boolean(handleGetRenderContext);
 
-    const getKeyMap = useCallback(() => {
-      if (!readOnly && settings.enableKeyMapForInlineTextEditors && settings.editorKeyMap) {
-        return settings.editorKeyMap;
-      }
-      return 'default';
-    }, [settings.enableKeyMapForInlineTextEditors, settings.editorKeyMap, readOnly]);
-
-    const initEditor = useCallback(() => {
-      if (!textAreaRef.current || codeMirror.current || !editorContainerRef.current?.offsetWidth) {
+  const updateTooltipValue = useCallback(
+    async (rawValue: string) => {
+      if (type?.toLowerCase() === 'password') return;
+      if (!handleRender || !/{{|{%/.test(rawValue)) {
+        setTooltipValue(rawValue);
         return;
       }
-
-      const transformEnums = (tagDef: NunjucksParsedTag): NunjucksParsedTag[] => {
-        if (tagDef.args[0]?.type === 'enum') {
-          return (
-            tagDef.args[0].options?.map(option => {
-              const optionName = misc.fnOrString(option.displayName, tagDef.args);
-              const newDef = clone(tagDef);
-              newDef.displayName = `${tagDef.displayName} ⇒ ${optionName}`;
-              newDef.args[0].defaultValue = option.value;
-
-              return newDef;
-            }) || []
-          );
-        }
-        return [tagDef];
-      };
-      const canAutocomplete = !!(handleGetRenderContext || getAutocompleteConstants);
-      const initialOptions: EditorConfiguration = {
-        lineNumbers: false,
-        placeholder: placeholder || '',
-        foldGutter: false,
-        autoRefresh: { delay: 2000 },
-        lineWrapping: false,
-        scrollbarStyle: 'null',
-        lint: false,
-        matchBrackets: false,
-        autoCloseBrackets: false,
-        viewportMargin: 30,
-        readOnly: !!readOnly,
-        tabindex: 0,
-        selectionPointer: 'default',
-        styleActiveLine: false,
-        indentWithTabs: false,
-        showCursorWhenSelecting: false,
-        cursorScrollMargin: 12,
-        // Only set keyMap if we're not read-only. This is so things like ctrl-a work on read-only mode.
-        keyMap: getKeyMap(),
-        extraKeys: CodeMirror.normalizeKeyMap({
-          'Ctrl-Space': 'autocomplete',
-          [isMac ? 'Cmd-F' : 'Ctrl-F']: () => {},
-        }),
-        gutters: [],
-        mode: !handleRender
-          ? 'text/plain'
-          : {
-              name: 'nunjucks',
-              baseMode: 'text/plain',
-            },
-        environmentAutocomplete: canAutocomplete && {
-          getVariables: async () => (!handleGetRenderContext ? [] : (await handleGetRenderContext())?.keys || []),
-          getTags: async () => (!handleGetRenderContext ? [] : (await getTagDefinitions()).flatMap(transformEnums)),
-          getConstants: getAutocompleteConstants,
-          hotKeyRegistry: settings.hotKeyRegistry,
-          autocompleteDelay: settings.autocompleteDelay,
-        },
-      };
-      codeMirror.current = CodeMirror.fromTextArea(textAreaRef.current, initialOptions);
-      codeMirror.current.on('beforeChange', (_: CodeMirror.Editor, change: CodeMirror.EditorChangeCancellable) => {
-        const isPaste = change.text && change.text.length > 1;
-        if (isPaste) {
-          const pastedText = change.text.join('\n');
-          const hasContent = pastedText.trim();
-          if (isCurlCommand(pastedText) || !hasContent) {
-            change.cancel();
-            return;
-          }
-          // If we're in single-line mode, merge all changed lines into one
-          change.update?.(change.from, change.to, [change.text.join('').replace(/\n/g, ' ')]);
-        }
-      });
-      codeMirror.current.on('paste', (_, e: ClipboardEvent) => {
-        const text = e.clipboardData?.getData('text/plain');
-        if (onPaste && text && isCurlCommand(text)) {
-          onPaste(text);
-        }
-      });
-
-      codeMirror.current.on('blur', (_, e) => {
-        if (onBlur) {
-          onBlur(e);
-        }
-      });
-
-      codeMirror.current.on('keydown', (doc: CodeMirror.Editor, event: KeyboardEvent) => {
-        // Use default tab behaviour if we're told
-        if (event.code === 'Tab') {
-          // @ts-expect-error -- unsound property assignment
-          event.codemirrorIgnore = true;
-        }
-        const pressedKeyComb: KeyCombination = {
-          ctrl: event.ctrlKey,
-          alt: event.altKey,
-          shift: event.shiftKey,
-          meta: event.metaKey,
-          keyCode: event.keyCode,
-        };
-        const isUserDefinedKeyboardShortcut = isKeyCombinationInRegistry(pressedKeyComb, settings.hotKeyRegistry);
-        const isAutoCompleteBinding = isKeyCombinationInRegistry(pressedKeyComb, {
-          showAutocomplete: settings.hotKeyRegistry.showAutocomplete,
-        });
-        // Stop the editor from handling global keyboard shortcuts except for the autocomplete binding
-        const isShortcutButNotAutocomplete = isUserDefinedKeyboardShortcut && !isAutoCompleteBinding;
-        // Should not capture escape in order to exit modals
-        const isEscapeKey = event.code === 'Escape';
-        if (isShortcutButNotAutocomplete) {
-          // @ts-expect-error -- unsound property assignment
-          event.codemirrorIgnore = true;
-          // Stop the editor from handling the escape key
-        } else if (isEscapeKey) {
-          // @ts-expect-error -- unsound property assignment
-          event.codemirrorIgnore = true;
-        } else {
-          event.stopPropagation();
-        }
-        if (onKeyDown && !doc.isHintDropdownActive()) {
-          onKeyDown(event, doc.getValue());
-        }
-      });
-      // extra event listeners for editor
-      if (Array.isArray(eventListeners) && eventListeners.length > 0) {
-        eventListeners.forEach(({ eventName, handler }) => {
-          codeMirror.current?.on(eventName, handler);
-        });
+      try {
+        setTooltipValue(await handleRender(rawValue));
+      } catch {
+        setTooltipValue(rawValue);
       }
-      codeMirror.current.on('blur', () =>
-        codeMirror.current?.getTextArea().parentElement?.removeAttribute('data-focused'),
-      );
-      codeMirror.current.on('focus', () =>
-        codeMirror.current?.getTextArea().parentElement?.setAttribute('data-focused', 'on'),
-      );
-      codeMirror.current.on('keyHandled', (_: CodeMirror.Editor, _keyName: string, event: Event) =>
-        event.stopPropagation(),
-      );
+    },
+    [handleRender, type],
+  );
 
-      // Actually set the value
-      codeMirror.current?.setValue(defaultValue || '');
-      updateTooltipValue(defaultValue || '');
-      // Clear history so we can't undo the initial set
-      codeMirror.current?.clearHistory();
-      // Restore undo/redo history saved before the previous unmount so undo
-      // survives remounts (the value is re-seeded from defaultValue above, which
-      // matches the persisted model value, so the restored history stays consistent)
-      const cachedState = historyKey ? getCachedEditorState(historyKey) : undefined;
-      if (cachedState?.history) {
-        codeMirror.current?.setHistory(cachedState.history);
-      }
-      // Setup Liquid template listeners
-      if (handleRender && !settings.nunjucksPowerUserMode) {
-        codeMirror.current?.enableNunjucksTags(
-          handleRender,
-          handleGetRenderContext,
-          settings.showVariableSourceAndValue,
-          id,
-        );
-      }
-      setEditorVersion(version => version + 1);
-    }, [
-      defaultValue,
-      getAutocompleteConstants,
-      handleGetRenderContext,
-      handleRender,
-      onBlur,
-      onKeyDown,
-      onPaste,
-      placeholder,
+  const persistState = useCallback(() => {
+    if (historyKey && viewRef.current) {
+      setCachedEditorState(historyKey, { history: null });
+    }
+  }, [historyKey]);
+
+  const initEditor = useCallback(() => {
+    if (!containerRef.current || viewRef.current || !containerRef.current.offsetWidth) {
+      return;
+    }
+
+    const canAutocomplete = !!(handleGetRenderContext || getAutocompleteConstants);
+    const extensions = createEditorExtensions({
+      mode: enableNunjucksTags ? { name: 'nunjucks', baseMode: 'text/plain' } : 'text/plain',
       readOnly,
-      settings.autocompleteDelay,
-      getKeyMap,
-      settings.hotKeyRegistry,
-      settings.nunjucksPowerUserMode,
-      settings.showVariableSourceAndValue,
-      eventListeners,
-      id,
-      historyKey,
-      updateTooltipValue,
-    ]);
-
-    const persistState = useCallback(() => {
-      if (historyKey && codeMirror.current) {
-        setCachedEditorState(historyKey, { history: codeMirror.current.getHistory() });
-      }
-    }, [historyKey]);
-
-    const cleanUpEditor = useCallback(() => {
-      codeMirror.current?.toTextArea();
-      codeMirror.current?.closeHintDropdown();
-      codeMirror.current = null;
-    }, []);
-
-    useLayoutEffect(() => {
-      if (editorContainerRef.current?.offsetWidth) {
-        initEditor();
-      }
-    }, [initEditor]);
-
-    useResizeObserver(editorContainerRef, ({ width }) => {
-      if (width && width > 0) {
-        initEditor();
-      }
+      placeholder,
+      lineNumbers: false,
+      lineWrapping: false,
+      noLint: true,
+      singleLine: true,
+      environmentAutocomplete: canAutocomplete
+        ? {
+            getVariables: async () => (!handleGetRenderContext ? [] : (await handleGetRenderContext())?.keys || []),
+            getTags: async () => (!handleGetRenderContext ? [] : await getTagDefinitions()),
+            getConstants: getAutocompleteConstants,
+            hotKeyRegistry: settings.hotKeyRegistry,
+            autocompleteDelay: settings.autocompleteDelay,
+          }
+        : null,
+      extraExtensions: [
+        ...(enableNunjucksTags && !settings.nunjucksPowerUserMode
+          ? [
+              nunjucksTagsExtension({
+                handleRender,
+                handleGetRenderContext,
+                showVariableSourceAndValue: settings.showVariableSourceAndValue,
+                editorId: id,
+                readOnly,
+              }),
+            ]
+          : []),
+        EditorView.updateListener.of(update => {
+          if (update.docChanged) {
+            const value = update.state.doc.toString();
+            onChange(value);
+            updateTooltipValue(value);
+          }
+        }),
+        EditorView.domEventHandlers({
+          blur(event) {
+            onBlur?.(event);
+            onChange(getEditorValue(viewRef.current));
+          },
+          paste(event) {
+            const text = event.clipboardData?.getData('text/plain');
+            if (text && onPaste && isCurlCommand(text)) {
+              onPaste(text);
+              event.preventDefault();
+              return true;
+            }
+            return false;
+          },
+          keydown(event, view) {
+            if (onKeyDown) {
+              onKeyDown(event, view.state.doc.toString());
+            }
+            return false;
+          },
+        }),
+      ],
     });
 
-    reactUse.useMount(() => {
+    viewRef.current = new EditorView({
+      state: EditorState.create({ doc: defaultValue || '', extensions }),
+      parent: containerRef.current,
+    });
+    attachViewReference(viewRef.current);
+    updateTooltipValue(defaultValue || '');
+    setEditorVersion(v => v + 1);
+  }, [
+    defaultValue,
+    enableNunjucksTags,
+    getAutocompleteConstants,
+    handleGetRenderContext,
+    handleRender,
+    id,
+    onBlur,
+    onChange,
+    onKeyDown,
+    onPaste,
+    placeholder,
+    readOnly,
+    settings.autocompleteDelay,
+    settings.hotKeyRegistry,
+    settings.nunjucksPowerUserMode,
+    settings.showVariableSourceAndValue,
+    updateTooltipValue,
+  ]);
+
+  useLayoutEffect(() => {
+    if (containerRef.current?.offsetWidth) {
       initEditor();
-      if (autoFocus && !readOnly) {
-        onAutoFocus?.();
-        // An enclosing React Aria ListBox (params/headers/environment grids) restores DOM focus to
-        // the row right after we focus the editor, and a single deferred focus loses that race on
-        // slower/headless machines. So we re-assert focus across a short window, re-grabbing only when
-        // focus was bounced to a non-interactive element (the row) — never when the user deliberately
-        // moved to another control (e.g. Tab from the URL bar to Send) — until the editor holds focus
-        // or the window elapses.
-        const deadline = Date.now() + 500;
-        const ensureFocus = () => {
-          const cm = codeMirror.current;
-          if (!cm) {
-            return;
-          }
-          if (!cm.hasFocus()) {
-            const active = document.activeElement as HTMLElement | null;
-            // The row React Aria bounces focus to is a non-interactive container (role="row"/"option");
-            // anything genuinely interactive (a field, button, link, menu item, etc.) means the user
-            // moved on purpose, so we must not steal focus back.
-            const role = active?.getAttribute('role');
-            const userMovedToAnotherControl =
-              !!active &&
-              (active.tagName === 'INPUT' ||
-                active.tagName === 'TEXTAREA' ||
-                active.tagName === 'SELECT' ||
-                active.tagName === 'BUTTON' ||
-                active.tagName === 'A' ||
-                active.isContentEditable ||
-                role === 'button' ||
-                role === 'link' ||
-                role === 'menuitem' ||
-                role === 'menuitemradio' ||
-                role === 'checkbox' ||
-                role === 'tab');
-            if (userMovedToAnotherControl) {
-              return;
-            }
-            cm.focus();
-            cm.getDoc().setCursor(cm.getDoc().lineCount(), 0);
-          }
-          if (Date.now() < deadline) {
-            requestAnimationFrame(ensureFocus);
-          }
-        };
-        requestAnimationFrame(ensureFocus);
-      }
-    });
+    }
+  }, [initEditor]);
 
-    reactUse.useUnmount(() => {
-      persistState();
-      cleanUpEditor();
-    });
-
-    const reinitialize = useCallback(() => {
-      cleanUpEditor();
+  useResizeObserver(containerRef, ({ width }) => {
+    if (width && width > 0 && !viewRef.current) {
       initEditor();
-    }, [cleanUpEditor, initEditor]);
+    }
+  });
 
-    useEditorRefresh(reinitialize);
+  reactUse.useMount(() => {
+    initEditor();
+    if (autoFocus && !readOnly) {
+      onAutoFocus?.();
+      viewRef.current?.focus();
+    }
+  });
 
-    useEffect(() => {
-      if (codeMirror.current) {
-        // https://github.com/Kong/insomnia/issues/8265
-        // we have a unique key for request panel, when connect to websocket, unique will change and component will mount again automatically
-        // but when disconnect, the unique key will not change, so we need to update some configurations manually
-        codeMirror.current.setOption('readOnly', readOnly);
-        codeMirror.current.setOption('keyMap', getKeyMap());
+  reactUse.useUnmount(() => {
+    persistState();
+    viewRef.current?.destroy();
+    viewRef.current = null;
+  });
+
+  useEditorRefresh(() => {
+    viewRef.current?.destroy();
+    viewRef.current = null;
+    initEditor();
+  });
+
+  useEffect(() => {
+    if (viewRef.current) {
+      reconfigureReadOnly(viewRef.current, !!readOnly);
+    }
+  }, [readOnly, editorVersion]);
+
+  useEffect(() => {
+    const view = viewRef.current;
+    if (view && historyKey !== undefined && !view.hasFocus && defaultValue !== view.state.doc.toString()) {
+      setEditorValue(view, defaultValue || '');
+      updateTooltipValue(defaultValue || '');
+    }
+  }, [defaultValue, historyKey, updateTooltipValue]);
+
+  useImperativeHandle(ref, () => ({
+    selectAll: () => {
+      const view = viewRef.current;
+      if (!view) return;
+      view.dispatch({ selection: EditorSelection.create([EditorSelection.range(0, view.state.doc.length)]) });
+    },
+    focusEnd: () => {
+      viewRef.current?.focus();
+      const view = viewRef.current;
+      if (view) {
+        setCursor(view, 0, view.state.doc.length);
       }
-    }, [readOnly, getKeyMap]);
+    },
+    setValue: (value: string) => viewRef.current && setEditorValue(viewRef.current, value),
+  }));
 
-    // Re-seed the editor when the external value changes, but ONLY while the user
-    // isn't actively editing (not focused) and the value actually differs. This
-    // lets callers resync after an external change (sync pull, etc.) without
-    // remounting via a volatile `key`, which would otherwise blur the editor and
-    // drop undo history mid-edit. In-progress typing (focused) is never clobbered.
-    //
-    // Gated on `historyKey`: it marks the editors we deliberately moved off
-    // volatile-key remounting onto stable-key + in-place updates (URL bar,
-    // key-value rows). Other OneLineEditor instances keep their original
-    // uncontrolled-after-mount behaviour, so this stays an opt-in.
-    useEffect(() => {
-      const cm = codeMirror.current;
-      if (cm && historyKey !== undefined && !cm.hasFocus() && (defaultValue || '') !== cm.getValue()) {
-        const cursor = cm.getCursor();
-        cm.setValue(defaultValue || '');
-        cm.setCursor(cursor);
-        // value baseline changed externally, so the old history no longer applies
-        cm.clearHistory();
-        updateTooltipValue(defaultValue || '');
-      }
-    }, [defaultValue, historyKey, type, updateTooltipValue]);
-
-    useEffect(() => {
-      // Prevent these things if we're type === "password"
-      const preventDefault = (_: CodeMirror.Editor, event: Event) =>
-        type?.toLowerCase() === 'password' && event.preventDefault();
-      codeMirror.current?.on('copy', preventDefault);
-      codeMirror.current?.on('cut', preventDefault);
-      codeMirror.current?.on('dragstart', preventDefault);
-
-      return () => {
-        codeMirror.current?.off('copy', preventDefault);
-        codeMirror.current?.off('cut', preventDefault);
-        codeMirror.current?.off('dragstart', preventDefault);
-      };
-    }, [editorVersion, type]);
-
-    useEffect(() => {
-      const fn = misc.debounce((doc: CodeMirror.Editor) => {
-        if (onChange) {
-          onChange(doc.getValue() || '');
-        }
-        updateTooltipValue(doc.getValue() || '');
-      }, DEBOUNCE_MILLIS);
-      codeMirror.current?.on('changes', fn);
-      return () => codeMirror.current?.off('changes', fn);
-    }, [editorVersion, onChange, type, updateTooltipValue]);
-
-    useEffect(() => {
-      const flushOnBlur = (doc: CodeMirror.Editor) => {
-        if (onChange) {
-          onChange(doc.getValue() || '');
-        }
-      };
-      codeMirror.current?.on('blur', flushOnBlur);
-      return () => codeMirror.current?.off('blur', flushOnBlur);
-    }, [editorVersion, onChange]);
-
-    useEffect(() => {
-      const unsubscribe = window.main.on(
-        'nunjucks-context-menu-command',
-        (_, { key, tag, nunjucksTag, needsEnterprisePlan, displayName }) => {
-          if (id === key) {
-            if (needsEnterprisePlan && !isEnterprisePlan) {
-              // show modal if current user is not an enteprise user and the command is an enterprise feature
-              showModal(UpgradeModal, {
-                newPlan: 'enterprise',
-                featureName: displayName,
-                isOwner,
-              });
-              return;
-            }
-            if (nunjucksTag) {
-              const { type, template, range } = nunjucksTag as nunjucksTagContextMenuOptions;
-              if (type === 'edit') {
-                showModal(NunjucksModal, {
-                  template: template,
-                  onDone: (template: string | null) => {
-                    const { from, to } = range;
-                    codeMirror.current?.replaceRange(template!, from, to);
-                  },
-                });
-              } else if (type === 'delete') {
-                const { from, to } = range;
-                codeMirror.current?.replaceRange('', from, to);
-              } else {
-                return;
-              }
-            } else {
-              codeMirror.current?.replaceSelection(tag);
-            }
-          }
-        },
-      );
-      return () => {
-        unsubscribe();
-      };
-    }, [id, isEnterprisePlan, isOwner]);
-
-    useImperativeHandle(
-      ref,
-      () => ({
-        selectAll: () =>
-          codeMirror.current?.setSelection({ line: 0, ch: 0 }, { line: codeMirror.current.lineCount(), ch: 0 }),
-        focusEnd: () => {
-          if (codeMirror.current && !codeMirror.current.hasFocus()) {
-            codeMirror.current.focus();
-          }
-          codeMirror.current?.getDoc()?.setCursor(codeMirror.current.getDoc().lineCount(), 0);
-        },
-        setValue: (value: string) => {
-          if (codeMirror.current) {
-            replaceValuePreservingHistory(codeMirror.current, value);
-          }
-        },
-      }),
-      [],
-    );
-
-    const isContentTruncated = () => {
-      const scrollInfo = codeMirror.current?.getScrollInfo();
-      if (!scrollInfo) {
-        return false;
-      }
-      // CodeMirror's own CSS adds a fixed 30px to the scroller's width to hide the native
-      // scrollbar (see the "magic margin" comment on .CodeMirror-scroll in codemirror.css).
-      // scrollInfo.width always includes this extra 30px, even when the text isn't truncated
-      // at all, so we must subtract it back out before comparing - otherwise every line would
-      // incorrectly look truncated.
-      const CODEMIRROR_SCROLLBAR_MARGIN_PX = 30;
-      return scrollInfo.width > scrollInfo.clientWidth + CODEMIRROR_SCROLLBAR_MARGIN_PX;
-    };
-
-    // Nunjucks tags render their own native (rendered value + source) tooltip on hover. Showing the
-    // whole-field custom tooltip on top of that would double up and only show the raw, unrendered
-    // template text - so suppress the custom tooltip while the pointer is over a tag. This is tracked
-    // per-pointer-position (rather than per-field) so a field mixing plain text and tags still shows
-    // the full-value tooltip when hovering the text portion.
-    const isPointerOverNunjucksTag = useRef(false);
-    const handleEditorMouseMove = (event: React.MouseEvent) => {
-      isPointerOverNunjucksTag.current = Boolean((event.target as HTMLElement)?.closest?.('[data-nunjucks-tag]'));
-    };
-
-    return (
-      <Tooltip
-        message={tooltipValue}
-        delay={1000}
-        className="h-full w-full"
-        followCursor
-        shouldShow={() => Boolean(tooltipValue) && !isPointerOverNunjucksTag.current && isContentTruncated()}
+  return (
+    <Tooltip message={tooltipValue} delay={1000} className="h-full w-full" shouldShow={() => Boolean(tooltipValue)}>
+      <div
+        className={classnames('editor--single-line', { editor: true, 'editor--readonly': readOnly })}
+        data-editor-type={type || 'text'}
+        data-testid="OneLineEditor"
       >
-        <div
-          className={classnames('editor--single-line', {
-            'editor': true,
-            'editor--readonly': readOnly,
-          })}
-          data-editor-type={type || 'text'}
-          data-testid="OneLineEditor"
-          onMouseMove={handleEditorMouseMove}
-          onContextMenu={async event => {
-            if (readOnly) {
-              return;
-            }
-            event.preventDefault();
-            const pluginTemplateTags = await plugins.getTemplateTags();
-            const target = event.target as HTMLElement;
-            // right click on Liquid template tag
-            if (target?.classList?.contains('nunjucks-tag')) {
-              const { clientX, clientY } = event;
-              const nunjucksTag = extractNunjucksTagFromCoords({ left: clientX, top: clientY }, codeMirror);
-              if (nunjucksTag) {
-                // show context menu for Liquid template tag
-                window.main.showNunjucksContextMenu({ key: id, nunjucksTag, pluginTemplateTags });
-              }
-            } else {
-              window.main.showNunjucksContextMenu({ key: id, pluginTemplateTags });
-            }
-          }}
-        >
-          <div ref={editorContainerRef} className="editor__container input editor--single-line">
-            <textarea
-              id={id}
-              ref={textAreaRef}
-              style={{ display: 'none' }}
-              readOnly={readOnly}
-              autoComplete="off"
-              defaultValue=""
-            />
-          </div>
-        </div>
-      </Tooltip>
-    );
-  },
-);
+        <div ref={containerRef} className="editor__container input editor--single-line" data-cm-editor="true" />
+      </div>
+    </Tooltip>
+  );
+});
 OneLineEditor.displayName = 'OneLineEditor';

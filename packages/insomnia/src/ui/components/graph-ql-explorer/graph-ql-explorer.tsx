@@ -1,7 +1,7 @@
 import { type SchemaReference } from 'codemirror-graphql/utils/SchemaReference';
 import type { GraphQLSchema } from 'graphql';
 import { GraphQLEnumType, type GraphQLField, type GraphQLNamedType, type GraphQLType, isNamedType } from 'graphql';
-import { type FC, useCallback, useEffect, useRef, useState } from 'react';
+import { type FC, type ReactElement, useCallback, useEffect, useRef, useState } from 'react';
 
 import { useDocBodyKeyboardShortcuts } from '../keydown-binder';
 import { GraphQLExplorerEnum } from './graph-ql-explorer-enum';
@@ -152,7 +152,7 @@ export const GraphQLExplorer: FC<Props> = ({ schema, handleClose, visible, refer
     return null;
   }
 
-  let child: JSX.Element | null = null;
+  let child: ReactElement | null = null;
 
   if (currentField) {
     child = <GraphQLExplorerField onNavigateType={handleNavigateType} field={currentField} />;

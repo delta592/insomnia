@@ -43,6 +43,7 @@ const getCookiesForUrl = (cookies: Cookie[], url: string): Cookie[] => {
   try {
     const sanitized = cookies.map(c => ({
       ...c,
+      path: c.path ?? '/',
       expires: c.expires === null || c.expires === undefined ? 'Infinity' : c.expires,
     }));
     const jar = CookieJar.fromJSON(JSON.stringify({ cookies: sanitized }));

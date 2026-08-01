@@ -40,6 +40,7 @@ describe('cookiesFromJar()', () => {
         key: 'bar',
         value: 'baz',
         domain: 'insomnia.rest',
+        path: '/',
         expires: d,
       },
       {
