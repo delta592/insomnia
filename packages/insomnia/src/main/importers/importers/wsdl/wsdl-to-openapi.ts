@@ -5,8 +5,11 @@ import path from 'node:path';
 import { runGenerationPipeline } from '@techspokes/typescript-wsdl-client';
 import type { OpenAPIV3 } from 'openapi-types';
 
-import { type CompiledCatalogLike, enrichSoapOperations } from './soap-enrichment';
+import { adaptTechSpokesCatalog } from './catalog-adapter';
+import { enrichSoapOperations } from './soap-enrichment';
 import { getPrimarySoapPort, parseWsdlDocument } from './wsdl-parser';
+
+const isRemoteWsdl = (wsdlInput: string) => /^https?:\/\//i.test(wsdlInput);
 
 const writeTempWsdlFile = (content: string) => {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'insomnia-wsdl-'));
@@ -17,7 +20,10 @@ const writeTempWsdlFile = (content: string) => {
 };
 
 export const wsdlToOpenApi = async (wsdlInput: string, fileContent: string): Promise<OpenAPIV3.Document> => {
-  const wsdlPath = path.isAbsolute(wsdlInput) && fs.existsSync(wsdlInput) ? wsdlInput : writeTempWsdlFile(fileContent);
+  const wsdlPath =
+    isRemoteWsdl(wsdlInput) || (path.isAbsolute(wsdlInput) && fs.existsSync(wsdlInput))
+      ? wsdlInput
+      : writeTempWsdlFile(fileContent);
   const catalogOut = fs.mkdtempSync(path.join(os.tmpdir(), 'insomnia-wsdl-catalog-'));
 
   const { compiled } = await runGenerationPipeline({
@@ -32,6 +38,6 @@ export const wsdlToOpenApi = async (wsdlInput: string, fileContent: string): Pro
     throw new Error('No SOAP endpoint found in WSDL');
   }
 
-  const catalog = compiled as CompiledCatalogLike;
+  const catalog = adaptTechSpokesCatalog(compiled);
   return enrichSoapOperations({ openapi: '3.1.0', info: { title: '', version: '0.0.0' }, paths: {} }, catalog, parsedWsdl, port);
 };

@@ -1,6 +1,7 @@
 import type { OpenAPIV3 } from 'openapi-types';
 
 import { generateRootElementXml, type XsdTypeDefinition } from '../../soap/xsd-to-xml';
+import { buildTypeLookup } from './catalog-adapter';
 import type { ParsedWsdl, SoapVersion, WsdlBindingOperation, WsdlPort } from './wsdl-parser';
 
 export const INSOMNIA_SOAP_EXTENSION = 'x-insomnia-soap';
@@ -100,8 +101,10 @@ const generateOperationBodyXml = (
   }
 
   if (inputType) {
+    const typeLookup = buildTypeLookup(catalog.types);
     return generateRootElementXml(elementLocalName, catalog.wsdlTargetNS, inputType, {
       style: bindingOp?.style === 'rpc' ? 'rpc' : 'document',
+      typeLookup,
     });
   }
 
