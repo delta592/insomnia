@@ -8537,6 +8537,85 @@ exports[`Fixtures > Import wsdl > addition-input.wsdl 1`] = `
       "parentId": "__GRP_2__",
       "url": "http://www.dneonline.com/calculator.asmx",
     },
+    {
+      "_id": "__API_SPEC__",
+      "_type": "api_spec",
+      "contentType": "json",
+      "contents": "{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Calculator",
+    "version": "0.0.0"
+  },
+  "x-insomnia-soap": true,
+  "servers": [
+    {
+      "url": "http://www.dneonline.com/calculator.asmx"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Calculator"
+    }
+  ],
+  "paths": {
+    "/Add": {
+      "post": {
+        "operationId": "Add",
+        "summary": "Add",
+        "description": "Adds two integers. This is a test WebService. ©DNE Online",
+        "tags": [
+          "Calculator"
+        ],
+        "parameters": [
+          {
+            "name": "SOAPAction",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "http://tempuri.org/Add"
+            }
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "text/xml"
+            }
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "application/xml"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "text/xml": {
+              "example": "<soapenv:Envelope xmlns:soapenv=\\"http://schemas.xmlsoap.org/soap/envelope/\\">\\n <soapenv:Body>\\n <tns:Add xmlns:tns=\\"http://tempuri.org/\\"><!-- mandatory -->\\n  <tns:intA><!-- mandatory -->3</tns:intA>\\n  <tns:intB><!-- mandatory -->3</tns:intB>\\n </tns:Add>\\n </soapenv:Body>\\n</soapenv:Envelope>"
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "SOAP response"
+          }
+        }
+      }
+    }
+  }
+}",
+      "fileName": "calculator.openapi.json",
+      "parentId": "__WORKSPACE_ID__",
+    },
   ],
 }
 `;
@@ -8732,6 +8811,241 @@ exports[`Fixtures > Import wsdl > calculator-input.wsdl 1`] = `
       "parentId": "__GRP_2__",
       "url": "http://www.dneonline.com/calculator.asmx",
     },
+    {
+      "_id": "__API_SPEC__",
+      "_type": "api_spec",
+      "contentType": "json",
+      "contents": "{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Calculator",
+    "version": "0.0.0"
+  },
+  "x-insomnia-soap": true,
+  "servers": [
+    {
+      "url": "http://www.dneonline.com/calculator.asmx"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Calculator"
+    }
+  ],
+  "paths": {
+    "/Add": {
+      "post": {
+        "operationId": "Add",
+        "summary": "Add",
+        "description": "Adds two integers. This is a test WebService. ©DNE Online",
+        "tags": [
+          "Calculator"
+        ],
+        "parameters": [
+          {
+            "name": "SOAPAction",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "http://tempuri.org/Add"
+            }
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "text/xml"
+            }
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "application/xml"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "text/xml": {
+              "example": "<soapenv:Envelope xmlns:soapenv=\\"http://schemas.xmlsoap.org/soap/envelope/\\">\\n <soapenv:Body>\\n <tns:Add xmlns:tns=\\"http://tempuri.org/\\"><!-- mandatory -->\\n  <tns:intA><!-- mandatory -->3</tns:intA>\\n  <tns:intB><!-- mandatory -->3</tns:intB>\\n </tns:Add>\\n </soapenv:Body>\\n</soapenv:Envelope>"
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "SOAP response"
+          }
+        }
+      }
+    },
+    "/Subtract": {
+      "post": {
+        "operationId": "Subtract",
+        "summary": "Subtract",
+        "description": "",
+        "tags": [
+          "Calculator"
+        ],
+        "parameters": [
+          {
+            "name": "SOAPAction",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "http://tempuri.org/Subtract"
+            }
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "text/xml"
+            }
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "application/xml"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "text/xml": {
+              "example": "<soapenv:Envelope xmlns:soapenv=\\"http://schemas.xmlsoap.org/soap/envelope/\\">\\n <soapenv:Body>\\n <tns:Subtract xmlns:tns=\\"http://tempuri.org/\\"><!-- mandatory -->\\n  <tns:intA><!-- mandatory -->3</tns:intA>\\n  <tns:intB><!-- mandatory -->3</tns:intB>\\n </tns:Subtract>\\n </soapenv:Body>\\n</soapenv:Envelope>"
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "SOAP response"
+          }
+        }
+      }
+    },
+    "/Multiply": {
+      "post": {
+        "operationId": "Multiply",
+        "summary": "Multiply",
+        "description": "",
+        "tags": [
+          "Calculator"
+        ],
+        "parameters": [
+          {
+            "name": "SOAPAction",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "http://tempuri.org/Multiply"
+            }
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "text/xml"
+            }
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "application/xml"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "text/xml": {
+              "example": "<soapenv:Envelope xmlns:soapenv=\\"http://schemas.xmlsoap.org/soap/envelope/\\">\\n <soapenv:Body>\\n <tns:Multiply xmlns:tns=\\"http://tempuri.org/\\"><!-- mandatory -->\\n  <tns:intA><!-- mandatory -->3</tns:intA>\\n  <tns:intB><!-- mandatory -->3</tns:intB>\\n </tns:Multiply>\\n </soapenv:Body>\\n</soapenv:Envelope>"
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "SOAP response"
+          }
+        }
+      }
+    },
+    "/Divide": {
+      "post": {
+        "operationId": "Divide",
+        "summary": "Divide",
+        "description": "",
+        "tags": [
+          "Calculator"
+        ],
+        "parameters": [
+          {
+            "name": "SOAPAction",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "http://tempuri.org/Divide"
+            }
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "text/xml"
+            }
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "application/xml"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "text/xml": {
+              "example": "<soapenv:Envelope xmlns:soapenv=\\"http://schemas.xmlsoap.org/soap/envelope/\\">\\n <soapenv:Body>\\n <tns:Divide xmlns:tns=\\"http://tempuri.org/\\"><!-- mandatory -->\\n  <tns:intA><!-- mandatory -->3</tns:intA>\\n  <tns:intB><!-- mandatory -->3</tns:intB>\\n </tns:Divide>\\n </soapenv:Body>\\n</soapenv:Envelope>"
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "SOAP response"
+          }
+        }
+      }
+    }
+  }
+}",
+      "fileName": "calculator.openapi.json",
+      "parentId": "__WORKSPACE_ID__",
+    },
   ],
 }
 `;
@@ -8813,6 +9127,85 @@ exports[`Fixtures > Import wsdl > deep-xsd-input.wsdl 1`] = `
       "parentId": "__GRP_2__",
       "url": "http://example.com/deep",
     },
+    {
+      "_id": "__API_SPEC__",
+      "_type": "api_spec",
+      "contentType": "json",
+      "contents": "{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "DeepXsdService",
+    "version": "0.0.0"
+  },
+  "x-insomnia-soap": true,
+  "servers": [
+    {
+      "url": "http://example.com/deep"
+    }
+  ],
+  "tags": [
+    {
+      "name": "DeepXsdService"
+    }
+  ],
+  "paths": {
+    "/Process": {
+      "post": {
+        "operationId": "Process",
+        "summary": "Process",
+        "description": "",
+        "tags": [
+          "DeepXsdService"
+        ],
+        "parameters": [
+          {
+            "name": "SOAPAction",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "http://example.com/deep/Process"
+            }
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "text/xml"
+            }
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "application/xml"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "text/xml": {
+              "example": "<soapenv:Envelope xmlns:soapenv=\\"http://schemas.xmlsoap.org/soap/envelope/\\">\\n <soapenv:Body>\\n <tns:Process xmlns:tns=\\"http://example.com/deep\\"><!-- mandatory -->\\n  <tns:level1><!-- mandatory -->\\n   <tns:level2><!-- mandatory -->\\n    <tns:level3><!-- mandatory -->\\n     <tns:value><!-- mandatory -->string</tns:value>\\n    </tns:level3>\\n   </tns:level2>\\n  </tns:level1>\\n  <tns:count><!-- mandatory -->3</tns:count>\\n </tns:Process>\\n </soapenv:Body>\\n</soapenv:Envelope>"
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "SOAP response"
+          }
+        }
+      }
+    }
+  }
+}",
+      "fileName": "deepxsdservice.openapi.json",
+      "parentId": "__WORKSPACE_ID__",
+    },
   ],
 }
 `;
@@ -8886,6 +9279,85 @@ exports[`Fixtures > Import wsdl > multifile-input.wsdl 1`] = `
       "parameters": [],
       "parentId": "__GRP_2__",
       "url": "http://example.com/multifile",
+    },
+    {
+      "_id": "__API_SPEC__",
+      "_type": "api_spec",
+      "contentType": "json",
+      "contents": "{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "MultifileService",
+    "version": "0.0.0"
+  },
+  "x-insomnia-soap": true,
+  "servers": [
+    {
+      "url": "http://example.com/multifile"
+    }
+  ],
+  "tags": [
+    {
+      "name": "MultifileService"
+    }
+  ],
+  "paths": {
+    "/Lookup": {
+      "post": {
+        "operationId": "Lookup",
+        "summary": "Lookup",
+        "description": "",
+        "tags": [
+          "MultifileService"
+        ],
+        "parameters": [
+          {
+            "name": "SOAPAction",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "http://example.com/multifile/Lookup"
+            }
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "text/xml"
+            }
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "application/xml"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "text/xml": {
+              "example": "<soapenv:Envelope xmlns:soapenv=\\"http://schemas.xmlsoap.org/soap/envelope/\\">\\n <soapenv:Body>\\n <tns:Lookup xmlns:tns=\\"http://example.com/multifile\\"><!-- mandatory -->\\n  <tns:code><!-- mandatory -->string</tns:code>\\n </tns:Lookup>\\n </soapenv:Body>\\n</soapenv:Envelope>"
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "SOAP response"
+          }
+        }
+      }
+    }
+  }
+}",
+      "fileName": "multifileservice.openapi.json",
+      "parentId": "__WORKSPACE_ID__",
     },
   ],
 }
@@ -8961,6 +9433,239 @@ exports[`Fixtures > Import wsdl > multiport-input.wsdl 1`] = `
       "parentId": "__GRP_2__",
       "url": "http://example.com/multiport/soap11",
     },
+    {
+      "_id": "__API_SPEC__",
+      "_type": "api_spec",
+      "contentType": "json",
+      "contents": "{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "MultiportService",
+    "version": "0.0.0"
+  },
+  "x-insomnia-soap": true,
+  "servers": [
+    {
+      "url": "http://example.com/multiport/soap11"
+    }
+  ],
+  "tags": [
+    {
+      "name": "MultiportService"
+    }
+  ],
+  "paths": {
+    "/Echo": {
+      "post": {
+        "operationId": "Echo",
+        "summary": "Echo",
+        "description": "",
+        "tags": [
+          "MultiportService"
+        ],
+        "parameters": [
+          {
+            "name": "SOAPAction",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "http://example.com/multiport/Echo"
+            }
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "text/xml"
+            }
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "application/xml"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "text/xml": {
+              "example": "<soapenv:Envelope xmlns:soapenv=\\"http://schemas.xmlsoap.org/soap/envelope/\\">\\n <soapenv:Body>\\n <tns:Echo xmlns:tns=\\"http://example.com/multiport\\"><!-- mandatory -->\\n  <tns:text><!-- mandatory -->string</tns:text>\\n </tns:Echo>\\n </soapenv:Body>\\n</soapenv:Envelope>"
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "SOAP response"
+          }
+        }
+      }
+    }
+  }
+}",
+      "fileName": "multiportservice.openapi.json",
+      "parentId": "__WORKSPACE_ID__",
+    },
+  ],
+}
+`;
+
+exports[`Fixtures > Import wsdl > soap-encoded-input.wsdl 1`] = `
+{
+  "__export_date": "",
+  "__export_format": 4,
+  "__export_source": "insomnia.importers:v0.1.0",
+  "_type": "export",
+  "resources": [
+    {
+      "_id": "__GRP_1__",
+      "_type": "request_group",
+      "afterResponseScript": "",
+      "authentication": {},
+      "description": "",
+      "environment": {},
+      "metaSortKey": -1622117984000,
+      "name": "Calculator",
+      "parentId": "__WORKSPACE_ID__",
+      "preRequestScript": "",
+    },
+    {
+      "_id": "__GRP_2__",
+      "_type": "request_group",
+      "afterResponseScript": "",
+      "authentication": {},
+      "description": "",
+      "environment": {},
+      "metaSortKey": -1622117983999,
+      "name": "Calculator",
+      "parentId": "__GRP_1__",
+      "preRequestScript": "",
+    },
+    {
+      "_id": "__REQ_1__",
+      "_type": "request",
+      "authentication": {},
+      "body": {
+        "mimeType": "text/plain",
+        "text": "<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+ <soapenv:Body>
+ <tns:Add xmlns:tns="http://tempuri.org/" xsi:type="tns:Add">
+  <tns:intA xsi:type="xsd:int"><!-- mandatory -->3</tns:intA>
+  <tns:intB xsi:type="xsd:int"><!-- mandatory -->3</tns:intB>
+ </tns:Add>
+ </soapenv:Body>
+</soapenv:Envelope>",
+      },
+      "description": "",
+      "headers": [
+        {
+          "disabled": false,
+          "name": "SOAPAction",
+          "value": "http://tempuri.org/Add",
+        },
+        {
+          "disabled": false,
+          "name": "Content-Type",
+          "value": "text/xml",
+        },
+        {
+          "disabled": false,
+          "name": "Accept",
+          "value": "application/xml",
+        },
+      ],
+      "metaSortKey": -1622117983998,
+      "method": "POST",
+      "name": "Add",
+      "parameters": [],
+      "parentId": "__GRP_2__",
+      "url": "http://www.dneonline.com/calculator.asmx",
+    },
+    {
+      "_id": "__API_SPEC__",
+      "_type": "api_spec",
+      "contentType": "json",
+      "contents": "{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Calculator",
+    "version": "0.0.0"
+  },
+  "x-insomnia-soap": true,
+  "servers": [
+    {
+      "url": "http://www.dneonline.com/calculator.asmx"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Calculator"
+    }
+  ],
+  "paths": {
+    "/Add": {
+      "post": {
+        "operationId": "Add",
+        "summary": "Add",
+        "description": "",
+        "tags": [
+          "Calculator"
+        ],
+        "parameters": [
+          {
+            "name": "SOAPAction",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "http://tempuri.org/Add"
+            }
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "text/xml"
+            }
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "application/xml"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "text/xml": {
+              "example": "<soapenv:Envelope xmlns:soapenv=\\"http://schemas.xmlsoap.org/soap/envelope/\\" xmlns:xsi=\\"http://www.w3.org/2001/XMLSchema-instance\\" xmlns:xsd=\\"http://www.w3.org/2001/XMLSchema\\">\\n <soapenv:Body>\\n <tns:Add xmlns:tns=\\"http://tempuri.org/\\" xsi:type=\\"tns:Add\\">\\n  <tns:intA xsi:type=\\"xsd:int\\"><!-- mandatory -->3</tns:intA>\\n  <tns:intB xsi:type=\\"xsd:int\\"><!-- mandatory -->3</tns:intB>\\n </tns:Add>\\n </soapenv:Body>\\n</soapenv:Envelope>"
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "SOAP response"
+          }
+        }
+      }
+    }
+  }
+}",
+      "fileName": "calculator.openapi.json",
+      "parentId": "__WORKSPACE_ID__",
+    },
   ],
 }
 `;
@@ -9034,6 +9739,85 @@ exports[`Fixtures > Import wsdl > soap12-input.wsdl 1`] = `
       "parameters": [],
       "parentId": "__GRP_2__",
       "url": "http://example.com/soap12",
+    },
+    {
+      "_id": "__API_SPEC__",
+      "_type": "api_spec",
+      "contentType": "json",
+      "contents": "{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Soap12Service",
+    "version": "0.0.0"
+  },
+  "x-insomnia-soap": true,
+  "servers": [
+    {
+      "url": "http://example.com/soap12"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Soap12Service"
+    }
+  ],
+  "paths": {
+    "/Ping": {
+      "post": {
+        "operationId": "Ping",
+        "summary": "Ping",
+        "description": "Ping via SOAP 1.2",
+        "tags": [
+          "Soap12Service"
+        ],
+        "parameters": [
+          {
+            "name": "SOAPAction",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "http://example.com/soap12/Ping"
+            }
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "application/soap+xml"
+            }
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "application/xml"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/soap+xml": {
+              "example": "<soap12:Envelope xmlns:soap12=\\"http://www.w3.org/2003/05/soap-envelope\\">\\n <soap12:Body>\\n <tns:Ping xmlns:tns=\\"http://example.com/soap12\\"><!-- mandatory -->\\n  <tns:message><!-- mandatory -->string</tns:message>\\n </tns:Ping>\\n </soap12:Body>\\n</soap12:Envelope>"
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "SOAP response"
+          }
+        }
+      }
+    }
+  }
+}",
+      "fileName": "soap12service.openapi.json",
+      "parentId": "__WORKSPACE_ID__",
     },
   ],
 }
@@ -9147,6 +9931,137 @@ exports[`Fixtures > Import wsdl > tempconvert-input.wsdl 1`] = `
       "parameters": [],
       "parentId": "__GRP_2__",
       "url": "http://www.w3schools.com/xml/tempconvert.asmx",
+    },
+    {
+      "_id": "__API_SPEC__",
+      "_type": "api_spec",
+      "contentType": "json",
+      "contents": "{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "TempConvert",
+    "version": "0.0.0"
+  },
+  "x-insomnia-soap": true,
+  "servers": [
+    {
+      "url": "http://www.w3schools.com/xml/tempconvert.asmx"
+    }
+  ],
+  "tags": [
+    {
+      "name": "TempConvert"
+    }
+  ],
+  "paths": {
+    "/FahrenheitToCelsius": {
+      "post": {
+        "operationId": "FahrenheitToCelsius",
+        "summary": "FahrenheitToCelsius",
+        "description": "",
+        "tags": [
+          "TempConvert"
+        ],
+        "parameters": [
+          {
+            "name": "SOAPAction",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "https://www.w3schools.com/xml/FahrenheitToCelsius"
+            }
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "text/xml"
+            }
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "application/xml"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "text/xml": {
+              "example": "<soapenv:Envelope xmlns:soapenv=\\"http://schemas.xmlsoap.org/soap/envelope/\\">\\n <soapenv:Body>\\n <tns:FahrenheitToCelsius xmlns:tns=\\"https://www.w3schools.com/xml/\\"><!-- mandatory -->\\n  <tns:Fahrenheit>string</tns:Fahrenheit>\\n </tns:FahrenheitToCelsius>\\n </soapenv:Body>\\n</soapenv:Envelope>"
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "SOAP response"
+          }
+        }
+      }
+    },
+    "/CelsiusToFahrenheit": {
+      "post": {
+        "operationId": "CelsiusToFahrenheit",
+        "summary": "CelsiusToFahrenheit",
+        "description": "",
+        "tags": [
+          "TempConvert"
+        ],
+        "parameters": [
+          {
+            "name": "SOAPAction",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "https://www.w3schools.com/xml/CelsiusToFahrenheit"
+            }
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "text/xml"
+            }
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "application/xml"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "text/xml": {
+              "example": "<soapenv:Envelope xmlns:soapenv=\\"http://schemas.xmlsoap.org/soap/envelope/\\">\\n <soapenv:Body>\\n <tns:CelsiusToFahrenheit xmlns:tns=\\"https://www.w3schools.com/xml/\\"><!-- mandatory -->\\n  <tns:Celsius>string</tns:Celsius>\\n </tns:CelsiusToFahrenheit>\\n </soapenv:Body>\\n</soapenv:Envelope>"
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "SOAP response"
+          }
+        }
+      }
+    }
+  }
+}",
+      "fileName": "tempconvert.openapi.json",
+      "parentId": "__WORKSPACE_ID__",
     },
   ],
 }

@@ -311,11 +311,11 @@ export const convert: FilePathConverter = async importEntry => {
 - [x] Add WS-I Basic Profile smoke checks where feasible (valid SOAPAction, literal use, HTTP binding)
 - [x] Document supported WSDL subset in import modal help text or docs
 - [x] Manual QA checklist (Import modal, file picker, paste fallback, send request) — `MANUAL-QA-CHECKLIST.md`
-- [ ] Optional: expose "Download OpenAPI" from WSDL import for interoperability with other tools
+- [x] Optional: expose "Download OpenAPI" from WSDL import for interoperability with other tools
 
 **Exit criteria:** Documented WSDL support matrix; expanded test coverage; manual QA signed off.
 
-**Status:** Manual QA signed off 2026-08-01. Real-world fixture coverage in `realworld.test.ts` + `tempconvert-input.wsdl`.
+**Status:** Manual QA signed off 2026-08-01. Real-world fixture coverage in `realworld.test.ts` + `tempconvert-input.wsdl`. SOAP encoded, multi-file batch import, URL import, and OpenAPI download implemented.
 
 ---
 

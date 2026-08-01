@@ -3,7 +3,7 @@ import path from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
-import { convertWsdlResources } from './index';
+import { convertWsdlFromPath } from './index';
 import { parseWsdlDocument } from './wsdl-parser';
 
 const fixturesPath = path.join(__dirname, '../fixtures/wsdl');
@@ -30,7 +30,7 @@ describe('Stage F — WS-I Basic Profile smoke checks', () => {
   it('SOAPAction header matches binding soapAction for calculator', async () => {
     const wsdlPath = path.join(fixturesPath, 'calculator-input.wsdl');
     const content = fs.readFileSync(wsdlPath, 'utf8');
-    const resources = await convertWsdlResources(wsdlPath, content);
+    const resources = await convertWsdlFromPath(wsdlPath, content);
     const requests = resources.filter(r => r._type === 'request');
 
     expect(requests).toHaveLength(4);

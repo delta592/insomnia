@@ -34,10 +34,7 @@ export const convert: FilePathConverter = async importEntry => {
   }
 
   try {
-    const input = importEntry.oriFilePath
-      ? importEntry.oriFilePath
-      : `<?xml version="1.0" encoding="UTF-8" ?>${rawData}`;
-    return await convertWsdlResources(input, rawData);
+    return await convertWsdlResources(importEntry);
   } catch (error) {
     console.error(error);
     return {

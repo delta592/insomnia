@@ -3,7 +3,7 @@ import path from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
-import { convertWsdlResources } from './index';
+import { convertWsdlFromPath } from './index';
 
 const fixturesPath = path.join(__dirname, '../fixtures/wsdl');
 
@@ -11,7 +11,7 @@ describe('Stage D — WSDL via openapi-3 importer', () => {
   it('routes addition fixture through full pipeline with absolute URL', async () => {
     const wsdlPath = path.join(fixturesPath, 'addition-input.wsdl');
     const content = fs.readFileSync(wsdlPath, 'utf8');
-    const resources = await convertWsdlResources(wsdlPath, content);
+    const resources = await convertWsdlFromPath(wsdlPath, content);
     const request = resources.find(r => r._type === 'request' && r.name === 'Add');
 
     expect(request?.url).toBe('http://www.dneonline.com/calculator.asmx');
@@ -21,10 +21,20 @@ describe('Stage D — WSDL via openapi-3 importer', () => {
     expect(request?.headers?.find(h => h.name === 'SOAPAction')?.value).toBe('http://tempuri.org/Add');
   });
 
+  it('includes OpenAPI export resource for download', async () => {
+    const wsdlPath = path.join(fixturesPath, 'addition-input.wsdl');
+    const content = fs.readFileSync(wsdlPath, 'utf8');
+    const resources = await convertWsdlFromPath(wsdlPath, content);
+    const apiSpec = resources.find(resource => resource._type === 'api_spec');
+
+    expect(apiSpec?.contents).toContain('"openapi": "3.1.0"');
+    expect(apiSpec?.fileName).toContain('.openapi.json');
+  });
+
   it('openapi-3 imports SOAP OpenAPI documents directly', async () => {
     const wsdlPath = path.join(fixturesPath, 'addition-input.wsdl');
     const content = fs.readFileSync(wsdlPath, 'utf8');
-    const resources = await convertWsdlResources(wsdlPath, content);
+    const resources = await convertWsdlFromPath(wsdlPath, content);
     const request = resources.find(r => r._type === 'request');
 
     expect(

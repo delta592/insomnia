@@ -20,8 +20,39 @@ export interface GenerateXmlOptions {
   maxDepth?: number;
   maxElements?: number;
   style?: 'document' | 'rpc' | string;
+  bodyUse?: 'literal' | 'encoded' | string;
   typeLookup?: Map<string, XsdTypeDefinition>;
 }
+
+const SOAPENC_NS = 'http://schemas.xmlsoap.org/soap/encoding/';
+
+const soapEncodingType = (declaredType?: string, typeName?: string) => {
+  if (typeName) {
+    return `tns:${typeName}`;
+  }
+  if (declaredType?.startsWith('xs:')) {
+    return declaredType.replace(/^xs:/, 'xsd:');
+  }
+  return 'xsd:string';
+};
+
+const xsiTypeAttribute = (element: XsdElementMeta, bodyUse?: string) => {
+  if (bodyUse !== 'encoded') {
+    return '';
+  }
+  return ` xsi:type="${soapEncodingType(element.declaredType, element.typeName)}"`;
+};
+
+const arrayWrapperAttributes = (element: XsdElementMeta, bodyUse?: string) => {
+  if (bodyUse !== 'encoded' || !isArrayElement(element)) {
+    return { openTagSuffix: '', closeTag: '' };
+  }
+  const itemType = soapEncodingType(element.declaredType, element.typeName);
+  return {
+    openTagSuffix: ` xsi:type="soapenc:Array" xmlns:soapenc="${SOAPENC_NS}" soapenc:arrayType="${itemType}[]"`,
+    closeTag: '',
+  };
+};
 
 const DEFAULT_MAX_DEPTH = 50;
 const DEFAULT_MAX_ELEMENTS = 500;
@@ -102,13 +133,18 @@ export const generateTypeXml = (
     const arrayOccurrences = isArrayElement(element) ? 1 : 1;
 
     for (let i = 0; i < arrayOccurrences; i++) {
+      const xsiType = xsiTypeAttribute(element, options.bodyUse);
+      const arrayAttrs = arrayWrapperAttributes(element, options.bodyUse);
+
       if (element.typeName && typeLookup.has(element.typeName)) {
         const nestedType = typeLookup.get(element.typeName)!;
         const inner = generateTypeXml(nestedType, { ...options, depth: depth + 1, typeLookup }, context);
-        lines.push(`${prefix}<tns:${element.name}>${mandatoryComment}\n${inner}\n${prefix}</tns:${element.name}>`);
+        lines.push(
+          `${prefix}<tns:${element.name}${xsiType}${arrayAttrs.openTagSuffix}>${mandatoryComment}\n${inner}\n${prefix}</tns:${element.name}>`,
+        );
       } else {
         const value = exampleValueForType(element.declaredType);
-        lines.push(`${prefix}<tns:${element.name}>${mandatoryComment}${value}</tns:${element.name}>`);
+        lines.push(`${prefix}<tns:${element.name}${xsiType}${arrayAttrs.openTagSuffix}>${mandatoryComment}${value}</tns:${element.name}>`);
       }
     }
   }
@@ -128,8 +164,10 @@ export const generateRootElementXml = (
   const style = options.style ?? 'document';
 
   if (style === 'rpc') {
-    return `${indent}<tns:${elementLocalName} xmlns:tns="${targetNamespace}">\n${inner}\n${indent}</tns:${elementLocalName}>`;
+    const rootTypeAttr = options.bodyUse === 'encoded' ? ` xsi:type="tns:${type.name}"` : '';
+    return `${indent}<tns:${elementLocalName} xmlns:tns="${targetNamespace}"${rootTypeAttr}>\n${inner}\n${indent}</tns:${elementLocalName}>`;
   }
 
-  return `${indent}<tns:${elementLocalName} xmlns:tns="${targetNamespace}"><!-- mandatory -->\n${inner}\n${indent}</tns:${elementLocalName}>`;
+  const rootTypeAttr = options.bodyUse === 'encoded' ? ` xsi:type="tns:${type.name}"` : '';
+  return `${indent}<tns:${elementLocalName} xmlns:tns="${targetNamespace}"${rootTypeAttr}><!-- mandatory -->\n${inner}\n${indent}</tns:${elementLocalName}>`;
 };

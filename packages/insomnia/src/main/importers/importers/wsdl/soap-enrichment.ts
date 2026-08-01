@@ -57,19 +57,24 @@ export const generateSoapEnvelope = ({
   bodyXml,
   includeWsSecurity,
   soapVersion = '1.1',
+  useSoapEncoding = false,
 }: {
   bodyXml: string;
   includeWsSecurity: boolean;
   soapVersion?: SoapVersion;
+  useSoapEncoding?: boolean;
 }) => {
   const envelopeNs = soapVersion === '1.2' ? SOAP12_ENVELOPE_NS : SOAP11_ENVELOPE_NS;
   const envelopePrefix = soapVersion === '1.2' ? 'soap12' : 'soapenv';
+  const encodingNamespaces = useSoapEncoding
+    ? ` xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"`
+    : '';
 
   const headerBlock = includeWsSecurity
     ? `<${envelopePrefix}:Header>\n  <!-- The Security element should be removed if WS-Security is not enabled on the SOAP target-url -->\n${generateWsSecurityHeader()}\n </${envelopePrefix}:Header>`
     : '';
 
-  return `<${envelopePrefix}:Envelope xmlns:${envelopePrefix}="${envelopeNs}">
+  return `<${envelopePrefix}:Envelope xmlns:${envelopePrefix}="${envelopeNs}"${encodingNamespaces}>
 ${headerBlock ? ` ${headerBlock}\n` : ''} <${envelopePrefix}:Body>
 ${bodyXml}
  </${envelopePrefix}:Body>
@@ -88,22 +93,16 @@ const findBindingOperation = (parsedWsdl: ParsedWsdl, port: WsdlPort, operationN
 };
 
 const generateOperationBodyXml = (
-  operationName: string,
   catalog: CompiledCatalogLike,
   bindingOp: WsdlBindingOperation | undefined,
   inputType: XsdTypeDefinition | null,
   elementLocalName: string,
 ) => {
-  if (bindingOp?.bodyUse === 'encoded') {
-    throw new Error(
-      `SOAP encoded binding is not supported for operation "${operationName}". Use document/literal WSDL or import via file with WS-I Basic Profile services.`,
-    );
-  }
-
   if (inputType) {
     const typeLookup = buildTypeLookup(catalog.types);
     return generateRootElementXml(elementLocalName, catalog.wsdlTargetNS, inputType, {
       style: bindingOp?.style === 'rpc' ? 'rpc' : 'document',
+      bodyUse: bindingOp?.bodyUse === 'encoded' ? 'encoded' : 'literal',
       typeLookup,
     });
   }
@@ -125,10 +124,15 @@ export const buildSoapOpenApiDocument = (
     const inputType = findType(catalog, operation.inputTypeName);
     const elementLocalName = operation.inputElement?.local || operation.name;
     const bindingOp = findBindingOperation(parsedWsdl, port, operation.name);
-    const bodyXml = generateOperationBodyXml(operation.name, catalog, bindingOp, inputType, elementLocalName);
+    const bodyXml = generateOperationBodyXml(catalog, bindingOp, inputType, elementLocalName);
 
     const includeWsSecurity = shouldIncludeWsSecurity(parsedWsdl, operation.security);
-    const envelope = generateSoapEnvelope({ bodyXml, includeWsSecurity, soapVersion: port.soapVersion });
+    const envelope = generateSoapEnvelope({
+      bodyXml,
+      includeWsSecurity,
+      soapVersion: port.soapVersion,
+      useSoapEncoding: bindingOp?.bodyUse === 'encoded',
+    });
 
     paths[`/${operation.name}`] = {
       post: {

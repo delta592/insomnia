@@ -608,7 +608,7 @@ export const importResourcesToNewWorkspace = async ({
   let newWorkspace: Workspace;
   // support import from both insomnia export and api spec yaml
   const apiSpecResource = resources.find(isApiSpec);
-  if (apiSpecResource || isApiSpecImport(resourceCacheItem.importer)) {
+  if ((apiSpecResource || isApiSpecImport(resourceCacheItem.importer)) && resourceCacheItem.importer.id !== 'wsdl') {
     newWorkspace = await services.workspace.create({
       name: workspaceToImport?.name,
       scope: 'design',

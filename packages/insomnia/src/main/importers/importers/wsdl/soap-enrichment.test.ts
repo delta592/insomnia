@@ -49,24 +49,35 @@ describe('Stage C — soap-enrichment', () => {
     expect(example).not.toContain('wsse:Security');
   });
 
-  it('throws on encoded binding instead of silent truncation', () => {
-    const wsdl = fs.readFileSync(path.join(fixturesPath, 'addition-input.wsdl'), 'utf8');
+  it('generates SOAP encoded examples with xsi:type attributes', () => {
+    const wsdl = fs.readFileSync(path.join(fixturesPath, 'soap-encoded-input.wsdl'), 'utf8');
     const parsed = parseWsdlDocument(wsdl);
     const port = getPrimarySoapPort(parsed)!;
-    parsed.bindings.CalculatorSoap = parsed.bindings.CalculatorSoap.map(op => ({ ...op, bodyUse: 'encoded' }));
 
-    expect(() =>
-      buildSoapOpenApiDocument(
-        {
-          serviceName: 'Calculator',
-          wsdlTargetNS: 'http://tempuri.org/',
-          types: [{ name: 'Add', ns: 'http://tempuri.org/', elems: [] }],
-          operations: [{ name: 'Add', soapAction: 'http://tempuri.org/Add', inputTypeName: 'Add' }],
-        },
-        parsed,
-        port,
-      ),
-    ).toThrow(/encoded binding is not supported/);
+    const document = buildSoapOpenApiDocument(
+      {
+        serviceName: 'Calculator',
+        wsdlTargetNS: 'http://tempuri.org/',
+        types: [
+          {
+            name: 'Add',
+            ns: 'http://tempuri.org/',
+            elems: [
+              { name: 'intA', declaredType: 'xs:int', min: 1, max: 1 },
+              { name: 'intB', declaredType: 'xs:int', min: 1, max: 1 },
+            ],
+          },
+        ],
+        operations: [{ name: 'Add', soapAction: 'http://tempuri.org/Add', inputTypeName: 'Add' }],
+      },
+      parsed,
+      port,
+    );
+
+    const requestBody = document.paths?.['/Add']?.post?.requestBody as OpenAPIV3.RequestBodyObject | undefined;
+    const example = requestBody?.content?.['text/xml']?.example as string;
+    expect(example).toContain('xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"');
+    expect(example).toContain('xsi:type="xsd:int"');
   });
 });
 

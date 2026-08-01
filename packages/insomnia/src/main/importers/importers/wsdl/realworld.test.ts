@@ -3,7 +3,7 @@ import path from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
-import { convertWsdlResources } from './index';
+import { convertWsdlFromPath, convertWsdlResources } from './index';
 import { wsdlToOpenApi } from './wsdl-to-openapi';
 
 const fixturesPath = path.join(__dirname, '../fixtures/wsdl');
@@ -12,7 +12,7 @@ describe('real-world WSDL import', () => {
   it('imports tempconvert WSDL with Fahrenheit and Celsius operations', async () => {
     const wsdlPath = path.join(fixturesPath, 'tempconvert-input.wsdl');
     const content = fs.readFileSync(wsdlPath, 'utf8');
-    const resources = await convertWsdlResources(wsdlPath, content);
+    const resources = await convertWsdlFromPath(wsdlPath, content);
     const requests = resources.filter(r => r._type === 'request');
 
     expect(requests).toHaveLength(2);
@@ -41,7 +41,10 @@ describe('real-world WSDL import', () => {
     async () => {
       const wsdlUrl = 'http://webservices.oorsprong.org/websamples.countryinfo/CountryInfoService.wso?WSDL';
       const content = await fetch(wsdlUrl).then(r => r.text());
-      const resources = await convertWsdlResources(wsdlUrl, content);
+      const resources = await convertWsdlResources({
+        contentStr: content,
+        oriFileName: wsdlUrl,
+      });
       const requests = resources.filter(r => r._type === 'request');
 
       expect(requests.length).toBeGreaterThanOrEqual(21);

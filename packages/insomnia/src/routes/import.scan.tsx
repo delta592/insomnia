@@ -142,6 +142,14 @@ export const scanImportResources = async (data: {
     throw new Error('No content to import');
   }
 
+  for (const entry of contentList) {
+    if (entry.contentStr.includes('<wsdl:definitions') || entry.contentStr.includes('xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"')) {
+      entry.relatedImportEntries = contentList
+        .filter(relatedEntry => relatedEntry !== entry)
+        .map(({ contentStr, oriFileName, oriFilePath }) => ({ contentStr, oriFileName, oriFilePath }));
+    }
+  }
+
   const result = await scanResources(contentList);
 
   return result;

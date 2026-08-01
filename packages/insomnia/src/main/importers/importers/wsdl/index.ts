@@ -1,5 +1,8 @@
+import path from 'node:path';
+
 import type { ImportRequest } from '../../entities';
 import * as openapi3 from '../openapi-3';
+import { resolveWsdlImportContext } from './wsdl-import-context';
 import { wsdlToOpenApi } from './wsdl-to-openapi';
 
 let requestGroupCount = 1;
@@ -49,22 +52,50 @@ const restructureWsdlImport = (resources: ImportRequest[], collectionName: strin
   }));
 };
 
+const buildOpenApiExportResource = (openApiDoc: Awaited<ReturnType<typeof wsdlToOpenApi>>): ImportRequest => {
+  const title = openApiDoc.info?.title || 'soap-service';
+  return {
+    _type: 'api_spec',
+    _id: '__API_SPEC__',
+    parentId: '__WORKSPACE_ID__',
+    fileName: `${title.replace(/\s+/g, '-').toLowerCase()}.openapi.json`,
+    contentType: 'json',
+    contents: JSON.stringify(openApiDoc, null, 2),
+  };
+};
+
 export { wsdlToOpenApi };
 
-export const convertWsdlResources = async (wsdlInput: string, fileContent: string): Promise<ImportRequest[]> => {
+export const convertWsdlFromPath = (wsdlPath: string, content: string) =>
+  convertWsdlResources({
+    contentStr: content,
+    oriFilePath: wsdlPath,
+    oriFileName: path.basename(wsdlPath),
+  });
+
+export const convertWsdlResources = async (importEntry: Parameters<typeof resolveWsdlImportContext>[0]): Promise<ImportRequest[]> => {
   requestGroupCount = 1;
   requestCount = 1;
 
-  const openApiDoc = await wsdlToOpenApi(wsdlInput, fileContent);
-  const resources = await openapi3.convert(JSON.stringify(openApiDoc));
+  const context = resolveWsdlImportContext(importEntry);
 
-  if (!resources || Array.isArray(resources) === false) {
-    throw new Error('Failed to convert WSDL OpenAPI document');
+  try {
+    const openApiDoc = await wsdlToOpenApi(context.wsdlInput, context.fileContent);
+    const resources = await openapi3.convert(JSON.stringify(openApiDoc));
+
+    if (!resources || Array.isArray(resources) === false) {
+      throw new Error('Failed to convert WSDL OpenAPI document');
+    }
+
+    const importableResources = resources.filter(
+      (resource: ImportRequest) => resource._type === 'request' || resource._type === 'request_group',
+    );
+
+    return [
+      ...restructureWsdlImport(importableResources, openApiDoc.info?.title || 'SOAP Service'),
+      buildOpenApiExportResource(openApiDoc),
+    ];
+  } finally {
+    context.cleanup?.();
   }
-
-  const importableResources = resources.filter(
-    (resource: ImportRequest) => resource._type === 'request' || resource._type === 'request_group',
-  );
-
-  return restructureWsdlImport(importableResources, openApiDoc.info?.title || 'SOAP Service');
 };
