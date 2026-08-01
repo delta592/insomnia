@@ -108,7 +108,7 @@ On `chore/dep-update-code-refactor` (and until merged), note these install/test 
 - **Inso unit tests:** mock `@getinsomnia/node-libcurl` via `packages/insomnia-inso/setup-vitest.ts` (same mock as insomnia Vitest setup).
 - **Inso bundle tests:** run `npm run install-libcurl-node` then `npm run build -w insomnia-inso`; start smoke server (`npm run serve -w insomnia-smoke-test`) before `npm run test:bundle -w insomnia-inso`. CI runs this on Ubuntu (`.github/workflows/test-cli.yml`).
 - **Smoke test server:** Express 5 / `path-to-regexp` v8 requires named wildcards (e.g. `/builds/check/*path`, not `/builds/check/*`).
-- **libcurl binaries:** `@getinsomnia/node-libcurl` prebuilds may be missing for some Electron/Node + platform combos; use `install-libcurl-electron` / `install-libcurl-node` scripts or validate on CI Linux runners.
+- **libcurl binaries:** pin `@getinsomnia/node-libcurl@3.3.0` (not `3.36.8` — no GitHub prebuilds for that tag). Run `npm run install-libcurl-electron` after install; use `install-libcurl-node` before inso bundle tests. Until `3.3.0` clears `min-release-age=7` (~2026-08-03), refresh the lockfile with `npm install --force --min-release-age=0`.
 
 - [x] upgrade spectral e2e testing
 - [x] upgrading electron

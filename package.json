@@ -101,11 +101,11 @@
     "uuid": "14.0.1"
   },
   "dependencies": {
-    "@getinsomnia/node-libcurl": "3.36.8",
+    "@getinsomnia/node-libcurl": "3.3.0",
     "ajv": "8.20.0"
   },
   "allowScripts": {
-    "@getinsomnia/node-libcurl@3.36.8": true,
+    "@getinsomnia/node-libcurl@3.3.0": true,
     "@scarf/scarf@1.4.0": true,
     "electron-winstaller@5.4.0": true,
     "esbuild@0.25.12": true,
