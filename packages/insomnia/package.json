@@ -33,7 +33,7 @@
     "start:electron": "cross-env NODE_ENV=development esr esbuild.entrypoints.ts && npx -y wait-on tcp:3334 && electron --inspect=5858 .",
     "start:electron:autoRestart": "cross-env NODE_ENV=development esr esbuild.entrypoints.ts --autoRestart",
     "test": "vitest run",
-    "type-check": "react-router typegen && tsc --project tsconfig.json",
+    "type-check": "react-router typegen && node ../../node_modules/@typescript/native/bin/tsc --project tsconfig.json",
     "type-check:watch": "npm run type-check -- --watch",
     "convert-svg": "npm_config_yes=true npx @svgr/cli@6.4.0 --no-index --config-file svgr.config.js --out-dir src/ui/components/assets/svgr src/ui/components/assets/",
     "sandbox:vendored:ci": "npm ci --prefix src/templating/sandbox/vendored/pkg && npm run sandbox:vendored:guardrail",
@@ -96,7 +96,7 @@
     "chardet": "2.2.0",
     "classnames": "2.5.1",
     "clone": "2.1.2",
-    "codemirror": "6.0.2",
+    "codemirror": "5.65.21",
     "codemirror-graphql": "2.2.7",
     "color": "5.0.3",
     "content-disposition": "2.0.1",
@@ -186,6 +186,7 @@
     "@types/hawk": "9.0.7",
     "@types/hosted-git-info": "3.0.5",
     "@types/js-yaml": "4.0.9",
+    "@types/jsonwebtoken": "9.0.10",
     "@types/jshint": "2.12.4",
     "@types/json-bigint": "1.0.4",
     "@types/mime-types": "3.0.1",
@@ -217,7 +218,6 @@
     "tailwind-variants": "3.3.0",
     "tailwindcss": "4.3.3",
     "type-fest": "5.8.0",
-    "typescript": "7.0.2",
     "vite": "8.2.0"
   },
   "optionalDependencies": {
