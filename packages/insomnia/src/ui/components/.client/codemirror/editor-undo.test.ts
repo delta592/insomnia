@@ -37,7 +37,7 @@ afterEach(() => {
 
 const mountFocusedCodeMirror = () => {
   const wrapper = document.createElement('div');
-  wrapper.setAttribute('data-cm-editor', 'true');
+  wrapper.dataset.cmEditor = 'true';
   wrapper.tabIndex = -1;
   const input = document.createElement('textarea');
   wrapper.append(input);

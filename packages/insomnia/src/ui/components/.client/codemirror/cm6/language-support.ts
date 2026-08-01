@@ -17,6 +17,8 @@ import { shell } from '@codemirror/legacy-modes/mode/shell';
 import { swift } from '@codemirror/legacy-modes/mode/swift';
 import type { Extension } from '@codemirror/state';
 
+import { graphqlLanguage } from './graphql/graphql-language';
+import { graphqlVariablesLanguage } from './graphql/graphql-variables-language';
 import { curlLanguage } from './languages/curl-language';
 import { nunjucksHighlightExtension } from './languages/nunjucks-highlight';
 import { openapiLanguage } from './languages/openapi-language';
@@ -60,6 +62,14 @@ export const getLanguageExtensions = (mode?: EditorModeSpec): Extension[] => {
     }
     case 'curl': {
       extensions.push(curlLanguage);
+      break;
+    }
+    case 'graphql': {
+      extensions.push(graphqlLanguage);
+      break;
+    }
+    case 'graphql-variables': {
+      extensions.push(graphqlVariablesLanguage);
       break;
     }
     case 'application/edn':

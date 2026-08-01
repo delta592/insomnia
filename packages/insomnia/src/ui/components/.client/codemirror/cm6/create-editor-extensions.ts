@@ -10,6 +10,8 @@ import { isMac } from 'insomnia-data/common';
 
 import { clickableLinksExtension } from './extensions/clickable-links';
 import { environmentAutocompleteExtension } from './extensions/environment-autocomplete';
+import { createGraphQLExtensions, createGraphQLVariablesAutocompleteExtensions } from './graphql/create-graphql-extensions';
+import type { GraphQLExtensionOptions } from './graphql/types';
 import { getLanguageExtensions } from './language-support';
 import { javascriptLintExtension } from './lint/javascript-lint';
 import { jsonLintExtension } from './lint/json-lint';
@@ -21,6 +23,15 @@ export const languageCompartment = new Compartment();
 export const lintCompartment = new Compartment();
 export const readOnlyCompartment = new Compartment();
 export const autocompleteCompartment = new Compartment();
+export const graphqlCompartment = new Compartment();
+
+export interface GraphQLEditorOptions {
+  hintOptions?: GraphQLExtensionOptions['hintOptions'];
+  infoOptions?: GraphQLExtensionOptions['infoOptions'];
+  jumpOptions?: GraphQLExtensionOptions['jumpOptions'];
+  lintOptions?: GraphQLExtensionOptions['lintOptions'];
+  getAutocompleteConstants?: () => string[] | PromiseLike<string[]>;
+}
 
 export interface CreateEditorExtensionsOptions {
   mode?: EditorModeSpec;
@@ -38,13 +49,48 @@ export interface CreateEditorExtensionsOptions {
   onClickLink?: CodeMirrorLinkClickCallback;
   fontSize?: number;
   extraExtensions?: Extension[];
+  graphqlOptions?: GraphQLEditorOptions;
 }
+
+const getMime = (mode: EditorModeSpec | undefined) => (typeof mode === 'string' ? mode : mode?.baseMode ?? '');
+
+const buildGraphQLExtensions = (
+  mode: EditorModeSpec | undefined,
+  graphqlOptions: GraphQLEditorOptions | undefined,
+  noLint?: boolean,
+): Extension[] => {
+  const mime = getMime(mode);
+  if (mime === 'graphql') {
+    return createGraphQLExtensions({
+      mode: 'graphql',
+      hintOptions: graphqlOptions?.hintOptions,
+      infoOptions: graphqlOptions?.infoOptions,
+      jumpOptions: graphqlOptions?.jumpOptions,
+      lintOptions: (graphqlOptions?.lintOptions ?? undefined) as GraphQLExtensionOptions['lintOptions'],
+      noLint,
+    });
+  }
+  if (mime === 'graphql-variables') {
+    return [
+      ...createGraphQLExtensions({
+        mode: 'graphql-variables',
+        lintOptions: (graphqlOptions?.lintOptions ?? undefined) as GraphQLExtensionOptions['lintOptions'],
+        noLint,
+      }),
+      ...createGraphQLVariablesAutocompleteExtensions(graphqlOptions?.getAutocompleteConstants),
+    ];
+  }
+  return [];
+};
 
 const getLintExtension = (mode: EditorModeSpec | undefined, lintOptions: boolean | Record<string, unknown> | undefined, noLint?: boolean) => {
   if (noLint) {
     return [];
   }
-  const mime = typeof mode === 'string' ? mode : mode?.baseMode ?? '';
+  const mime = getMime(mode);
+  if (mime === 'graphql' || mime === 'graphql-variables') {
+    return [];
+  }
   if (mime.includes('json') || mime === 'application/json') {
     return [jsonLintExtension()];
   }
@@ -73,6 +119,7 @@ export const createEditorExtensions = ({
   onClickLink,
   fontSize,
   extraExtensions = [],
+  graphqlOptions,
 }: CreateEditorExtensionsOptions): Extension[] => {
   const extensions: Extension[] = [
     history(),
@@ -98,6 +145,7 @@ export const createEditorExtensions = ({
     ]),
     languageCompartment.of(getLanguageExtensions(mode)),
     lintCompartment.of(getLintExtension(mode, lint, noLint)),
+    graphqlCompartment.of(buildGraphQLExtensions(mode, graphqlOptions, noLint)),
     readOnlyCompartment.of(EditorState.readOnly.of(!!readOnly)),
     autocompleteCompartment.of(environmentAutocompleteExtension(environmentAutocomplete ?? null)),
     ...clickableLinksExtension(onClickLink),
@@ -145,3 +193,10 @@ export const reconfigureLint = (view: EditorView, mode: EditorModeSpec | undefin
 
 export const reconfigureReadOnly = (view: EditorView, readOnly: boolean) =>
   view.dispatch({ effects: readOnlyCompartment.reconfigure(EditorState.readOnly.of(readOnly)) });
+
+export const reconfigureGraphQL = (
+  view: EditorView,
+  mode: EditorModeSpec | undefined,
+  graphqlOptions: GraphQLEditorOptions | undefined,
+  noLint?: boolean,
+) => view.dispatch({ effects: graphqlCompartment.reconfigure(buildGraphQLExtensions(mode, graphqlOptions, noLint)) });

@@ -22,7 +22,7 @@ import { ednPrettify } from '~/ui/utils/prettify/edn';
 import { jsonPrettify } from '~/ui/utils/prettify/json';
 import { queryXPath } from '~/ui/utils/xpath/query';
 
-import { createEditorExtensions, reconfigureLanguage, reconfigureLint } from './cm6/create-editor-extensions';
+import { createEditorExtensions, reconfigureGraphQL, reconfigureLanguage, reconfigureLint } from './cm6/create-editor-extensions';
 import {
   attachViewReference,
   getCursor,
@@ -35,6 +35,14 @@ import {
   setEditorValue,
 } from './cm6/editor-utils';
 import { nunjucksTagsExtension } from './cm6/extensions/nunjucks-tags';
+import { highlightRangesExtension, setHighlightRanges } from './cm6/graphql/highlight-ranges';
+import type {
+  EditorHighlightRange,
+  GraphQLExtensionOptions,
+  GraphQLHintOptions,
+  GraphQLInfoOptions,
+  GraphQLJumpOptions,
+} from './cm6/graphql/types';
 import { normalizeMimeType } from './cm6/normalize-mime-type';
 import type { CodeMirrorLinkClickCallback, EditorChange, EditorModeSpec, EditorPosition } from './cm6/types';
 import { getCachedEditorState, setCachedEditorState } from './editor-state-cache';
@@ -59,10 +67,11 @@ export interface CodeEditorProps {
   getAutocompleteSnippets?: () => { name: string; value?: string }[];
   hideGutters?: boolean;
   hideLineNumbers?: boolean;
-  hintOptions?: Record<string, unknown>;
+  hintOptions?: GraphQLHintOptions;
   id: string;
-  infoOptions?: Record<string, unknown>;
-  jumpOptions?: Record<string, unknown>;
+  infoOptions?: GraphQLInfoOptions;
+  jumpOptions?: GraphQLJumpOptions;
+  highlightRanges?: EditorHighlightRange[];
   lintOptions?: Record<string, unknown>;
   showPrettifyButton?: boolean;
   mode?: string;
@@ -95,6 +104,7 @@ export interface CodeEditorHandle {
   getCursor: () => EditorPosition | undefined;
   setCursorLine: (lineNumber: number) => void;
   tryToSetOption: (key: string, value: unknown) => void;
+  setHighlightRanges: (ranges: EditorHighlightRange[]) => void;
   hasFocus: () => boolean;
   indexFromPos: (pos?: EditorPosition) => number;
   getDoc: () => { getValue: () => string; lineCount: () => number; setCursor: (line: number) => void } | undefined;
@@ -114,8 +124,11 @@ export const CodeEditor = memo(
       getAutocompleteSnippets,
       hideGutters,
       hideLineNumbers,
-      hintOptions: _hintOptions,
+      hintOptions,
       id,
+      infoOptions,
+      jumpOptions,
+      highlightRanges,
       lintOptions,
       showPrettifyButton,
       mode,
@@ -250,7 +263,15 @@ export const CodeEditor = memo(
           autocompleteDelay: settings.autocompleteDelay,
         },
         onClickLink,
+        graphqlOptions: {
+          hintOptions,
+          infoOptions,
+          jumpOptions,
+          lintOptions: lintOptions as GraphQLExtensionOptions['lintOptions'],
+          getAutocompleteConstants,
+        },
         extraExtensions: [
+          ...highlightRangesExtension(),
           ...(isNunjucksEnabled && !settings.nunjucksPowerUserMode
             ? [
                 nunjucksTagsExtension({
@@ -349,8 +370,11 @@ export const CodeEditor = memo(
       handleRender,
       hideGutters,
       hideLineNumbers,
+      hintOptions,
       historyKey,
       id,
+      infoOptions,
+      jumpOptions,
       indentSize,
       indentWithTabs,
       isNunjucksEnabled,
@@ -395,6 +419,29 @@ export const CodeEditor = memo(
 
     useEffect(() => {
       if (viewRef.current) {
+        reconfigureGraphQL(
+          viewRef.current,
+          editorMode,
+          {
+            hintOptions,
+            infoOptions,
+            jumpOptions,
+            lintOptions: lintOptions as GraphQLExtensionOptions['lintOptions'],
+            getAutocompleteConstants,
+          },
+          noLint,
+        );
+      }
+    }, [editorMode, getAutocompleteConstants, hintOptions, infoOptions, jumpOptions, lintOptions, noLint]);
+
+    useEffect(() => {
+      if (viewRef.current && highlightRanges) {
+        setHighlightRanges(viewRef.current, highlightRanges);
+      }
+    }, [highlightRanges]);
+
+    useEffect(() => {
+      if (viewRef.current) {
         reconfigureLanguage(viewRef.current, editorMode);
       }
     }, [editorMode]);
@@ -432,8 +479,22 @@ export const CodeEditor = memo(
           reconfigureLanguage(view, value as EditorModeSpec);
         } else if (key === 'lint') {
           reconfigureLint(view, editorMode, value as Record<string, unknown>, noLint);
+        } else if (key === 'hintOptions' || key === 'info' || key === 'jump' || key === 'graphql') {
+          reconfigureGraphQL(
+            view,
+            editorMode,
+            {
+              hintOptions: (key === 'hintOptions' || key === 'graphql' ? value : hintOptions) as never,
+              infoOptions: (key === 'info' || key === 'graphql' ? value : infoOptions) as never,
+              jumpOptions: (key === 'jump' || key === 'graphql' ? value : jumpOptions) as never,
+              lintOptions: lintOptions as never,
+              getAutocompleteConstants,
+            },
+            noLint,
+          );
         }
       },
+      setHighlightRanges: ranges => viewRef.current && setHighlightRanges(viewRef.current, ranges),
       hasFocus: () => viewRef.current?.hasFocus ?? false,
       indexFromPos: pos => indexFromPos(viewRef.current!, pos),
       getDoc: () => {
