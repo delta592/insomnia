@@ -5,12 +5,12 @@ import { fuzzyMatch, fuzzyMatchAll } from './search';
 describe('fuzzyMatch()', () => {
   it('can get a positive fuzzy match on a single field', () => {
     expect(fuzzyMatch('test', 'testing')).toEqual({
-      score: -3,
+      score: 0.9224765852741982,
       indexes: [0, 1, 2, 3],
       target: 'testing',
     });
     expect(fuzzyMatch('tst', 'testing')).toEqual({
-      score: -3004,
+      score: 0.358359043029282,
       indexes: [0, 2, 3],
       target: 'testing',
     });
@@ -30,7 +30,7 @@ describe('fuzzyMatchAll()', () => {
     expect(fuzzyMatchAll('', ['testing'])).toEqual(null);
     expect(fuzzyMatchAll('   ', ['testing'])).toEqual(null);
     expect(fuzzyMatchAll('test', ['testing', 'foo'])).toEqual({
-      score: -3,
+      score: 0.9224765852741982,
       indexes: [0, 1, 2, 3],
       target: 'testing foo',
     });
@@ -39,12 +39,12 @@ describe('fuzzyMatchAll()', () => {
         splitSpace: true,
       }),
     ).toEqual({
-      score: 0,
+      score: 1,
       indexes: [0, 1, 2, 3, 0, 1, 2],
       target: 'testing foo',
     });
     expect(fuzzyMatchAll('tst', ['testing'])).toEqual({
-      score: -3004,
+      score: 0.358359043029282,
       indexes: [0, 2, 3],
       target: 'testing',
     });
@@ -54,8 +54,8 @@ describe('fuzzyMatchAll()', () => {
         loose: true,
       }),
     ).toEqual({
-      score: -12.8,
-      indexes: [0, 2, 3, 8, 9, 10, 11, 13, 14],
+      score: 0.8388595946971493,
+      indexes: [0, 2, 3, 8, 9, 10, 11, 13, 14, 0, 2, 3, 8, 9, 10, 11, 13, 14],
       target: 'testing this out',
     });
   });

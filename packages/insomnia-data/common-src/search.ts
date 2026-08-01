@@ -37,8 +37,8 @@ export function fuzzyMatchAll(searchString: string, allText: string[], options: 
         continue;
       }
 
-      // Don't match garbage
-      if (result.score < -8000) {
+      // Don't match garbage (fuzzysort v3 scores are 0..1, higher is better)
+      if (result.score < 0.01) {
         continue;
       }
 
