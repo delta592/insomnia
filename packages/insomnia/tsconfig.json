@@ -15,7 +15,9 @@
     /* import resolution */
     "rootDirs": [".", "./.react-router/types"],
     "paths": {
-      "~/*": ["./src/*"]
+      "~/*": ["./src/*"],
+      "codemirror-legacy": ["./types/codemirror-legacy-shim.d.ts"],
+      "codemirror-legacy/*": ["../../node_modules/codemirror-5/*"]
     },
     /* Runs in the DOM */
     "lib": ["ES2023", "DOM.Iterable", "DOM"],
@@ -30,7 +32,7 @@
     "verbatimModuleSyntax": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["types/global.d.ts", "**/*", ".react-router/types/**/*"],
+  "include": ["types/global.d.ts", "types/codemirror-legacy-shim.d.ts", "**/*", ".react-router/types/**/*"],
   "exclude": [
     "./src/__mocks__/@getinsomnia/node-libcurl.ts",
     "**/__mocks__",
