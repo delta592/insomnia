@@ -274,7 +274,7 @@ jobs:
       # TODO: also release for aarch64 Linux?
       - name: Upload .deb to pulp and/or cloudsmith (stable only)
         if: ${{ !contains(github.event.inputs.version, 'alpha') && !contains(github.event.inputs.version, 'beta') }}
-        uses: docker://kong/release-script:latest
+        uses: docker://kong/release-script:latest@sha256:112bd255bb38be52bd626e7f615fd1c4bb1c948f48612984591907dc7cf95ce4
         env:
           PULP_USERNAME: ${{ secrets.PULP_USERNAME }}
           PULP_PASSWORD: ${{ secrets.PULP_PASSWORD }}
@@ -312,7 +312,7 @@ jobs:
           - product: inso
             binary_artifacts_subject_as_file: ${{ needs.publish.outputs.INSO_BINARY_ARTIFACTS_SUBJECTS_AS_FILE }}
     # need to use non hash version because of: https://github.com/slsa-framework/slsa-github-generator/issues/3498
-    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@f7dd8c54c2067bafc12ca7a55595d5ee9b75204a # v2.1.0
     with:
       base64-subjects-as-file: '${{ matrix.binary_artifacts_subject_as_file }}'
       upload-assets: true
@@ -328,7 +328,7 @@ jobs:
       packages: write # Required for publishing provenance. Issue: https://github.com/slsa-framework/slsa-github-generator/tree/main/internal/builders/container#known-issues
       # need to use non hash version because of: https://github.com/slsa-framework/slsa-github-generator/issues/3498
       contents: write
-    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@v2.1.0
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@f7dd8c54c2067bafc12ca7a55595d5ee9b75204a # v2.1.0
     with:
       image: *INSO_DOCKER_IMAGE
       digest: ${{ needs.publish.outputs.INSO_DOCKER_IMAGE_DIGEST }}

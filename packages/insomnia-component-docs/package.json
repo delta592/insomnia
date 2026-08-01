@@ -14,23 +14,23 @@
   "dependencies": {
     "@docusaurus/core": "3.10.2",
     "@docusaurus/preset-classic": "3.10.2",
-    "@docusaurus/theme-live-codeblock": "^3.10.2",
-    "@mdx-js/react": "^3.1.1",
-    "@tailwindcss/postcss": "^4.3.3",
-    "clsx": "^2.1.1",
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8",
-    "tailwindcss": "^4.3.3"
+    "@docusaurus/theme-live-codeblock": "3.10.2",
+    "@mdx-js/react": "3.1.1",
+    "@tailwindcss/postcss": "4.3.3",
+    "clsx": "2.1.1",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "tailwindcss": "4.3.3"
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "3.10.2",
     "@docusaurus/tsconfig": "3.10.2",
     "@docusaurus/types": "3.10.2",
-    "postcss": "^8.5.25",
-    "typescript": "~6.0.3"
+    "postcss": "8.5.25",
+    "typescript": "6.0.3"
   },
   "engines": {
-    "node": ">=24.0"
+    "node": "v26.5.1"
   },
   "overrides": {
     "@babel/core": "7.29.6",
