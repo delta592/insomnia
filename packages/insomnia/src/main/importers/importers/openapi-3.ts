@@ -46,6 +46,7 @@ const SUPPORTED_MIME_TYPES = [
   MIMETYPE_LITERALLY_ANYTHING,
 ];
 const XML_MIME_TYPES = [MIMETYPE_XML, MIMETYPE_APPLICATION_XML, MIMETYPE_SOAP_XML];
+const INSOMNIA_SOAP_EXTENSION = 'x-insomnia-soap';
 const INSOMNIA_ABSOLUTE_URL_EXTENSION = 'x-insomnia-url';
 const WORKSPACE_ID = '__WORKSPACE_ID__';
 const SECURITY_TYPE = {
@@ -220,6 +221,9 @@ const parseEndpoints = (document?: OpenAPIV3.Document | null) => {
     {} as Record<OpenAPIV3.TagObject['name'], string | undefined>,
   );
 
+  const soapDocument = document as OpenAPIV3.Document & Record<string, unknown>;
+  const soapServerUrl = soapDocument[INSOMNIA_SOAP_EXTENSION] === true ? document.servers?.[0]?.url : undefined;
+
   const requests: ImportRequest[] = [];
   endpointsSchemas.forEach(endpointSchema => {
     let { tags } = endpointSchema;
@@ -231,7 +235,7 @@ const parseEndpoints = (document?: OpenAPIV3.Document | null) => {
     tags.forEach(tag => {
       const parentId = folderLookup[tag] || defaultParent;
       const resolvedSecurity = (endpointSchema as unknown as OpenAPIV3.Document).security || rootSecurity;
-      requests.push(importRequest(endpointSchema, parentId, resolvedSecurity, securitySchemes));
+      requests.push(importRequest(endpointSchema, parentId, resolvedSecurity, securitySchemes, soapServerUrl));
     });
   });
 
@@ -280,6 +284,7 @@ const importRequest = (
   parentId: string,
   security?: OpenAPIV3.SecurityRequirementObject[],
   securitySchemes?: OpenAPIV3.SecuritySchemeObject,
+  soapServerUrl?: string,
 ): ImportRequest => {
   const name = endpointSchema.summary || endpointSchema.path;
   const id = generateUniqueRequestId(endpointSchema as OpenAPIV3.OperationObject);
@@ -290,7 +295,7 @@ const importRequest = (
     headers: securityHeaders,
     parameters: securityParams,
   } = parseSecurity(security, securitySchemes);
-  const absoluteUrl = endpointSchema[INSOMNIA_ABSOLUTE_URL_EXTENSION];
+  const absoluteUrl = endpointSchema[INSOMNIA_ABSOLUTE_URL_EXTENSION] || soapServerUrl;
   return {
     _type: 'request',
     _id: id,

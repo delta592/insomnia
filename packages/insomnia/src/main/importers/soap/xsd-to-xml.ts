@@ -17,6 +17,7 @@ export interface GenerateXmlOptions {
   depth?: number;
   maxDepth?: number;
   maxElements?: number;
+  style?: 'document' | 'rpc' | string;
 }
 
 const DEFAULT_MAX_DEPTH = 50;
@@ -105,5 +106,11 @@ export const generateRootElementXml = (
 ): string => {
   const indent = options.indent ?? ' ';
   const inner = generateTypeXml(type, { ...options, depth: 2 });
+  const style = options.style ?? 'document';
+
+  if (style === 'rpc') {
+    return `${indent}<tns:${elementLocalName} xmlns:tns="${targetNamespace}">\n${inner}\n${indent}</tns:${elementLocalName}>`;
+  }
+
   return `${indent}<tns:${elementLocalName} xmlns:tns="${targetNamespace}"><!-- mandatory -->\n${inner}\n${indent}</tns:${elementLocalName}>`;
 };

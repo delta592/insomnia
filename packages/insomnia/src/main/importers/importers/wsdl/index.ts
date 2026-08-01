@@ -5,11 +5,7 @@ import { wsdlToOpenApi } from './wsdl-to-openapi';
 let requestGroupCount = 1;
 let requestCount = 1;
 
-const restructureWsdlImport = (
-  resources: ImportRequest[],
-  collectionName: string,
-  endpointUrl: string,
-): ImportRequest[] => {
+const restructureWsdlImport = (resources: ImportRequest[], collectionName: string): ImportRequest[] => {
   const requests = resources.filter(resource => resource._type === 'request');
   const folder = resources.find(resource => resource._type === 'request_group');
 
@@ -44,7 +40,6 @@ const restructureWsdlImport = (
     ...request,
     _id: `__REQ_${requestCount++}__`,
     parentId: serviceFolderId,
-    url: endpointUrl,
   }));
 
   const now = Date.now();
@@ -67,10 +62,9 @@ export const convertWsdlResources = async (wsdlInput: string, fileContent: strin
     throw new Error('Failed to convert WSDL OpenAPI document');
   }
 
-  const endpointUrl = openApiDoc.servers?.[0]?.url || '';
   const importableResources = resources.filter(
     (resource: ImportRequest) => resource._type === 'request' || resource._type === 'request_group',
   );
 
-  return restructureWsdlImport(importableResources, openApiDoc.info?.title || 'SOAP Service', endpointUrl);
+  return restructureWsdlImport(importableResources, openApiDoc.info?.title || 'SOAP Service');
 };

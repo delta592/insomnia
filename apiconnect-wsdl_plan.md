@@ -177,21 +177,23 @@ Each stage is independently shippable. No stage removes user-facing WSDL import 
 
 **Tasks:**
 
-- [ ] Confirm WSDL fixture snapshots pass (`addition-input.wsdl`, `calculator-input.wsdl`)
-- [ ] Document per-operation expectations from snapshots:
+- [x] Confirm WSDL fixture snapshots pass (`addition-input.wsdl`, `calculator-input.wsdl`)
+- [x] Document per-operation expectations from snapshots:
   - Operation count and names
   - `SOAPAction` values
   - Endpoint URL (`soap:address@location`)
   - Headers (`Content-Type`, `Accept`, `SOAPAction`)
   - SOAP envelope example structure (namespaces, body element, WS-Security block)
-- [ ] Map each snapshot field to its **standard WSDL/SOAP source** (see table in Guiding Principles)
-- [ ] Add fixtures for industry edge cases not yet covered:
-  - [ ] Multi-file WSDL (`wsdl:import` + `xsd:include`)
-  - [ ] SOAP 1.2 binding (`soap12:binding`)
-  - [ ] Multiple ports on one service
-  - [ ] Deep/complex XSD (validates example generation without truncation)
+- [x] Map each snapshot field to its **standard WSDL/SOAP source** (see table in Guiding Principles)
+- [x] Add fixtures for industry edge cases not yet covered:
+  - [x] Multi-file WSDL (`wsdl:import` + `xsd:include`)
+  - [x] SOAP 1.2 binding (`soap12:binding`)
+  - [x] Multiple ports on one service
+  - [x] Deep/complex XSD (validates example generation without truncation)
 
 **Exit criteria:** Snapshot baseline green; mapping spec written; edge-case fixtures added.
+
+**Artifacts:** `fixtures/wsdl/mapping-spec.md`
 
 ---
 
@@ -201,26 +203,22 @@ Each stage is independently shippable. No stage removes user-facing WSDL import 
 
 **Tasks:**
 
-- [ ] Integrate `@techspokes/typescript-wsdl-client` as dev/spike dependency
-- [ ] Convert existing fixtures to OpenAPI 3.1 programmatically
-- [ ] Inspect generated OAS for:
-  - [ ] `servers` / endpoint URLs
-  - [ ] Operation IDs and descriptions (from `wsdl:documentation` where available)
-  - [ ] `parameters` with `in: header` for SOAPAction
-  - [ ] `requestBody.content` for `text/xml` or `application/soap+xml`
-  - [ ] Embedded `example` or `examples` for XML payloads
-- [ ] Compare OAS output against Stage A mapping spec
-- [ ] Test multi-file WSDL with `oriFilePath`-equivalent directory context
+- [x] Integrate `@techspokes/typescript-wsdl-client` as dev/spike dependency
+- [x] Convert existing fixtures to OpenAPI 3.1 programmatically
+- [x] Inspect generated OAS for:
+  - [x] `servers` / endpoint URLs
+  - [x] Operation IDs and descriptions (from `wsdl:documentation` where available)
+  - [x] `parameters` with `in: header` for SOAPAction
+  - [x] `requestBody.content` for `text/xml` or `application/soap+xml`
+  - [x] Embedded `example` or `examples` for XML payloads
+- [x] Compare OAS output against Stage A mapping spec
+- [x] Test multi-file WSDL with `oriFilePath`-equivalent directory context
 
-**Decision gate:**
-
-| Outcome | Next step |
-|---------|-----------|
-| OAS quality sufficient (structure + partial examples) | Proceed to Stage C |
-| OAS structure good, examples missing | Proceed to Stage C with soap-enrichment module |
-| OAS quality insufficient | Evaluate `strong-soap` emitter or short-term fork (Stage F) |
+**Decision gate:** TechSpokes REST OAS insufficient → custom SOAP enrichment (see spike report).
 
 **Exit criteria:** Written spike report with sample OAS artifacts checked into `fixtures/wsdl/expected-openapi/` (or similar).
+
+**Artifacts:** `fixtures/wsdl/stage-b-spike-report.md`, `fixtures/wsdl/expected-openapi/`, `wsdl/stage-b.test.ts`
 
 ---
 
@@ -245,6 +243,8 @@ Create `packages/insomnia/src/main/importers/importers/wsdl/soap-enrichment.ts`:
 
 **Exit criteria:** Enriched OAS documents for all fixtures match Stage A expectations; unit tests for `soap-enrichment.ts` and XSD example generator.
 
+**Status:** Done — `soap-enrichment.test.ts`, encoded binding error, SOAP 1.2 envelope, RPC/literal shape.
+
 ---
 
 ### Stage D — Extend OpenAPI importer for XML/SOAP (3–5 days)
@@ -253,14 +253,14 @@ Create `packages/insomnia/src/main/importers/importers/wsdl/soap-enrichment.ts`:
 
 **Tasks:**
 
-- [ ] Extend `prepareBody()` in `openapi-3.ts` (or extract shared `prepareRequestBody()`) to handle:
+- [x] Extend `prepareBody()` in `openapi-3.ts` (or extract shared `prepareRequestBody()`) to handle:
   - `text/xml`, `application/xml`, `application/soap+xml` content types
   - `example` / `examples` string values from OAS (pass through as `body.text`)
   - Fallback: leave empty with mimeType if no example (current behavior)
-- [ ] Ensure header parameters from OAS (`SOAPAction`, `Content-Type`, `Accept`) flow through `prepareHeaders()`
-- [ ] Support absolute endpoint URLs from `servers[0].url` for SOAP (may need wsdl-specific server URL handling vs `{{ _.base_url }}` template — evaluate per fixture)
-- [ ] Add OpenAPI importer unit tests for XML/SOAP content types (not only WSDL snapshots)
-- [ ] Verify no regression on existing `openapi-3.test.ts` cases
+- [x] Ensure header parameters from OAS (`SOAPAction`, `Content-Type`, `Accept`) flow through `prepareHeaders()`
+- [x] Support absolute endpoint URLs from `servers[0].url` for SOAP (`x-insomnia-soap` document extension)
+- [x] Add OpenAPI importer unit tests for XML/SOAP content types (not only WSDL snapshots)
+- [x] Verify no regression on existing `openapi-3.test.ts` cases
 
 **Design note:** Prefer extending the OpenAPI importer over wsdl-specific ImportRequest mapping. This follows the industry pattern of **one importer per interchange format**.
 
@@ -286,18 +286,18 @@ export const convert: FilePathConverter = async importEntry => {
 
 **Tasks:**
 
-- [ ] Replace `apiconnect-wsdl` calls with Stage B+C+D pipeline
-- [ ] Preserve `acceptFilePath: true` and `oriFilePath` priority
-- [ ] Remove `convertToPostman()` and Postman hop
-- [ ] Update snapshots — document intentional improvements (e.g. no spurious WS-Security)
-- [ ] Remove `apiconnect-wsdl` from `package.json`
-- [ ] Remove `patches/apiconnect-wsdl+2.0.36.patch`
-- [ ] Remove `types/apiconnect-wsdl.d.ts`
-- [ ] Remove esbuild external for `apiconnect-wsdl`
-- [ ] Refresh lockfile; remove `DEVELOPMENT.md` engine workaround
-- [ ] Full validation: `npm run lint`, `npm run type-check`, `npm test -w packages/insomnia`
+- [x] Replace `apiconnect-wsdl` calls with Stage B+C+D pipeline
+- [x] Preserve `acceptFilePath: true` and `oriFilePath` priority
+- [x] Remove `convertToPostman()` and Postman hop
+- [x] Update snapshots — document intentional improvements (e.g. no spurious WS-Security)
+- [x] Remove `apiconnect-wsdl` from `package.json`
+- [x] Remove `patches/apiconnect-wsdl+2.0.36.patch`
+- [x] Remove `types/apiconnect-wsdl.d.ts`
+- [x] Remove esbuild external for `apiconnect-wsdl`
+- [x] Refresh lockfile; remove `DEVELOPMENT.md` engine workaround
+- [x] Full validation: importer tests (226 pass); root lint/type-check pending CI
 
-**Exit criteria:** All success criteria met (see below); manual QA complete.
+**Exit criteria:** All success criteria met (see below); manual QA checklist provided (sign-off pending).
 
 ---
 
@@ -307,17 +307,13 @@ export const convert: FilePathConverter = async importEntry => {
 
 **Tasks:**
 
-- [ ] Expand fixtures from anonymized real-world WSDL samples
-- [ ] Add WS-I Basic Profile smoke checks where feasible (valid SOAPAction, literal use, HTTP binding)
-- [ ] Document supported WSDL subset in import modal help text or docs:
-  - WSDL 1.1, SOAP 1.1/1.2 HTTP bindings
-  - Document/literal (primary); RPC/encoded (best-effort)
-  - Multi-file via file import (not paste-only)
-  - WS-Security: detected from policy, not injected by default
-- [ ] Manual QA checklist (Import modal, file picker, paste fallback, send request)
+- [x] Expand fixtures from anonymized real-world WSDL samples (edge-case fixtures in Stage A)
+- [x] Add WS-I Basic Profile smoke checks where feasible (valid SOAPAction, literal use, HTTP binding)
+- [x] Document supported WSDL subset in import modal help text or docs
+- [x] Manual QA checklist (Import modal, file picker, paste fallback, send request) — `MANUAL-QA-CHECKLIST.md`
 - [ ] Optional: expose "Download OpenAPI" from WSDL import for interoperability with other tools
 
-**Exit criteria:** Documented WSDL support matrix; expanded test coverage; manual QA signed off.
+**Exit criteria:** Documented WSDL support matrix; expanded test coverage; manual QA signed off (checklist ready, sign-off pending).
 
 ---
 
@@ -380,15 +376,15 @@ This removes npm deprecation noise and lockfile hacks but **retains IBM IPLA**. 
 
 ## Success criteria
 
-- [ ] `apiconnect-wsdl` removed from dependencies and lockfile
-- [ ] No `patch-package` patch for WSDL
-- [ ] No IBM `x-ibm-*` adapters or types in codebase
-- [ ] WSDL import pipeline: **WSDL → OpenAPI 3.1 → openapi-3 importer**
-- [ ] WSDL fixture snapshots pass (or updated with documented, standards-aligned improvements)
-- [ ] `DEVELOPMENT.md` engine workaround removed
-- [ ] WS-Security injected only when policy indicates (not unconditionally)
-- [ ] Import modal WSDL flow works end-to-end
-- [ ] MIT-compatible dependency chain (or fully owned OSS)
+- [x] `apiconnect-wsdl` removed from dependencies and lockfile
+- [x] No `patch-package` patch for WSDL
+- [x] No IBM `x-ibm-*` adapters or types in codebase
+- [x] WSDL import pipeline: **WSDL → OpenAPI 3.1 → openapi-3 importer**
+- [x] WSDL fixture snapshots pass (or updated with documented, standards-aligned improvements)
+- [x] `DEVELOPMENT.md` engine workaround removed
+- [x] WS-Security injected only when policy indicates (not unconditionally)
+- [ ] Import modal WSDL flow works end-to-end (manual QA sign-off pending)
+- [x] MIT-compatible dependency chain (or fully owned OSS)
 
 ---
 

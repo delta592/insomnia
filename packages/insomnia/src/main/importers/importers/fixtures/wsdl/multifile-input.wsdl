@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:tns="http://example.com/multifile"
+                  xmlns:types="http://example.com/multifile/types"
+                  targetNamespace="http://example.com/multifile">
+  <wsdl:types>
+    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:import namespace="http://example.com/multifile/types" schemaLocation="types.xsd"/>
+    </xs:schema>
+  </wsdl:types>
+  <wsdl:message name="LookupSoapIn">
+    <wsdl:part name="parameters" element="types:Lookup"/>
+  </wsdl:message>
+  <wsdl:message name="LookupSoapOut">
+    <wsdl:part name="parameters" element="types:LookupResponse"/>
+  </wsdl:message>
+  <wsdl:portType name="LookupSoap">
+    <wsdl:operation name="Lookup">
+      <wsdl:input message="tns:LookupSoapIn"/>
+      <wsdl:output message="tns:LookupSoapOut"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="LookupSoap" type="tns:LookupSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="Lookup">
+      <soap:operation soapAction="http://example.com/multifile/Lookup" style="document"/>
+      <wsdl:input><soap:body use="literal"/></wsdl:input>
+      <wsdl:output><soap:body use="literal"/></wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="MultifileService">
+    <wsdl:port name="LookupSoap" binding="tns:LookupSoap">
+      <soap:address location="http://example.com/multifile"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

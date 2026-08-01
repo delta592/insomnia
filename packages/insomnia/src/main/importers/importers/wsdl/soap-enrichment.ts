@@ -1,7 +1,7 @@
 import type { OpenAPIV3 } from 'openapi-types';
 
 import { generateRootElementXml, type XsdTypeDefinition } from '../../soap/xsd-to-xml';
-import type { ParsedWsdl, SoapVersion, WsdlPort } from './wsdl-parser';
+import type { ParsedWsdl, SoapVersion, WsdlBindingOperation, WsdlPort } from './wsdl-parser';
 
 export const INSOMNIA_SOAP_EXTENSION = 'x-insomnia-soap';
 export const INSOMNIA_ABSOLUTE_URL_EXTENSION = 'x-insomnia-url';
@@ -21,6 +21,7 @@ export interface CompiledCatalogLike {
 }
 
 const SOAP11_ENVELOPE_NS = 'http://schemas.xmlsoap.org/soap/envelope/';
+const SOAP12_ENVELOPE_NS = 'http://www.w3.org/2003/05/soap-envelope';
 const WSSE_NS = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd';
 const WSU_NS = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd';
 
@@ -54,19 +55,24 @@ const generateWsSecurityHeader = () => {
 export const generateSoapEnvelope = ({
   bodyXml,
   includeWsSecurity,
+  soapVersion = '1.1',
 }: {
   bodyXml: string;
   includeWsSecurity: boolean;
+  soapVersion?: SoapVersion;
 }) => {
+  const envelopeNs = soapVersion === '1.2' ? SOAP12_ENVELOPE_NS : SOAP11_ENVELOPE_NS;
+  const envelopePrefix = soapVersion === '1.2' ? 'soap12' : 'soapenv';
+
   const headerBlock = includeWsSecurity
-    ? `<soapenv:Header>\n  <!-- The Security element should be removed if WS-Security is not enabled on the SOAP target-url -->\n${generateWsSecurityHeader()}\n </soapenv:Header>`
+    ? `<${envelopePrefix}:Header>\n  <!-- The Security element should be removed if WS-Security is not enabled on the SOAP target-url -->\n${generateWsSecurityHeader()}\n </${envelopePrefix}:Header>`
     : '';
 
-  return `<soapenv:Envelope xmlns:soapenv="${SOAP11_ENVELOPE_NS}">
-${headerBlock ? ` ${headerBlock}\n` : ''} <soapenv:Body>
+  return `<${envelopePrefix}:Envelope xmlns:${envelopePrefix}="${envelopeNs}">
+${headerBlock ? ` ${headerBlock}\n` : ''} <${envelopePrefix}:Body>
 ${bodyXml}
- </soapenv:Body>
-</soapenv:Envelope>`;
+ </${envelopePrefix}:Body>
+</${envelopePrefix}:Envelope>`;
 };
 
 const findType = (catalog: CompiledCatalogLike, typeName?: string) => {
@@ -74,6 +80,32 @@ const findType = (catalog: CompiledCatalogLike, typeName?: string) => {
     return null;
   }
   return catalog.types.find(type => type.name === typeName) ?? null;
+};
+
+const findBindingOperation = (parsedWsdl: ParsedWsdl, port: WsdlPort, operationName: string): WsdlBindingOperation | undefined => {
+  return parsedWsdl.bindings[port.bindingName]?.find(bindingOp => bindingOp.name === operationName);
+};
+
+const generateOperationBodyXml = (
+  operationName: string,
+  catalog: CompiledCatalogLike,
+  bindingOp: WsdlBindingOperation | undefined,
+  inputType: XsdTypeDefinition | null,
+  elementLocalName: string,
+) => {
+  if (bindingOp?.bodyUse === 'encoded') {
+    throw new Error(
+      `SOAP encoded binding is not supported for operation "${operationName}". Use document/literal WSDL or import via file with WS-I Basic Profile services.`,
+    );
+  }
+
+  if (inputType) {
+    return generateRootElementXml(elementLocalName, catalog.wsdlTargetNS, inputType, {
+      style: bindingOp?.style === 'rpc' ? 'rpc' : 'document',
+    });
+  }
+
+  return `  <tns:${elementLocalName} xmlns:tns="${catalog.wsdlTargetNS}"/>`;
 };
 
 export const buildSoapOpenApiDocument = (
@@ -89,12 +121,11 @@ export const buildSoapOpenApiDocument = (
   for (const operation of catalog.operations) {
     const inputType = findType(catalog, operation.inputTypeName);
     const elementLocalName = operation.inputElement?.local || operation.name;
-    const bodyXml = inputType
-      ? generateRootElementXml(elementLocalName, catalog.wsdlTargetNS, inputType)
-      : `  <tns:${elementLocalName} xmlns:tns="${catalog.wsdlTargetNS}"/>`;
+    const bindingOp = findBindingOperation(parsedWsdl, port, operation.name);
+    const bodyXml = generateOperationBodyXml(operation.name, catalog, bindingOp, inputType, elementLocalName);
 
     const includeWsSecurity = shouldIncludeWsSecurity(parsedWsdl, operation.security);
-    const envelope = generateSoapEnvelope({ bodyXml, includeWsSecurity });
+    const envelope = generateSoapEnvelope({ bodyXml, includeWsSecurity, soapVersion: port.soapVersion });
 
     paths[`/${operation.name}`] = {
       post: {

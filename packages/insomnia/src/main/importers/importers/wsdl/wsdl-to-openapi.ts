@@ -5,7 +5,7 @@ import path from 'node:path';
 import { runGenerationPipeline } from '@techspokes/typescript-wsdl-client';
 import type { OpenAPIV3 } from 'openapi-types';
 
-import { type CompiledCatalogLike,enrichSoapOperations } from './soap-enrichment';
+import { type CompiledCatalogLike, enrichSoapOperations } from './soap-enrichment';
 import { getPrimarySoapPort, parseWsdlDocument } from './wsdl-parser';
 
 const writeTempWsdlFile = (content: string) => {

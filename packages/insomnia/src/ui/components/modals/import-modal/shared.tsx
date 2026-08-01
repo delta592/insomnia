@@ -178,6 +178,10 @@ export const SupportedFormats = () => {
           WSDL
         </Pill>
       </div>
+      <p className="mt-2 text-xs text-[--color-help]">
+        WSDL 1.1 (SOAP 1.1/1.2, document/literal). Use file import for multi-file WSDL; pasted text cannot resolve
+        XSD imports.
+      </p>
     </div>
   );
 };

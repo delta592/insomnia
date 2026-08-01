@@ -1,0 +1,186 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Calculator SOAP API",
+    "version": "0.0.0"
+  },
+  "paths": {
+    "/add": {
+      "post": {
+        "operationId": "Add",
+        "tags": [
+          "Calculator"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Add"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation (standard envelope)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddResponse_ResponseEnvelope"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error response (standard envelope with populated error object)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalculatorResponseEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Adds two integers.",
+        "description": "Adds two integers. This is a test WebService. ©DNE Online"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Add": {
+        "type": "object",
+        "properties": {
+          "intA": {
+            "type": "number"
+          },
+          "intB": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "intA",
+          "intB"
+        ]
+      },
+      "AddResponse": {
+        "type": "object",
+        "properties": {
+          "AddResult": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "AddResult"
+        ]
+      },
+      "AddResponse_ResponseEnvelope": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/CalculatorResponseEnvelope"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/AddResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "additionalProperties": true
+          }
+        ],
+        "description": "Envelope for AddResponse operation output wrapping its payload in 'data'."
+      },
+      "CalculatorErrorObject": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "details": {
+            "anyOf": [
+              {
+                "type": "object",
+                "additionalProperties": true
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ],
+        "additionalProperties": false,
+        "description": "Standard error object for REST responses (not reused for underlying SOAP faults)."
+      },
+      "CalculatorResponseEnvelope": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Machine-readable high-level status (e.g. SUCCESS, FAILURE, PENDING)."
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Diagnostic/logging message (not for end-user display)."
+          },
+          "data": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Primary payload; per-operation extension refines the shape."
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CalculatorErrorObject"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Error details when status indicates failure; null otherwise."
+          }
+        },
+        "required": [
+          "status",
+          "data",
+          "error",
+          "message"
+        ],
+        "additionalProperties": true,
+        "description": "Standard API response envelope base schema."
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ]
+}

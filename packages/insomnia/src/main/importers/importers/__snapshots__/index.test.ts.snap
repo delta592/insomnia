@@ -8735,3 +8735,300 @@ exports[`Fixtures > Import wsdl > calculator-input.wsdl 1`] = `
   ],
 }
 `;
+
+exports[`Fixtures > Import wsdl > deep-xsd-input.wsdl 1`] = `
+{
+  "__export_date": "",
+  "__export_format": 4,
+  "__export_source": "insomnia.importers:v0.1.0",
+  "_type": "export",
+  "resources": [
+    {
+      "_id": "__GRP_1__",
+      "_type": "request_group",
+      "afterResponseScript": "",
+      "authentication": {},
+      "description": "",
+      "environment": {},
+      "metaSortKey": -1622117984000,
+      "name": "DeepXsdService",
+      "parentId": "__WORKSPACE_ID__",
+      "preRequestScript": "",
+    },
+    {
+      "_id": "__GRP_2__",
+      "_type": "request_group",
+      "afterResponseScript": "",
+      "authentication": {},
+      "description": "",
+      "environment": {},
+      "metaSortKey": -1622117983999,
+      "name": "DeepXsdService",
+      "parentId": "__GRP_1__",
+      "preRequestScript": "",
+    },
+    {
+      "_id": "__REQ_1__",
+      "_type": "request",
+      "authentication": {},
+      "body": {
+        "mimeType": "text/plain",
+        "text": "<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+ <soapenv:Body>
+ <tns:Process xmlns:tns="http://example.com/deep"><!-- mandatory -->
+  <tns:level1><!-- mandatory -->string</tns:level1>
+  <tns:count><!-- mandatory -->3</tns:count>
+ </tns:Process>
+ </soapenv:Body>
+</soapenv:Envelope>",
+      },
+      "description": "",
+      "headers": [
+        {
+          "disabled": false,
+          "name": "SOAPAction",
+          "value": "http://example.com/deep/Process",
+        },
+        {
+          "disabled": false,
+          "name": "Content-Type",
+          "value": "text/xml",
+        },
+        {
+          "disabled": false,
+          "name": "Accept",
+          "value": "application/xml",
+        },
+      ],
+      "metaSortKey": -1622117983998,
+      "method": "POST",
+      "name": "Process",
+      "parameters": [],
+      "parentId": "__GRP_2__",
+      "url": "http://example.com/deep",
+    },
+  ],
+}
+`;
+
+exports[`Fixtures > Import wsdl > multifile-input.wsdl 1`] = `
+{
+  "__export_date": "",
+  "__export_format": 4,
+  "__export_source": "insomnia.importers:v0.1.0",
+  "_type": "export",
+  "resources": [
+    {
+      "_id": "__GRP_1__",
+      "_type": "request_group",
+      "afterResponseScript": "",
+      "authentication": {},
+      "description": "",
+      "environment": {},
+      "metaSortKey": -1622117984000,
+      "name": "MultifileService",
+      "parentId": "__WORKSPACE_ID__",
+      "preRequestScript": "",
+    },
+    {
+      "_id": "__GRP_2__",
+      "_type": "request_group",
+      "afterResponseScript": "",
+      "authentication": {},
+      "description": "",
+      "environment": {},
+      "metaSortKey": -1622117983999,
+      "name": "MultifileService",
+      "parentId": "__GRP_1__",
+      "preRequestScript": "",
+    },
+    {
+      "_id": "__REQ_1__",
+      "_type": "request",
+      "authentication": {},
+      "body": {
+        "mimeType": "text/plain",
+        "text": "<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+ <soapenv:Body>
+ <tns:Lookup xmlns:tns="http://example.com/multifile"><!-- mandatory -->
+  <tns:code><!-- mandatory -->string</tns:code>
+ </tns:Lookup>
+ </soapenv:Body>
+</soapenv:Envelope>",
+      },
+      "description": "",
+      "headers": [
+        {
+          "disabled": false,
+          "name": "SOAPAction",
+          "value": "http://example.com/multifile/Lookup",
+        },
+        {
+          "disabled": false,
+          "name": "Content-Type",
+          "value": "text/xml",
+        },
+        {
+          "disabled": false,
+          "name": "Accept",
+          "value": "application/xml",
+        },
+      ],
+      "metaSortKey": -1622117983998,
+      "method": "POST",
+      "name": "Lookup",
+      "parameters": [],
+      "parentId": "__GRP_2__",
+      "url": "http://example.com/multifile",
+    },
+  ],
+}
+`;
+
+exports[`Fixtures > Import wsdl > multiport-input.wsdl 1`] = `
+{
+  "__export_date": "",
+  "__export_format": 4,
+  "__export_source": "insomnia.importers:v0.1.0",
+  "_type": "export",
+  "resources": [
+    {
+      "_id": "__GRP_1__",
+      "_type": "request_group",
+      "afterResponseScript": "",
+      "authentication": {},
+      "description": "",
+      "environment": {},
+      "metaSortKey": -1622117984000,
+      "name": "MultiportService",
+      "parentId": "__WORKSPACE_ID__",
+      "preRequestScript": "",
+    },
+    {
+      "_id": "__GRP_2__",
+      "_type": "request_group",
+      "afterResponseScript": "",
+      "authentication": {},
+      "description": "",
+      "environment": {},
+      "metaSortKey": -1622117983999,
+      "name": "MultiportService",
+      "parentId": "__GRP_1__",
+      "preRequestScript": "",
+    },
+    {
+      "_id": "__REQ_1__",
+      "_type": "request",
+      "authentication": {},
+      "body": {
+        "mimeType": "text/plain",
+        "text": "<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+ <soapenv:Body>
+ <tns:Echo xmlns:tns="http://example.com/multiport"><!-- mandatory -->
+  <tns:text><!-- mandatory -->string</tns:text>
+ </tns:Echo>
+ </soapenv:Body>
+</soapenv:Envelope>",
+      },
+      "description": "",
+      "headers": [
+        {
+          "disabled": false,
+          "name": "SOAPAction",
+          "value": "http://example.com/multiport/Echo",
+        },
+        {
+          "disabled": false,
+          "name": "Content-Type",
+          "value": "text/xml",
+        },
+        {
+          "disabled": false,
+          "name": "Accept",
+          "value": "application/xml",
+        },
+      ],
+      "metaSortKey": -1622117983998,
+      "method": "POST",
+      "name": "Echo",
+      "parameters": [],
+      "parentId": "__GRP_2__",
+      "url": "http://example.com/multiport/soap11",
+    },
+  ],
+}
+`;
+
+exports[`Fixtures > Import wsdl > soap12-input.wsdl 1`] = `
+{
+  "__export_date": "",
+  "__export_format": 4,
+  "__export_source": "insomnia.importers:v0.1.0",
+  "_type": "export",
+  "resources": [
+    {
+      "_id": "__GRP_1__",
+      "_type": "request_group",
+      "afterResponseScript": "",
+      "authentication": {},
+      "description": "",
+      "environment": {},
+      "metaSortKey": -1622117984000,
+      "name": "Soap12Service",
+      "parentId": "__WORKSPACE_ID__",
+      "preRequestScript": "",
+    },
+    {
+      "_id": "__GRP_2__",
+      "_type": "request_group",
+      "afterResponseScript": "",
+      "authentication": {},
+      "description": "",
+      "environment": {},
+      "metaSortKey": -1622117983999,
+      "name": "Soap12Service",
+      "parentId": "__GRP_1__",
+      "preRequestScript": "",
+    },
+    {
+      "_id": "__REQ_1__",
+      "_type": "request",
+      "authentication": {},
+      "body": {
+        "mimeType": "text/plain",
+        "text": "<soap12:Envelope xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
+ <soap12:Body>
+ <tns:Ping xmlns:tns="http://example.com/soap12"><!-- mandatory -->
+  <tns:message><!-- mandatory -->string</tns:message>
+ </tns:Ping>
+ </soap12:Body>
+</soap12:Envelope>",
+      },
+      "description": "Ping via SOAP 1.2",
+      "headers": [
+        {
+          "disabled": false,
+          "name": "SOAPAction",
+          "value": "http://example.com/soap12/Ping",
+        },
+        {
+          "disabled": false,
+          "name": "Content-Type",
+          "value": "application/soap+xml",
+        },
+        {
+          "disabled": false,
+          "name": "Accept",
+          "value": "application/xml",
+        },
+      ],
+      "metaSortKey": -1622117983998,
+      "method": "POST",
+      "name": "Ping",
+      "parameters": [],
+      "parentId": "__GRP_2__",
+      "url": "http://example.com/soap12",
+    },
+  ],
+}
+`;
