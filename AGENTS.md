@@ -48,7 +48,8 @@ node -v
 npm -v
 ```
 
-- This repo expects the `.nvmrc` Node version and npm 12+ (see `package.json` `engines`). If `fnm` is unavailable, manually use an equivalent Node/npm version before running any `npm` commands.
+- This repo expects Node **26.5.1** (see `.nvmrc`) and npm **12.0.2** (see `package.json` `engines`). If `fnm` is unavailable, manually use an equivalent Node/npm version before running any `npm` commands.
+- **When bumping `.nvmrc`**, keep these in sync: root `package.json` `engines`, every workspace `package.json` `engines`, root `package-lock.json` `engines`, `packages/insomnia-component-docs/package-lock.json` (if present), and any script that validates Node (prefer `scripts/required-node-version.mjs` over hardcoded major checks).
 - After switching versions in a fresh worktree, install dependencies from repo root with `npm ci`.
 - Do **not** use `npm ci --ignore-scripts` for normal worktree setup. It leaves Electron partially installed, which later breaks builds, renderer import checks, and other validation commands.
 

@@ -1,6 +1,7 @@
 import { cp, mkdir } from 'node:fs/promises';
 import path from 'node:path';
 
+import { assertRequiredNodeVersion } from '../../../scripts/required-node-version.mjs';
 import buildEntrypoints from '../esbuild.entrypoints';
 
 // Start build if ran from CLI
@@ -20,10 +21,7 @@ export const start = async () => {
 
   console.log(`[build] node: ${process.version}`.trim());
 
-  if (process.version.indexOf('v24.') !== 0) {
-    console.log('[build] Node 24.x.x is required to build');
-    process.exit(1);
-  }
+  assertRequiredNodeVersion('build');
 
   const buildFolder = path.join('../build');
 

@@ -15,6 +15,11 @@ tests/
 
 All commands below must be run from the **repo root**.
 
+## Prerequisites
+
+- Node.js **26.5.1** and npm **12.0.2** (see repo root `.nvmrc` and `package.json` `engines`)
+- Dependencies installed from repo root: `npm ci`
+
 ## Quick-start
 
 ```bash

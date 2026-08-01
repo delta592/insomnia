@@ -6,6 +6,10 @@
   "description": "A CLI for Insomnia - The Collaborative API Design Tool",
   "author": "Kong <office@konghq.com>",
   "license": "Apache-2.0",
+  "engines": {
+    "node": "v26.5.1",
+    "npm": "12.0.2"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Kong/insomnia.git",

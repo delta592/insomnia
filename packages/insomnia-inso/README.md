@@ -121,7 +121,7 @@ The bundle-analysis.log can be used to see the dependency tree of the bundle.
 
 ## How to generate documents about inso
 
-1. Ensure your node version matches the project `.nvmrc` perhaps with `fnm use` or another version manager.
+1. Use Node **26.5.1** from the repo root `.nvmrc` (`fnm use "$(cat .nvmrc)"` or equivalent).
 1. Run the script below, which will build inso in dev mode in order to use it to generate docs about itself
 1. The docs appear in your vscode diff, or you can look in `./packages/insomnia-inso/reference/` if the version number looks wrong you might need to check what branch you're on, it should be run from develop ideally as the only changes in the release branch should be hotfixes that dont affect inso docs
 
