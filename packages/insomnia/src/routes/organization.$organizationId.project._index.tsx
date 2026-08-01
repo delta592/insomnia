@@ -1,7 +1,6 @@
 import type { GitRepository, Project } from 'insomnia-data';
 import { models, services } from 'insomnia-data';
 import { useEffect, useState } from 'react';
-import { Panel, PanelGroup, PanelResizeHandle } from '~/ui/components/panes/resizable-panels';
 import type { LoaderFunctionArgs } from 'react-router';
 import { href, redirect, useParams } from 'react-router';
 
@@ -13,6 +12,7 @@ import { logout } from '~/ui/account/session';
 import { ErrorBoundary } from '~/ui/components/error-boundary';
 import { ProjectModal } from '~/ui/components/modals/project-modal';
 import { NoProjectView } from '~/ui/components/panes/no-project-view';
+import { Panel, PanelGroup, PanelResizeHandle } from '~/ui/components/panes/resizable-panels';
 import { EmptyProjectNavigationSidebar } from '~/ui/components/sidebar/project-navigation-sidebar/project-navigation-sidebar';
 import { useLoaderDeferData } from '~/ui/hooks/use-loader-defer-data';
 import { DEFAULT_STORAGE_RULES } from '~/ui/organization-utils';

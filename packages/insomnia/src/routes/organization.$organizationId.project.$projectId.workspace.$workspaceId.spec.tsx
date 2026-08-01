@@ -21,13 +21,6 @@ import {
   Tooltip,
   TooltipTrigger,
 } from 'react-aria-components';
-import {
-  type ImperativePanelGroupHandle,
-  type ImperativePanelHandle,
-  Panel,
-  PanelGroup,
-  PanelResizeHandle,
-} from '~/ui/components/panes/resizable-panels';
 import { href, redirect, useLoaderData } from 'react-router';
 import * as reactUse from 'react-use';
 import { SwaggerUIBundle } from 'swagger-ui-dist';
@@ -61,6 +54,13 @@ import { CookiesModal } from '~/ui/components/modals/cookies-modal';
 import { NewWorkspaceModal } from '~/ui/components/modals/new-workspace-modal';
 import { CertificatesModal } from '~/ui/components/modals/workspace-certificates-modal';
 import { WorkspaceEnvironmentsEditModal } from '~/ui/components/modals/workspace-environments-edit-modal';
+import {
+  type ImperativePanelGroupHandle,
+  type ImperativePanelHandle,
+  Panel,
+  PanelGroup,
+  PanelResizeHandle,
+} from '~/ui/components/panes/resizable-panels';
 import { OrganizationTabList } from '~/ui/components/tabs/tab-list';
 import { formatMethodName } from '~/ui/components/tags/method-tag';
 import { showResourceNotFoundToast, showToast } from '~/ui/components/toast-notification';

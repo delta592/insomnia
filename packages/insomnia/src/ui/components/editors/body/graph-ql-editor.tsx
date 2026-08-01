@@ -21,12 +21,12 @@ import { services } from 'insomnia-data';
 import React, { type FC, useCallback, useEffect, useRef, useState } from 'react';
 import { Button, Group, Heading, Toolbar, Tooltip, TooltipTrigger } from 'react-aria-components';
 import ReactDOM from 'react-dom';
-import { Panel, PanelGroup, PanelResizeHandle } from '~/ui/components/panes/resizable-panels';
 import * as reactUse from 'react-use';
 
 import { invariant } from '~/common/utils/invariant';
 import { bodyBufferToUtf8 } from '~/common/utils/utf8-bytes';
 import { CodeEditor, type CodeEditorHandle } from '~/ui/components/.client/codemirror/code-editor';
+import { Panel, PanelGroup, PanelResizeHandle } from '~/ui/components/panes/resizable-panels';
 import { jsonPrettify } from '~/ui/utils/prettify/json';
 
 import { CONTENT_TYPE_JSON } from '../../../../common/constants';

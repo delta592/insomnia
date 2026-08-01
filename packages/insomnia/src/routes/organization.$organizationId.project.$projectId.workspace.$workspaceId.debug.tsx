@@ -37,7 +37,6 @@ import {
   TooltipTrigger,
   useDragAndDrop,
 } from 'react-aria-components';
-import { type ImperativePanelGroupHandle, Panel, PanelGroup, PanelResizeHandle } from '~/ui/components/panes/resizable-panels';
 import { href, redirect, useFetchers, useMatch, useParams, useSearchParams } from 'react-router';
 import * as reactUse from 'react-use';
 
@@ -81,6 +80,7 @@ import { GrpcResponsePane } from '~/ui/components/panes/grpc-response-pane';
 import { PlaceholderRequestPane } from '~/ui/components/panes/placeholder-request-pane';
 import { RequestGroupPane } from '~/ui/components/panes/request-group-pane';
 import { RequestPane } from '~/ui/components/panes/request-pane';
+import { type ImperativePanelGroupHandle, Panel, PanelGroup, PanelResizeHandle } from '~/ui/components/panes/resizable-panels';
 import { ResponsePane } from '~/ui/components/panes/response-pane';
 import { SocketIORequestPane } from '~/ui/components/socket-io/request-pane';
 import { OrganizationTabList } from '~/ui/components/tabs/tab-list';

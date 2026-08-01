@@ -244,7 +244,7 @@ const GitEditProviderOAuthForm = ({
               const code = parsedURL.searchParams.get('code');
               const state = parsedURL.searchParams.get('state');
 
-              if (!(typeof code === 'string') || !(typeof state === 'string')) {
+              if (typeof code !== 'string' || typeof state !== 'string') {
                 setError('Incomplete URL');
                 return;
               }
@@ -356,7 +356,7 @@ const GitProviderOAuthForm = ({
               const code = parsedURL.searchParams.get('code');
               const state = parsedURL.searchParams.get('state');
 
-              if (!(typeof code === 'string') || !(typeof state === 'string')) {
+              if (typeof code !== 'string' || typeof state !== 'string') {
                 setError('Incomplete URL');
                 return;
               }

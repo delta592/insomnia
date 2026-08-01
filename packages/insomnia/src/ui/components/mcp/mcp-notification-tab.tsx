@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react';
 import { Button, Input, SearchField } from 'react-aria-components';
-import { Panel, PanelGroup, PanelResizeHandle } from '~/ui/components/panes/resizable-panels';
 
 import type { McpNotificationEvent } from '~/main/mcp/types';
 import { Icon } from '~/ui/components/icon';
 import { McpEventView } from '~/ui/components/mcp/event-view';
+import { Panel, PanelGroup, PanelResizeHandle } from '~/ui/components/panes/resizable-panels';
 import { EventLogView } from '~/ui/components/websockets/event-log-view';
 
 export interface McpNotificationTabProps {

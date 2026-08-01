@@ -2,7 +2,6 @@ import { getLearningFeature } from 'insomnia-api';
 import { models, services } from 'insomnia-data';
 import { type Dispatch, type SetStateAction, useEffect, useRef, useState } from 'react';
 import { Button, Heading } from 'react-aria-components';
-import { type ImperativePanelHandle, Panel, PanelGroup, PanelResizeHandle } from '~/ui/components/panes/resizable-panels';
 import { href, Outlet, redirect, useOutletContext, useParams, useRouteLoaderData, useSearchParams } from 'react-router';
 import * as reactUse from 'react-use';
 
@@ -13,6 +12,7 @@ import { invariant } from '~/common/utils/invariant';
 import { useStorageRulesLoaderFetcher } from '~/routes/organization.$organizationId.storage-rules';
 import { logout } from '~/ui/account/session';
 import { ProjectModal } from '~/ui/components/modals/project-modal';
+import { type ImperativePanelHandle, Panel, PanelGroup, PanelResizeHandle } from '~/ui/components/panes/resizable-panels';
 import { ScratchPadTutorialPanel } from '~/ui/components/panes/scratchpad-tutorial-pane';
 import {
   ProjectNavigationSidebar,

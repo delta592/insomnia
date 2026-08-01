@@ -74,6 +74,7 @@ export default defineConfig([
       'unicorn/no-array-reverse': 'off', // TODO: delete me
       'unicorn/no-array-sort': 'off', // TODO: delete me
       'unicorn/no-negated-condition': 'off', // TODO: delete me
+      'unicorn/no-negated-comparison': 'off', // TODO: delete me — eslint-plugin-unicorn v72
       'unicorn/no-object-as-default-parameter': 'off', // TODO: delete me
       'unicorn/no-this-assignment': 'off', // TODO: delete me
       'unicorn/no-zero-fractions': 'off', // TODO: delete me
@@ -87,6 +88,73 @@ export default defineConfig([
       'unicorn/prefer-string-raw': 'off', // TODO: delete me
       'unicorn/prefer-string-replace-all': 'off', // TODO: delete me
       'unicorn/prefer-switch': 'off', // TODO: delete me
+
+      // eslint-plugin-unicorn v72 — defer until dedicated cleanup
+      'preserve-caught-error': 'off',
+      'unicorn/no-for-each': 'off',
+      'unicorn/no-useless-continue': 'off',
+      'unicorn/no-unused-array-method-return': 'off',
+      'unicorn/prefer-array-from-map': 'off',
+      'unicorn/prefer-await': 'off',
+      'unicorn/prefer-direct-iteration': 'off',
+      'unicorn/prefer-early-return': 'off',
+      'unicorn/prefer-iterator-helpers': 'off',
+      'unicorn/prefer-simple-sort-comparator': 'off',
+      'unicorn/prefer-split-limit': 'off',
+      'unicorn/prefer-string-repeat': 'off',
+      'unicorn/prefer-ternary': 'off',
+      'unicorn/prefer-unary-minus': 'off',
+      'unicorn/prefer-url-href': 'off',
+      'no-useless-assignment': 'off',
+      'unicorn/consistent-compound-words': 'off',
+      'unicorn/consistent-optional-chaining': 'off',
+      'unicorn/no-abusive-eslint-disable': 'off',
+      'unicorn/no-array-from-fill': 'off',
+      'unicorn/no-declarations-before-early-exit': 'off',
+      'unicorn/no-duplicate-logical-operands': 'off',
+      'unicorn/no-error-property-assignment': 'off',
+      'unicorn/no-global-object-property-assignment': 'off',
+      'unicorn/no-multiple-promise-resolver-calls': 'off',
+      'unicorn/no-negated-array-predicate': 'off',
+      'unicorn/no-top-level-side-effects': 'off',
+      'unicorn/no-typeof-undefined': 'off',
+      'unicorn/no-unnecessary-global-this': 'off',
+      'unicorn/no-unnecessary-nested-ternary': 'off',
+      'unicorn/no-useless-boolean-cast': 'off',
+      'unicorn/no-useless-coercion': 'off',
+      'unicorn/no-useless-concat': 'off',
+      'unicorn/no-useless-override': 'off',
+      'unicorn/numeric-separators-style': 'off',
+      'unicorn/prefer-add-event-listener-options': 'off',
+      'unicorn/prefer-array-last-methods': 'off',
+      'unicorn/prefer-boolean-return': 'off',
+      'unicorn/prefer-dom-node-replace-children': 'off',
+      'unicorn/prefer-global-number-constants': 'off',
+      'unicorn/prefer-keyboard-event-key': 'off',
+      'unicorn/prefer-math-trunc': 'off',
+      'unicorn/prefer-minimal-ternary': 'off',
+      'unicorn/prefer-number-coercion': 'off',
+      'unicorn/prefer-object-iterable-methods': 'off',
+      'unicorn/prefer-promise-with-resolvers': 'off',
+      'unicorn/prefer-queue-microtask': 'off',
+      'unicorn/prefer-simplified-conditions': 'off',
+      'unicorn/prefer-string-starts-ends-with': 'off',
+      'unicorn/prefer-unicode-code-point-escapes': 'off',
+      'unicorn/prefer-url-can-parse': 'off',
+      'unicorn/require-array-sort-compare': 'off',
+      'unicorn/require-css-escape': 'off',
+    },
+  },
+  {
+    files: ['**/__tests__/**', '**/*.test.{ts,tsx}'],
+    rules: {
+      'unicorn/filename-case': 'off',
+    },
+  },
+  {
+    files: ['**/third_party/**', '**/__schemas__/**'],
+    rules: {
+      'unicorn/filename-case': 'off',
     },
   },
   // Playwright section
@@ -116,6 +184,8 @@ export default defineConfig([
       'react-hooks/immutability': 'off', //TODO: delete me
       'react-hooks/preserve-manual-memoization': 'off', //TODO: delete me
       'react-hooks/incompatible-library': 'off', //TODO(use react-aria virtualizer): delete me
+      'react-hooks/purity': 'off', // TODO: delete me — eslint-plugin-react-hooks v7
+      'react-hooks/use-memo': 'off', // TODO: delete me — eslint-plugin-react-hooks v7
     },
   },
   // React section
@@ -131,7 +201,7 @@ export default defineConfig([
     },
     settings: {
       react: {
-        version: 'detect',
+        version: '19.0',
       },
     },
     rules: {

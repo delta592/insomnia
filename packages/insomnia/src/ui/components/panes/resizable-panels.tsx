@@ -1,12 +1,12 @@
+import { type ComponentProps,forwardRef } from 'react';
 import {
   Group,
+  type GroupImperativeHandle,
   Panel as ResizablePanel,
+  type PanelImperativeHandle,
   Separator,
   useDefaultLayout,
-  type GroupImperativeHandle,
-  type PanelImperativeHandle,
 } from 'react-resizable-panels';
-import { forwardRef, type ComponentProps } from 'react';
 
 export type ImperativePanelGroupHandle = GroupImperativeHandle;
 export type ImperativePanelHandle = PanelImperativeHandle;

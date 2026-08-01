@@ -29,8 +29,8 @@ import { version } from '../../../package.json';
 import { parseGrpcUrl } from '../../network/grpc/parse-grpc-url';
 import { writeProtoFile } from '../../network/grpc/write-proto-file.node';
 import { mockRequestMethods } from './automock';
-import { fetchFileDescriptorSet } from './grpc-buf-reflection';
 import { ipcMainHandle, ipcMainOn } from './electron';
+import { fetchFileDescriptorSet } from './grpc-buf-reflection';
 
 const grpcCalls = new Map<string, Call>();
 

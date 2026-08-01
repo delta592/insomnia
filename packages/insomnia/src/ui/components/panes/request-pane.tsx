@@ -3,12 +3,12 @@ import { models, services } from 'insomnia-data';
 import { deconstructQueryStringToParams, getContentTypeFromHeaders } from 'insomnia-data/common';
 import { type FC, Fragment, useRef, useState } from 'react';
 import { Button, Heading, Tab, TabList, TabPanel, Tabs, ToggleButton } from 'react-aria-components';
-import { Panel, PanelGroup, PanelResizeHandle } from '~/ui/components/panes/resizable-panels';
 import { useParams } from 'react-router';
 import * as reactUse from 'react-use';
 
 import { extractQueryStringFromUrl } from '~/common/utils/url/querystring';
 import { OneLineEditor } from '~/ui/components/.client/codemirror/one-line-editor';
+import { Panel, PanelGroup, PanelResizeHandle } from '~/ui/components/panes/resizable-panels';
 
 import { getAuthObjectOrNull } from '../../../network/authentication';
 import { useWorkspaceLoaderData } from '../../../routes/organization.$organizationId.project.$projectId.workspace.$workspaceId';

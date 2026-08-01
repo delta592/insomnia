@@ -13,7 +13,6 @@ import {
   Tooltip,
   TooltipTrigger,
 } from 'react-aria-components';
-import { type ImperativePanelGroupHandle, Panel, PanelGroup, PanelResizeHandle } from '~/ui/components/panes/resizable-panels';
 import { useParams } from 'react-router';
 import { useLocalStorage } from 'react-use';
 
@@ -49,6 +48,7 @@ import {
   type ResourceTemplateItem,
   type ToolItem,
 } from '~/ui/components/mcp/types';
+import { type ImperativePanelGroupHandle, Panel, PanelGroup, PanelResizeHandle } from '~/ui/components/panes/resizable-panels';
 import { OrganizationTabList } from '~/ui/components/tabs/tab-list';
 import { RealtimeResponsePane } from '~/ui/components/websockets/realtime-response-pane';
 import WorkspacePaneHeader from '~/ui/components/workspace/workspace-pane-header';

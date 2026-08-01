@@ -3,7 +3,6 @@ import { models, services } from 'insomnia-data';
 import { deconstructQueryStringToParams } from 'insomnia-data/common';
 import { type FC, Fragment, useEffect, useRef, useState } from 'react';
 import { Button, Heading, Tab, TabList, TabPanel, Tabs, ToggleButton, Toolbar } from 'react-aria-components';
-import { Panel, PanelGroup, PanelResizeHandle } from '~/ui/components/panes/resizable-panels';
 import { useParams } from 'react-router';
 import * as reactUse from 'react-use';
 
@@ -17,6 +16,7 @@ import { useRootLoaderData } from '~/root';
 import { useWorkspaceLoaderData } from '~/routes/organization.$organizationId.project.$projectId.workspace.$workspaceId';
 import { CodeEditor, type CodeEditorHandle } from '~/ui/components/.client/codemirror/code-editor';
 import { OneLineEditor } from '~/ui/components/.client/codemirror/one-line-editor';
+import { Panel, PanelGroup, PanelResizeHandle } from '~/ui/components/panes/resizable-panels';
 import { renderRealtimeConnectPayload } from '~/ui/utils/render-realtime-connect';
 import { tryToInterpolateRequestOrShowRenderErrorModal } from '~/ui/utils/try-interpolate';
 

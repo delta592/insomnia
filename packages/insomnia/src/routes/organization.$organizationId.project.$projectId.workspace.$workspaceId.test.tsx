@@ -14,7 +14,6 @@ import {
   Popover,
   useDragAndDrop,
 } from 'react-aria-components';
-import { type ImperativePanelGroupHandle, Panel, PanelGroup, PanelResizeHandle } from '~/ui/components/panes/resizable-panels';
 import { Route as RouteComponent, Routes, useFetchers, useLoaderData, useParams } from 'react-router';
 
 import { DEFAULT_SIDEBAR_SIZE } from '~/common/constants';
@@ -37,6 +36,7 @@ import { CookiesModal } from '~/ui/components/modals/cookies-modal';
 import { PromptModal } from '~/ui/components/modals/prompt-modal';
 import { CertificatesModal } from '~/ui/components/modals/workspace-certificates-modal';
 import { WorkspaceEnvironmentsEditModal } from '~/ui/components/modals/workspace-environments-edit-modal';
+import { type ImperativePanelGroupHandle, Panel, PanelGroup, PanelResizeHandle } from '~/ui/components/panes/resizable-panels';
 import { OrganizationTabList } from '~/ui/components/tabs/tab-list';
 import WorkspacePaneHeader from '~/ui/components/workspace/workspace-pane-header';
 import { useTabNavigate } from '~/ui/hooks/use-insomnia-tab';
