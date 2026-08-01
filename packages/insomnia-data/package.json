@@ -34,17 +34,17 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@seald-io/nedb": "^4.1.2",
+    "@seald-io/nedb": "4.1.2",
     "deep-equal": "2.2.3",
-    "fuzzysort": "^1.9.0",
-    "graphql": "^17.0.2",
-    "uuid": "^14.0.1"
+    "fuzzysort": "1.9.0",
+    "graphql": "17.0.2",
+    "uuid": "14.0.1"
   },
   "devDependencies": {
     "@getinsomnia/node-libcurl": "3.3.0",
-    "@modelcontextprotocol/sdk": "^1.30.0",
-    "@types/deep-equal": "^1.0.4",
-    "mocha": "^11.7.6",
-    "type-fest": "^5.8.0"
+    "@modelcontextprotocol/sdk": "1.30.0",
+    "@types/deep-equal": "1.0.4",
+    "mocha": "11.7.6",
+    "type-fest": "5.8.0"
   }
 }
