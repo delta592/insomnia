@@ -123,7 +123,7 @@
     "deep-equal": "2.2.3",
     "diff": "9.0.0",
     "diff-match-patch-ts": "2.0.0",
-    "dompurify": "3.4.12",
+    "dompurify": "3.4.13",
     "electron-context-menu": "4.1.2",
     "electron-updater": "6.8.9",
     "events": "3.3.0",
