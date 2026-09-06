@@ -42,13 +42,13 @@
     "deep-equal": "2.2.3",
     "fuzzysort": "3.1.0",
     "graphql": "17.0.2",
-    "uuid": "14.0.1"
+    "uuid": "14.0.2"
   },
   "devDependencies": {
-    "@getinsomnia/node-libcurl": "3.3.0",
+    "@getinsomnia/node-libcurl": "3.36.8",
     "@modelcontextprotocol/sdk": "1.30.0",
     "@types/deep-equal": "1.0.4",
-    "mocha": "11.7.6",
-    "type-fest": "5.8.0"
+    "mocha": "11.8.0",
+    "type-fest": "5.9.0"
   }
 }

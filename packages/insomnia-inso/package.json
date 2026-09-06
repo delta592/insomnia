@@ -54,7 +54,7 @@
   },
   "devDependencies": {
     "cross-env": "10.1.0",
-    "esbuild": "0.28.1",
+    "esbuild": "0.28.2",
     "esbuild-runner": "2.2.2",
     "shellwords": "1.1.1"
   },
@@ -63,7 +63,7 @@
     "@stoplight/spectral-core": "1.23.1",
     "@stoplight/spectral-formats": "1.8.5",
     "@stoplight/spectral-ruleset-bundler": "1.7.0",
-    "@stoplight/spectral-rulesets": "1.22.6",
+    "@stoplight/spectral-rulesets": "1.22.7",
     "@stoplight/types": "14.1.1",
     "commander": "15.0.0",
     "consola": "3.4.2",
@@ -73,7 +73,7 @@
     "enquirer": "2.4.1",
     "picocolors": "1.1.1",
     "string-argv": "0.3.2",
-    "uuid": "14.0.1",
+    "uuid": "14.0.2",
     "yaml": "2.9.0"
   }
 }
