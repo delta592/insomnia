@@ -222,7 +222,7 @@
     "@types/ws": "8.18.1",
     "@vitejs/plugin-react": "6.0.5",
     "cross-env": "10.1.0",
-    "electron": "43.2.0",
+    "electron": "43.5.0",
     "electron-builder": "26.15.3",
     "electron-builder-squirrel-windows": "26.15.3",
     "electron-devtools-installer": "4.0.0",
