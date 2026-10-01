@@ -94,7 +94,7 @@
     "log-symbols": {
       "is-unicode-supported": "0.1.0"
     },
-    "js-yaml": "5.2.2",
+    "js-yaml": "5.4.1",
     "mime-types": "3.0.2",
     "minimatch": "10.2.6",
     "protobufjs": "8.7.1",
