@@ -90,7 +90,7 @@
     "http-proxy-agent": "9.1.0",
     "https-proxy-agent": "9.1.0",
     "iconv-lite": "0.7.3",
-    "ip-address": "10.4.0",
+    "ip-address": "10.7.1",
     "log-symbols": {
       "is-unicode-supported": "0.1.0"
     },
