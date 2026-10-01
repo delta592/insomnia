@@ -78,7 +78,7 @@
     "@fortawesome/react-fontawesome": "3.5.0",
     "@getinsomnia/node-libcurl": "3.3.0",
     "@getinsomnia/srp-js": "1.0.0-alpha.1",
-    "@grpc/grpc-js": "1.14.4",
+    "@grpc/grpc-js": "1.14.5",
     "@grpc/proto-loader": "0.8.1",
     "@lezer/highlight": "1.2.3",
     "@react-aria/interactions": "3.28.1",
