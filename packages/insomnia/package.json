@@ -178,7 +178,7 @@
     "tinykeys": "4.0.0",
     "tough-cookie": "6.0.2",
     "tweetnacl": "1.0.3",
-    "undici": "8.9.0",
+    "undici": "8.10.2",
     "uuid": "14.0.1",
     "vkbeautify": "0.99.3",
     "ws": "8.21.1",
