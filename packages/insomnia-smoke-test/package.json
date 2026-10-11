@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "engines": {
     "node": "v26.5.1",
-    "npm": "12.0.2"
+    "npm": "12.2.0"
   },
   "repository": {
     "type": "git",
@@ -24,27 +24,27 @@
     "serve": "esr server/index.ts"
   },
   "devDependencies": {
-    "@playwright/test": "1.62.1",
+    "@playwright/test": "1.64.0",
     "@ravanallc/grpc-server-reflection": "0.1.6",
     "@types/express": "5.0.6",
-    "@types/oidc-provider": "9.11.0",
-    "@types/ws": "8.18.1",
+    "@types/oidc-provider": "9.12.1",
+    "@types/ws": "8.18.2",
     "cross-env": "10.1.0",
     "esbuild-runner": "2.2.2",
     "express": "5.2.1",
     "express-basic-auth": "1.2.1",
     "git-http-backend": "1.1.2",
     "graphql": "17.0.2",
-    "graphql-http": "1.22.4",
+    "graphql-http": "1.23.1",
     "http-errors": "2.0.1",
-    "oidc-provider": "9.11.1",
-    "socket.io": "4.8.3",
+    "oidc-provider": "9.12.2",
+    "socket.io": "4.8.4",
     "statuses": "2.0.2",
     "toidentifier": "1.0.1",
-    "uuid": "14.0.1",
-    "ws": "8.21.1",
+    "uuid": "14.0.2",
+    "ws": "8.22.0",
     "xvfb-maybe": "0.2.1",
-    "yaml": "2.9.0"
+    "yaml": "2.9.1"
   },
   "description": "[![Playwright](https://img.shields.io/badge/playwright-blue.svg?style=for-the-badge&logo=playwright)](https://github.com/microsoft/playwright)",
   "homepage": "https://github.com/Kong/insomnia#readme",
