@@ -82,7 +82,7 @@
   },
   "overrides": {
     "@stoplight/types": "14.1.1",
-    "@xmldom/xmldom": "0.9.10",
+    "@xmldom/xmldom": "0.9.12",
     "ajv-draft-04": {
       "ajv": "$ajv"
     },
