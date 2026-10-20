@@ -36,7 +36,7 @@
   "overrides": {
     "@babel/core": "8.0.1",
     "joi": "18.2.3",
-    "js-yaml": "5.2.2",
+    "js-yaml": "5.4.1",
     "serialize-javascript": "7.0.7",
     "uuid": "14.0.1"
   }
