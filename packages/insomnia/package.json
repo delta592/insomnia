@@ -235,7 +235,7 @@
     "tailwind-variants": "3.3.0",
     "tailwindcss": "4.3.3",
     "type-fest": "5.8.0",
-    "vite": "8.2.0"
+    "vite": "8.2.4"
   },
   "dev": {
     "dev-server-port": 3334
