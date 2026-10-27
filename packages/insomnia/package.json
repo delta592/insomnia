@@ -157,7 +157,7 @@
     "mocha": "11.7.6",
     "monaco-editor": "0.56.0",
     "multiparty": "4.3.0",
-    "node-forge": "1.4.0",
+    "node-forge": "1.4.1",
     "oauth-1.0a": "2.2.6",
     "objectpath": "2.0.0",
     "papaparse": "5.5.4",
